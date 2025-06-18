@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import {
   CAlert,
   CButton,
@@ -13,7 +13,7 @@ import {
   CInputGroup,
   CInputGroupText,
   CRow,
-  CImage
+  CImage,
 } from '@coreui/react'
 import CIcon from '@coreui/icons-react'
 import { cilLockLocked, cilUser } from '@coreui/icons'
@@ -94,10 +94,7 @@ const Login = () => {
               </CCard>
               <CCard className="bg-white py-5" style={{ width: '44%' }}>
                 <CCardBody className="text-center">
-                  <CImage fluid 
-                    src="/img/logo-sdl.png"
-                    alt="Logo"
-                  />
+                  <CImage fluid src="/img/logo-sdl.png" alt="Logo" />
                 </CCardBody>
               </CCard>
             </CCardGroup>
