@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux'
 
 import {
   CCloseButton,
+  CImage,
   CSidebar,
   CSidebarBrand,
   CSidebarFooter,
@@ -35,10 +36,9 @@ const AppSidebar = () => {
         dispatch({ type: 'set', sidebarShow: visible })
       }}
     >
-      <CSidebarHeader className="border-bottom">
+      <CSidebarHeader className="border-bottom d-flex justify-content-center">
         <CSidebarBrand to="/">
-          <CIcon customClassName="sidebar-brand-full" icon={logo} height={32} />
-          <CIcon customClassName="sidebar-brand-narrow" icon={sygnet} height={32} />
+          <CImage fluid src="/img/logo-sdl.png" alt="Logo" style={{ height: '50px' }} />
         </CSidebarBrand>
         <CCloseButton
           className="d-lg-none"

@@ -5,7 +5,7 @@ const AuthContext = createContext(null)
 
 export const AuthProvider = ({ children }) => {
   console.log(import.meta.env.VITE_BACKEND_URL)
-  const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL;
+  const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
   const [user, setUser] = useState(null)
   const [token, setToken] = useState(localStorage.getItem('token'))
 
@@ -69,7 +69,7 @@ export const AuthProvider = ({ children }) => {
       const exp = payload.exp * 1000 // Convert to milliseconds
       return Date.now() < exp
     } catch (e) {
-      return false
+      return e
     }
   }
 
