@@ -1,6 +1,7 @@
 import React from 'react'
 import Customer from './views/customer/Customer'
 import CustomerEdit from './views/customer/CustomerEdit'
+import CustomerPrint from './views/customer/CustomerPrint'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
@@ -58,6 +59,7 @@ const routes = [
   { path: '/dashboard', name: 'Dashboard', element: Dashboard },
   { path: '/customer', name: 'Customer', element: Customer },
   { path: '/customer/:id/edit', name: 'CustomerEdit', element: CustomerEdit },
+  { path: '/customer/:id/print', name: 'CustomerPrint', element: CustomerPrint },
 
   // Theme
   { path: '/theme', name: 'Theme', element: Colors, exact: true },
