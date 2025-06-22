@@ -1,4 +1,4 @@
-@use "@coreui/coreui/scss/coreui" as * with ( 
+@use "@coreui/coreui/scss/coreui" as * with (
   $enable-deprecation-messages: false,
 );
 @use "@coreui/chartjs/scss/coreui-chartjs";
@@ -6,6 +6,14 @@
 
 body {
   background-color: var(--cui-tertiary-bg);
+}
+
+.td-flex {
+  display: flex;
+  justify-content: space-between;
+}
+.td-flex span {
+  width: 50%;
 }
 
 .wrapper {

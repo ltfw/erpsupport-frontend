@@ -37,7 +37,7 @@ const CustomerEdit = () => {
   useEffect(() => {
     axios.get(`${ENDPOINT_URL}customers/${id}`).then((res) => {
       setData(res.data)
-      reset(res.data)      
+      reset(res.data)
     })
   }, [])
 
@@ -66,7 +66,9 @@ const CustomerEdit = () => {
                     {...register('customer.NamaLgn')}
                     size="sm"
                   />
-                  {errors.customer?.NamaLgn && <p style={{ color: 'red' }}>{errors.customer.NamaLgn.message}</p>}
+                  {errors.customer?.NamaLgn && (
+                    <p style={{ color: 'red' }}>{errors.customer.NamaLgn.message}</p>
+                  )}
                 </CCol>
                 <CCol md={6}>
                   <CFormInput
@@ -87,16 +89,36 @@ const CustomerEdit = () => {
 
                 <h5>Customer Address</h5>
                 <CCol md={6}>
-                  <CFormInput id="Alamat1" label="Alamat" {...register('customer.Alamat1')} size="sm" />
+                  <CFormInput
+                    id="Alamat1"
+                    label="Alamat"
+                    {...register('customer.Alamat1')}
+                    size="sm"
+                  />
                 </CCol>
                 <CCol md={6}>
-                  <CFormInput id="Province" label="Province" {...register('customer.Province')} size="sm" />
+                  <CFormInput
+                    id="Province"
+                    label="Province"
+                    {...register('customer.Province')}
+                    size="sm"
+                  />
                 </CCol>
                 <CCol md={6}>
-                  <CFormInput id="Regency" label="Regency" {...register('customer.Regency')} size="sm" />
+                  <CFormInput
+                    id="Regency"
+                    label="Regency"
+                    {...register('customer.Regency')}
+                    size="sm"
+                  />
                 </CCol>
                 <CCol md={6}>
-                  <CFormInput id="KodePos" label="KodePos" {...register('customer.KodePos')} size="sm" />
+                  <CFormInput
+                    id="KodePos"
+                    label="KodePos"
+                    {...register('customer.KodePos')}
+                    size="sm"
+                  />
                 </CCol>
                 <CCol md={6}>
                   <CFormInput
@@ -109,13 +131,28 @@ const CustomerEdit = () => {
 
                 <h5>Teritory</h5>
                 <CCol md={6}>
-                  <CFormInput id="KodeWil" label="Wilayah" {...register('customer.KodeWil')} size="sm" />
+                  <CFormInput
+                    id="KodeWil"
+                    label="Wilayah"
+                    {...register('customer.KodeWil')}
+                    size="sm"
+                  />
                 </CCol>
                 <CCol md={6}>
-                  <CFormInput id="Rayon" label="Rayon" {...register('rayonCustomer.RayonCode')} size="sm" />
+                  <CFormInput
+                    id="Rayon"
+                    label="Rayon"
+                    {...register('rayonCustomer.RayonCode')}
+                    size="sm"
+                  />
                 </CCol>
                 <CCol md={6}>
-                  <CFormInput id="Cabang" label="Branch/Site" {...register('customer.KodeDept')} size="sm" />
+                  <CFormInput
+                    id="Cabang"
+                    label="Branch/Site"
+                    {...register('customer.KodeDept')}
+                    size="sm"
+                  />
                 </CCol>
                 <CCol md={6}>
                   <CFormInput
@@ -126,7 +163,12 @@ const CustomerEdit = () => {
                   />
                 </CCol>
                 <CCol md={6}>
-                  <CFormInput id="Village" label="Teritory" {...register('customer.Village')} size="sm" />
+                  <CFormInput
+                    id="Village"
+                    label="Teritory"
+                    {...register('customer.Village')}
+                    size="sm"
+                  />
                 </CCol>
 
                 <h4>Billing</h4>
@@ -147,7 +189,12 @@ const CustomerEdit = () => {
                   />
                 </CCol>
                 <CCol md={6}>
-                  <CFormInput id="TaxId" label="Tax ID (NPWP)" {...register('customer.Npwp')} size="sm" />
+                  <CFormInput
+                    id="TaxId"
+                    label="Tax ID (NPWP)"
+                    {...register('customer.Npwp')}
+                    size="sm"
+                  />
                 </CCol>
                 <CCol md={6}>
                   <CFormInput
@@ -168,13 +215,29 @@ const CustomerEdit = () => {
                   />
                 </CCol>
                 <CCol md={6}>
-                  <CFormInput id="Address" label="Alamat*" {...register('customer.AlamatPajak')} size="sm" />
+                  <CFormInput
+                    id="Address"
+                    label="Alamat*"
+                    {...register('customer.AlamatPajak')}
+                    size="sm"
+                  />
                 </CCol>
                 <CCol md={6}>
-                  <CFormInput id="Phone" label="Telepon*" {...register('customer.Telepon')} size="sm" />
+                  <CFormInput
+                    id="Phone"
+                    label="Telepon*"
+                    {...register('customer.Telepon')}
+                    size="sm"
+                  />
                 </CCol>
                 <CCol md={6}>
-                  <CFormInput id="Nitku" label="NITKU*" value={`${data.customer?.Npwp || ''}${data.customer?.TkuId || ''}`} size="sm" disabled />
+                  <CFormInput
+                    id="Nitku"
+                    label="NITKU*"
+                    value={`${data.customer?.Npwp || ''}${data.customer?.TkuId || ''}`}
+                    size="sm"
+                    disabled
+                  />
                 </CCol>
 
                 <h4>Contact</h4>
@@ -198,7 +261,12 @@ const CustomerEdit = () => {
                   <CFormInput id="Email" label="Email" {...register('customer.Email')} size="sm" />
                 </CCol>
                 <CCol md={6}>
-                  <CFormInput id="Phone" label="Telpon/HP" {...register('customer.Telepon')} size="sm" />
+                  <CFormInput
+                    id="Phone"
+                    label="Telpon/HP"
+                    {...register('customer.Telepon')}
+                    size="sm"
+                  />
                 </CCol>
                 <CCol md={6}>
                   <CFormInput id="Fax" label="Fax" {...register('customer.Nofax')} size="sm" />
@@ -218,15 +286,34 @@ const CustomerEdit = () => {
                   </thead>
                   <tbody>
                     {(data.legalitasOutlet ?? [])
-                      .filter(item => item.PermissionTitleCode == 1)
+                      .filter((item) => item.PermissionTitleCode == 1)
                       .map((item, index) => (
                         <tr key={index}>
                           <td>{index + 1}</td>
                           <td>{item.CustomerGroupMasterPermissionName}</td>
-                          <td><CFormInput id="Fax" {...register(`legalitasOutlet.${index}.PermissionValue`)} size="sm" /></td>
-                          <td><CFormInput id="Fax" {...register(`legalitasOutlet.${index}.tglExpired`)} size="sm" type='date'/></td>
-                          <td className='text-center'><CButton color="primary" type="button" size="sm"><CIcon icon={cilFile} size="sm" /> </CButton></td>
-                          <td><CImage src={convertLocalPathToUrl(item.FilePath)} /></td>
+                          <td>
+                            <CFormInput
+                              id="Fax"
+                              {...register(`legalitasOutlet.${index}.PermissionValue`)}
+                              size="sm"
+                            />
+                          </td>
+                          <td>
+                            <CFormInput
+                              id="Fax"
+                              {...register(`legalitasOutlet.${index}.tglExpired`)}
+                              size="sm"
+                              type="date"
+                            />
+                          </td>
+                          <td className="text-center">
+                            <CButton color="primary" type="button" size="sm">
+                              <CIcon icon={cilFile} size="sm" />{' '}
+                            </CButton>
+                          </td>
+                          <td>
+                            <CImage src={convertLocalPathToUrl(item.FilePath)} />
+                          </td>
                         </tr>
                       ))}
                   </tbody>

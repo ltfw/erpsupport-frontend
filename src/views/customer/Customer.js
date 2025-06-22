@@ -6,7 +6,7 @@ import { useNavigate } from 'react-router-dom'
 import { DataTable } from 'src/components'
 import axios from 'axios'
 import CIcon from '@coreui/icons-react'
-import { cilPencil, cilTrash } from '@coreui/icons'
+import { cilPencil, cilPrint, cilTrash } from '@coreui/icons'
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 
 const Customer = () => {
@@ -16,9 +16,14 @@ const Customer = () => {
   const [perPage, setPerPage] = useState(10)
   const [page, setPage] = useState(1)
   const navigate = useNavigate()
+  const [search, setSearch] = useState('')
 
-  const handleEdit = (customerId) => {
-    navigate(`/customer/${customerId}/edit`)
+  // const handleEdit = (customerId) => {
+  //   navigate(`/customer/${customerId}/edit`)
+  // }
+
+  const handlePrint = (customerId) => {
+    navigate(`/customer/${customerId}/print`)
   }
 
   const column = [
@@ -71,7 +76,7 @@ const Customer = () => {
       name: 'Aksi', // Nama kolom
       cell: (row) => (
         <div className="d-grid gap-2 d-md-flex justify-content-md-end">
-          <button
+          {/* <button
             onClick={() => handleEdit(row.CustomerId)}
             className="btn btn-info text-white"
             size="sm"
@@ -84,6 +89,13 @@ const Customer = () => {
             size="sm"
           >
             <CIcon icon={cilTrash} size="sm" />
+          </button> */}
+          <button
+            onClick={() => handlePrint(row.CustomerId)}
+            className="btn btn-info text-white"
+            size="sm"
+          >
+            <CIcon icon={cilPrint} size="sm" />
           </button>
         </div>
       ),
@@ -94,11 +106,13 @@ const Customer = () => {
     },
   ]
 
-  const fetchCustomers = async (page) => {
+  const fetchCustomers = async (page, keyword = search) => {
     setLoading(true)
     setPage(page)
 
-    const response = await axios.get(`${ENDPOINT_URL}customers?page=${page}&per_page=${perPage}`)
+    const response = await axios.get(
+      `${ENDPOINT_URL}customers?page=${page}&per_page=${perPage}&search=${encodeURIComponent(keyword)}`,
+    )
 
     setData(response.data.data)
     setTotalRows(response.data.pagination.total)
@@ -112,7 +126,9 @@ const Customer = () => {
   const handlePerRowsChange = async (newPerPage, page) => {
     setLoading(true)
 
-    const response = await axios.get(`${ENDPOINT_URL}customers?page=${page}&per_page=${newPerPage}`)
+    const response = await axios.get(
+      `${ENDPOINT_URL}customers?page=${page}&per_page=${newPerPage}&search=${encodeURIComponent(search)}`,
+    )
 
     setData(response.data.data)
     setPerPage(newPerPage)
@@ -130,6 +146,19 @@ const Customer = () => {
           <CCard className="mb-4">
             <CCardHeader>Data Customers</CCardHeader>
             <CCardBody>
+              <div className="mb-3">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Search by name or code"
+                  value={search}
+                  onChange={(e) => {
+                    setSearch(e.target.value)
+                    fetchCustomers(1, e.target.value) // reset to page 1 on search
+                  }}
+                />
+              </div>
+
               <DataTable
                 dense
                 title="Customers List"

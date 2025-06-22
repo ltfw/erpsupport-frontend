@@ -2,6 +2,7 @@ import React from 'react'
 import Customer from './views/customer/Customer'
 import CustomerEdit from './views/customer/CustomerEdit'
 import CustomerPrint from './views/customer/CustomerPrint'
+import ProtectedRoute from './components/ProtectedRoute'
 
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
@@ -56,10 +57,42 @@ const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
 
 const routes = [
   { path: '/', exact: true, name: 'Home' },
-  { path: '/dashboard', name: 'Dashboard', element: Dashboard },
-  { path: '/customer', name: 'Customer', element: Customer },
-  { path: '/customer/:id/edit', name: 'CustomerEdit', element: CustomerEdit },
-  { path: '/customer/:id/print', name: 'CustomerPrint', element: CustomerPrint },
+  {
+    path: '/dashboard',
+    name: 'Dashboard',
+    element: (
+      <ProtectedRoute>
+        <Dashboard />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/customer',
+    name: 'Customer',
+    element: (
+      <ProtectedRoute>
+        <Customer />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/customer/:id/edit',
+    name: 'CustomerEdit',
+    element: (
+      <ProtectedRoute>
+        <CustomerEdit />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/customer/:id/print',
+    name: 'CustomerPrint',
+    element: (
+      <ProtectedRoute>
+        <CustomerPrint />
+      </ProtectedRoute>
+    ),
+  },
 
   // Theme
   { path: '/theme', name: 'Theme', element: Colors, exact: true },

@@ -5,6 +5,7 @@ import { useSelector } from 'react-redux'
 import { CSpinner, useColorModes } from '@coreui/react'
 import './scss/style.scss'
 import { AuthProvider } from './contexts/AuthContext'
+import GuestRoute from './components/GuestRoute'
 
 // We use those styles to show code examples, you should remove them in your application.
 // import './scss/examples.scss'
@@ -21,8 +22,6 @@ const Page500 = React.lazy(() => import('./views/pages/page500/Page500'))
 const App = () => {
   const { isColorModeSet, setColorMode } = useColorModes('coreui-free-react-admin-template-theme')
   const storedTheme = useSelector((state) => state.theme)
-
-  const isAuthenticated = false
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.href.split('?')[1])
@@ -50,13 +49,11 @@ const App = () => {
         >
           <Routes>
             <Route
-              path="/"
+              path="/login"
               element={
-                isAuthenticated ? (
-                  <Navigate to="/dashboard" replace />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
+                <GuestRoute>
+                  <Login />
+                </GuestRoute>
               }
             />
 
