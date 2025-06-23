@@ -52,6 +52,12 @@ const CustomerPrint = () => {
       .table th, .table td {
         padding: 5px;
       }
+      @media print {
+        .avoid-page-break {
+          break-inside: avoid;
+          page-break-inside: avoid; /* for compatibility */
+        }
+      }
     `,
     onBeforeGetContent: () => {
       if (!contentRef) {
@@ -366,15 +372,15 @@ const CustomerPrint = () => {
                         {(data.legalitasOutlet ?? []).some(
                           (item) => item.PermissionTitleCode == 1,
                         ) && (
-                          <tr>
-                            <td colSpan={3}>
-                              <strong>
-                                Surat Izin Customer (Diisi sesuai tipe customer group) melampirkan
-                                Fotocopy document
-                              </strong>
-                            </td>
-                          </tr>
-                        )}
+                            <tr>
+                              <td colSpan={3}>
+                                <strong>
+                                  Surat Izin Customer (Diisi sesuai tipe customer group) melampirkan
+                                  Fotocopy document
+                                </strong>
+                              </td>
+                            </tr>
+                          )}
                         {(data.legalitasOutlet ?? [])
                           .filter((item) => item.PermissionTitleCode == 1)
                           .map((item, index) => (
@@ -392,12 +398,12 @@ const CustomerPrint = () => {
                         {(data.legalitasOutlet ?? []).some(
                           (item) => item.PermissionTitleCode == 2,
                         ) && (
-                          <tr>
-                            <td colSpan={3}>
-                              <strong>Legalitas Penanggung Jawab</strong>
-                            </td>
-                          </tr>
-                        )}
+                            <tr>
+                              <td colSpan={3}>
+                                <strong>Legalitas Penanggung Jawab</strong>
+                              </td>
+                            </tr>
+                          )}
                         {(data.legalitasOutlet ?? [])
                           .filter((item) => item.PermissionTitleCode == 2)
                           .map((item, index) => (
@@ -415,12 +421,12 @@ const CustomerPrint = () => {
                         {(data.legalitasOutlet ?? []).some(
                           (item) => item.PermissionTitleCode == 3,
                         ) && (
-                          <tr>
-                            <td colSpan={3}>
-                              <strong>Legalitas Asisten / Pendamping Penanggung Jawab 1</strong>
-                            </td>
-                          </tr>
-                        )}
+                            <tr>
+                              <td colSpan={3}>
+                                <strong>Legalitas Asisten / Pendamping Penanggung Jawab 1</strong>
+                              </td>
+                            </tr>
+                          )}
                         {(data.legalitasOutlet ?? [])
                           .filter((item) => item.PermissionTitleCode == 3)
                           .map((item, index) => (
@@ -438,12 +444,12 @@ const CustomerPrint = () => {
                         {(data.legalitasOutlet ?? []).some(
                           (item) => item.PermissionTitleCode == 4,
                         ) && (
-                          <tr>
-                            <td colSpan={3}>
-                              <strong>Legalitas Pemilik / Pimpinan</strong>
-                            </td>
-                          </tr>
-                        )}
+                            <tr>
+                              <td colSpan={3}>
+                                <strong>Legalitas Pemilik / Pimpinan</strong>
+                              </td>
+                            </tr>
+                          )}
                         {(data.legalitasOutlet ?? [])
                           .filter((item) => item.PermissionTitleCode == 4)
                           .map((item, index) => (
@@ -462,7 +468,7 @@ const CustomerPrint = () => {
                     </table>
                   </CCol>
                 </CRow>
-                <CRow className="mt-5">
+                <CRow className="mt-5 avoid-page-break">
                   <CCol xs={2}>
                     <span className="fst-italic">*) diisi petugas</span>
                   </CCol>
