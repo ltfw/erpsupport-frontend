@@ -3,6 +3,7 @@ import { CCard, CCardBody, CCardHeader, CCol, CImage, CRow } from '@coreui/react
 import { useParams } from 'react-router-dom'
 import axios from 'axios'
 import { useReactToPrint } from 'react-to-print'
+import { convertLocalPathToUrl } from '../../utils/UrlConverter'
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 
 const CustomerPrint = () => {
@@ -40,10 +41,10 @@ const CustomerPrint = () => {
         margin: 1cm;
       }
       body {
-        font-size: 10pt !important;
+        font-size: 8pt !important;
       }
       .table, .table th, .table td {
-        font-size: 10pt !important;
+        font-size: 8pt !important;
       }
       .table {
         border-collapse: collapse;
@@ -97,7 +98,16 @@ const CustomerPrint = () => {
                     <h4>FORM VALIDASI CUSTOMER</h4>
                     <h5>PT SATORIA DISTRIBUSI LESTARI</h5>
                   </CCol>
-                  <CCol xs={2} className="text-end"></CCol>
+                  <CCol xs={2} className="text-end" style={{ fontSize: '0.5rem' }}>
+                    <CRow>
+                      <CCol xs={12}>
+                        <span>No 22009-02</span>
+                      </CCol>
+                      <CCol xs={12}>
+                        <span>No Revisi 000</span>
+                      </CCol>
+                    </CRow>
+                  </CCol>
                 </CRow>
                 <CRow className="mt-3">
                   <CCol xs={12}>
@@ -120,32 +130,32 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td>1</td>
+                          <td className='text-center'>1</td>
                           <td>Kode Customer*</td>
                           <td>{data.customer?.KodeLgn ?? ''}</td>
                         </tr>
                         <tr>
-                          <td>2</td>
+                          <td className='text-center'>2</td>
                           <td>Nama Customer</td>
-                          <td>{data.customer?.NamaLgn ?? ''}</td>
+                          <td>{`${data.customer?.NamaLgn ?? ''}, ${data.customer?.BusinessEntityName ?? ''}`}</td>
                         </tr>
 
                         <tr>
-                          <td>3</td>
+                          <td className='text-center'>3</td>
                           <td>Kode Farma</td>
                           <td>{data.customer?.NomorLgnBpom ?? ''}</td>
                         </tr>
                         <tr>
-                          <td>4</td>
+                          <td className='text-center'>4</td>
                           <td>Kode Alkes</td>
                           <td>{data.customer?.NomorLgnKemenkes ?? ''}</td>
                         </tr>
                         <tr>
-                          <td>5</td>
+                          <td className='text-center'>5</td>
                           <td colSpan={2}>Customer Address</td>
                         </tr>
                         <tr>
-                          <td></td>
+                          <td className='text-center'></td>
                           <td>a. Alamat</td>
                           <td className="td-flex">
                             <span>Lama : {data.customer?.Alamat1 ?? ''}</span>
@@ -153,7 +163,7 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td></td>
+                          <td className='text-center'></td>
                           <td>b. Regency / Kabupaten</td>
                           <td className="td-flex">
                             <span>Lama : {data.customer?.Regency ?? ''}</span>
@@ -161,7 +171,7 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td></td>
+                          <td className='text-center'></td>
                           <td>c. Province</td>
                           <td className="td-flex">
                             <span>Lama : {data.customer?.Province ?? ''}</span>
@@ -169,7 +179,7 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td></td>
+                          <td className='text-center'></td>
                           <td>d. Kode Pos</td>
                           <td className="td-flex">
                             <span>Lama : {data.customer?.KodePos ?? ''}</span>
@@ -177,7 +187,7 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td></td>
+                          <td className='text-center'></td>
                           <td>e. Kode Negara</td>
                           <td className="td-flex">
                             <span>Lama : {data.customer?.CountryCode ?? ''}</span>
@@ -185,11 +195,11 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td>6</td>
+                          <td className='text-center'>6</td>
                           <td colSpan={2}>Teritory</td>
                         </tr>
                         <tr>
-                          <td></td>
+                          <td className='text-center'></td>
                           <td>a. Wilayah*</td>
                           <td className="td-flex">
                             <span>Lama : {data.customer?.KodeWil ?? ''}</span>
@@ -197,23 +207,23 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td></td>
+                          <td className='text-center'></td>
                           <td>b. Rayon*</td>
                           <td className="td-flex">
-                            <span>Lama : {data.customer?.District ?? ''}</span>
+                            <span>Lama : {data.rayonCustomer?.RayonCode ?? ''}</span>
                             <span>Baru :</span>
                           </td>
                         </tr>
                         <tr>
-                          <td></td>
+                          <td className='text-center'></td>
                           <td>c. Branch / Site*</td>
                           <td className="td-flex">
-                            <span>Lama : {data.customer?.KodeDept ?? ''}</span>
+                            <span>Lama : {data.customer?.NamaDept ?? ''}</span>
                             <span>Baru :</span>
                           </td>
                         </tr>
                         <tr>
-                          <td></td>
+                          <td className='text-center'></td>
                           <td>d. District / Kecamatan*</td>
                           <td className="td-flex">
                             <span>Lama : {data.customer?.District ?? ''}</span>
@@ -221,7 +231,7 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td></td>
+                          <td className='text-center'></td>
                           <td>e. Village / Kelurahan*</td>
                           <td className="td-flex">
                             <span>Lama : {data.customer?.Village ?? ''}</span>
@@ -234,17 +244,17 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td>7</td>
+                          <td className='text-center'>7</td>
                           <td>Group Customer</td>
                           <td className="td-flex">
                             <span className="col">
-                              Lama : {data.customerGroup?.customerGroupName ?? ''}
+                              Lama : {data.customerGroup?.CustomerGroupCode ?? ''} ({data.customerGroup?.CustomerGroupName ?? ''})
                             </span>
                             <span>Baru :</span>
                           </td>
                         </tr>
                         <tr>
-                          <td>8</td>
+                          <td className='text-center'>8</td>
                           <td>Badan Usaha</td>
                           <td className="td-flex">
                             <span className="col">
@@ -254,7 +264,7 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td>9</td>
+                          <td className='text-center'>9</td>
                           <td>Kode Transaksi Pajak*</td>
                           <td className="td-flex">
                             <span className="col">
@@ -264,7 +274,7 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td>10</td>
+                          <td className='text-center'>10</td>
                           <td>No NPWP</td>
                           <td className="td-flex">
                             <span>Lama : {data.customer?.Npwp ?? ''}</span>
@@ -272,7 +282,7 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td>11</td>
+                          <td className='text-center'>11</td>
                           <td>Nama Customer Induk*</td>
                           <td className="td-flex">
                             <span className="col">
@@ -282,11 +292,11 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td>12</td>
+                          <td className='text-center'>12</td>
                           <td colSpan={2}>Informasi NPWP Customer</td>
                         </tr>
                         <tr>
-                          <td></td>
+                          <td className='text-center'></td>
                           <td>a. Nama NPWP*</td>
                           <td className="td-flex">
                             <span>Lama : {data.customer?.NpwpOwner ?? ''}</span>
@@ -294,15 +304,15 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td></td>
+                          <td className='text-center'></td>
                           <td>b. Alamat NPWP*</td>
                           <td className="td-flex">
-                            <span>Lama : {data.customer?.AlamatFaktur ?? ''}</span>
+                            <span>Lama : {data.customer?.AlamatPajak ?? ''}</span>
                             <span>Baru :</span>
                           </td>
                         </tr>
                         <tr>
-                          <td></td>
+                          <td className='text-center'></td>
                           <td>c. Telepon* </td>
                           <td className="td-flex">
                             <span>Lama : {data.customer?.Telepon ?? ''}</span>
@@ -310,7 +320,7 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td></td>
+                          <td className='text-center'></td>
                           <td>d. NITKU*</td>
                           <td>{`${data.customer?.Npwp ?? ''}${data.customer?.TkuId ?? ''}`}</td>
                         </tr>
@@ -320,7 +330,7 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td>13</td>
+                          <td className='text-center'>13</td>
                           <td>Nama Kontak</td>
                           <td className="td-flex">
                             <span>Lama : {data.customer?.NamaPemilik ?? ''}</span>
@@ -328,7 +338,7 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td>14</td>
+                          <td className='text-center'>14</td>
                           <td>Contact Person</td>
                           <td className="td-flex">
                             <span className="col">
@@ -338,7 +348,7 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td>15</td>
+                          <td className='text-center'>15</td>
                           <td>Jabatan</td>
                           <td className="td-flex">
                             <span>Lama : {data.customer?.Jabatan ?? ''}</span>
@@ -346,7 +356,7 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td>16</td>
+                          <td className='text-center'>16</td>
                           <td>Email</td>
                           <td className="td-flex">
                             <span>Lama : {data.customer?.Email ?? ''}</span>
@@ -354,7 +364,7 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td>17</td>
+                          <td className='text-center'>17</td>
                           <td>Telepon</td>
                           <td className="td-flex">
                             <span>Lama : {data.customer?.Telepon ?? ''}</span>
@@ -362,7 +372,7 @@ const CustomerPrint = () => {
                           </td>
                         </tr>
                         <tr>
-                          <td>18</td>
+                          <td className='text-center'>18</td>
                           <td>Fax</td>
                           <td className="td-flex">
                             <span>Lama : {data.customer?.NoFax ?? ''}</span>
@@ -390,7 +400,19 @@ const CustomerPrint = () => {
                                 {index + 1}. {item.CustomerGroupMasterPermissionName}
                               </td>
                               <td className="td-flex">
-                                <span>Lama : {item.PermissionValue}</span>
+                                <span>
+                                  Lama : {item.PermissionValue}
+                                  {item.IsUseExpiredDate === true && (
+                                    <span style={{ display: 'block' }}>
+                                      Tgl Expired : {item.tglExpired}
+                                    </span>
+                                  )}
+                                  {item.CustomerGroupMasterPermissionCode === "ZC013" && (
+                                    <span style={{ display: 'block' }}>
+                                      <CImage src={convertLocalPathToUrl(item.FilePath)} style={{ maxWidth: '100%' }}/>
+                                    </span>
+                                  )}
+                                </span>
                                 <span>Baru :</span>
                               </td>
                             </tr>
@@ -413,7 +435,19 @@ const CustomerPrint = () => {
                                 {index + 1}. {item.CustomerGroupMasterPermissionName}
                               </td>
                               <td className="td-flex">
-                                <span>Lama : {item.PermissionValue}</span>
+                                <span>
+                                  Lama : {item.PermissionValue}
+                                  {item.IsUseExpiredDate === true && (
+                                    <span style={{ display: 'block' }}>
+                                      Tgl Expired : {item.tglExpired}
+                                    </span>
+                                  )}
+                                  {item.CustomerGroupMasterPermissionCode === "ZC013" && (
+                                    <span style={{ display: 'block' }}>
+                                      <CImage src={convertLocalPathToUrl(item.FilePath)} style={{ maxWidth: '100%' }}/>
+                                    </span>
+                                  )}
+                                </span>
                                 <span>Baru :</span>
                               </td>
                             </tr>
@@ -436,7 +470,19 @@ const CustomerPrint = () => {
                                 {index + 1}. {item.CustomerGroupMasterPermissionName}
                               </td>
                               <td className="td-flex">
-                                <span>Lama : {item.PermissionValue}</span>
+                                <span>
+                                  Lama : {item.PermissionValue}
+                                  {item.IsUseExpiredDate === true && (
+                                    <span style={{ display: 'block' }}>
+                                      Tgl Expired : {item.tglExpired}
+                                    </span>
+                                  )}
+                                  {item.CustomerGroupMasterPermissionCode === "ZC013" && (
+                                    <span style={{ display: 'block' }}>
+                                      <CImage src={convertLocalPathToUrl(item.FilePath)} style={{ maxWidth: '100%' }}/>
+                                    </span>
+                                  )}
+                                </span>
                                 <span>Baru :</span>
                               </td>
                             </tr>
@@ -459,7 +505,19 @@ const CustomerPrint = () => {
                                 {index + 1}. {item.CustomerGroupMasterPermissionName}
                               </td>
                               <td className="td-flex">
-                                <span>Lama : {item.PermissionValue}</span>
+                                <span>
+                                  Lama : {item.PermissionValue}
+                                  {item.IsUseExpiredDate === true && (
+                                    <span style={{ display: 'block' }}>
+                                      Tgl Expired : {item.tglExpired}
+                                    </span>
+                                  )}
+                                  {item.CustomerGroupMasterPermissionCode === "ZC013" && (
+                                    <span style={{ display: 'block' }}>
+                                      <CImage src={convertLocalPathToUrl(item.FilePath)} style={{ maxWidth: '100%' }}/>
+                                    </span>
+                                  )}
+                                </span>
                                 <span>Baru :</span>
                               </td>
                             </tr>
@@ -502,7 +560,7 @@ const CustomerPrint = () => {
                     </div>
                   </CCol>
                 </CRow>
-                <CRow className="justify-content-around" style={{ marginTop: '100px' }}>
+                <CRow className="justify-content-around  avoid-page-break" style={{paddingTop: '100px' }}>
                   <CCol xs={3} className="text-center">
                     <CRow>
                       <CCol xs={12}>(_________________________)</CCol>
@@ -525,27 +583,21 @@ const CustomerPrint = () => {
                     </CRow>
                   </CCol>
                 </CRow>
-                <CRow>
-                  {/* <CCol xs={2}></CCol> */}
-                  <CCol xs={3} className="ms-auto" style={{ marginTop: '100px' }}>
-                    <div className="text-end" style={{ fontSize: '0.5rem' }}>
-                      <CRow>
-                        <CCol xs={12}>
-                          <span>No 22009-02</span>
-                        </CCol>
-                        <CCol xs={12}>
-                          <span>No Revisi 000</span>
-                        </CCol>
-                      </CRow>
-                    </div>
-                  </CCol>
-                </CRow>
               </div>
             </CCardBody>
           </CCard>
         </CCol>
       </CRow>
       {new Date().toLocaleDateString()}
+      <button
+        className="fab-print"
+        onClick={handlePrint}
+        disabled={!isReady}
+        aria-label="Print"
+        title="Print"
+      >
+        🖨️
+      </button>
     </>
   )
 }

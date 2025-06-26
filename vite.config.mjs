@@ -40,6 +40,8 @@ export default defineConfig(() => {
       extensions: ['.mjs', '.js', '.ts', '.jsx', '.tsx', '.json', '.scss'],
     },
     server: {
+      host: '0.0.0.0',
+      allowedHosts: ['7477-182-253-50-14.ngrok-free.app', 'localhost','10.252.198.100'],
       port: 3000,
       proxy: {
         // https://vitejs.dev/config/server-options.html

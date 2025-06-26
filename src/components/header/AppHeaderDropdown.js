@@ -26,7 +26,7 @@ import CIcon from '@coreui/icons-react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../../contexts/AuthContext'
 
-import avatar8 from './../../assets/images/avatars/8.jpg'
+import avatar8 from './../../assets/images/avatars/avatar_def.png'
 
 const AppHeaderDropdown = () => {
   const { logout } = useAuth()

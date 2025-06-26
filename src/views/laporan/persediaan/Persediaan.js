@@ -9,7 +9,7 @@ import CIcon from '@coreui/icons-react'
 import { cilPencil, cilPrint, cilTrash } from '@coreui/icons'
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 
-const Customer = () => {
+const Persediaan = () => {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
   const [totalRows, setTotalRows] = useState(0)
@@ -181,4 +181,4 @@ const Customer = () => {
   )
 }
 
-export default Customer
+export default Persediaan

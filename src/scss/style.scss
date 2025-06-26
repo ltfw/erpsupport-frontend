@@ -4,6 +4,34 @@
 @use "@coreui/chartjs/scss/coreui-chartjs";
 @use "vendors/simplebar";
 
+/* Add to your CSS file */
+.fab-print {
+  position: fixed;
+  bottom: 32px;
+  right: 32px;
+  z-index: 9999;
+  background: #0d6efd;
+  color: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 56px;
+  height: 56px;
+  font-size: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.fab-print:disabled {
+  background: #aaa;
+  cursor: not-allowed;
+}
+.fab-print:hover:not(:disabled) {
+  background: #0b5ed7;
+}
+
 body {
   background-color: var(--cui-tertiary-bg);
 }

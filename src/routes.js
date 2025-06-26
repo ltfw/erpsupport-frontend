@@ -1,9 +1,11 @@
 import React from 'react'
-import Customer from './views/customer/Customer'
-import CustomerEdit from './views/customer/CustomerEdit'
-import CustomerPrint from './views/customer/CustomerPrint'
-import ProtectedRoute from './components/ProtectedRoute'
-
+const Customer = React.lazy(() => import('./views/customer/Customer'))
+const CustomerEdit = React.lazy(() => import('./views/customer/CustomerEdit'))
+const CustomerPrint = React.lazy(() => import('./views/customer/CustomerPrint'))
+const ProtectedRoute = React.lazy(() => import('./components/ProtectedRoute'))
+const Penjualan = React.lazy(() => import('./views/laporan/penjualan/Penjualan'))
+const Persediaan = React.lazy(() => import('./views/laporan/persediaan/Persediaan'))
+// Dashboard
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
@@ -93,6 +95,24 @@ const routes = [
       </ProtectedRoute>
     ),
   },
+  {
+    path: '/report/sales',
+    name: 'Penjualan',
+    element: (
+      <ProtectedRoute>
+        <Penjualan />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/report/stock',
+    name: 'Persediaan Barang',
+    element: (
+      <ProtectedRoute>
+        <Persediaan />
+      </ProtectedRoute>
+    ),
+  },
 
   // Theme
   { path: '/theme', name: 'Theme', element: Colors, exact: true },
@@ -135,7 +155,7 @@ const routes = [
   { path: '/notifications', name: 'Notifications', element: Alerts, exact: true },
   { path: '/notifications/alerts', name: 'Alerts', element: Alerts },
   { path: '/notifications/badges', name: 'Badges', element: Badges },
-  { path: '/notifications/modals', name: 'Modals', element: Modals },
+  { path: '/notifications/modals', name: 'Modals', element: (<Modals /> )},
   { path: '/notifications/toasts', name: 'Toasts', element: Toasts },
   { path: '/widgets', name: 'Widgets', element: Widgets },
 ]
