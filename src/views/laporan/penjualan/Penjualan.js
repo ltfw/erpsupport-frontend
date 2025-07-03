@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import Select from 'react-select'
 
 import { CCard, CCardBody, CCardHeader, CCol, CRow } from '@coreui/react'
 import { useNavigate } from 'react-router-dom'
@@ -20,6 +21,12 @@ const Penjualan = () => {
   const [page, setPage] = useState(1)
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
+
+  const [deptOptions, setDeptOptions] = useState([])
+  const [selectedDept, setSelectedDept] = useState([{ value: '', label: 'Semua Cabang' }]);
+  const [supplierOptions, setSupplierOptions] = useState([])
+  const [selectedSupplier, setSelectedSupplier] = useState([{ value: '', label: 'Semua Principal' }]);
+
 
   const column = [
     {
@@ -287,7 +294,57 @@ const Penjualan = () => {
     setLoading(false)
   }
 
+  const fetchDepts = async () => {
+    try {
+      const response = await axios.get(`${ENDPOINT_URL}departments`)
+      console.log('response.data', response.data.data)
+      const options = response.data.data.map((dept) => ({
+        value: dept.KodeDept,
+        label: dept.NamaDept,
+      }))
+      setDeptOptions([{ value: '', label: 'Semua Cabang' }, ...options]);
+    } catch (error) {
+      setDeptOptions([])
+    }
+  }
+
+  const handleDeptChange = (selected) => {
+    // If "Semua Cabang" is selected, ignore other selections
+    if (selected && selected.find(opt => opt.value === '')) {
+      setSelectedDept([{ value: '', label: 'Semua Cabang' }]);
+    } else if (!selected || selected.length === 0) {
+      setSelectedDept([]); // Now allow clearing all selections
+    } else {
+      setSelectedDept(selected);
+    }
+  };
+
+  const fetchPrincipals = async () => {
+    try {
+      const response = await axios.get(`${ENDPOINT_URL}principals`)
+      console.log('response.data', response.data.data)
+      const options = response.data.data.map((item) => ({
+        value: item.VendorId,
+        label: item.KodeLgn+'-'+item.NamaLgn,
+      }))
+      setDeptOptions([{ value: '', label: 'Semua Principal' }, ...options]);
+    } catch (error) {
+      setDeptOptions([])
+    }
+  }
+
+  const handlePrincipalChange = (selected) => {
+    if (selected && selected.find(opt => opt.value === '')) {
+      setSelectedDept([{ value: '', label: 'Semua Principal' }]);
+    } else if (!selected || selected.length === 0) {
+      setSelectedDept([]); 
+    } else {
+      setSelectedDept(selected);
+    }
+  };
+
   useEffect(() => {
+    fetchDepts()
     fetchSales(1) // fetch page 1 of users
   }, [])
 
@@ -393,8 +450,43 @@ const Penjualan = () => {
             <CCardBody>
               <div className="mb-3">
                 <CRow>
-                  <CCol xs={12} sm={4}>
-                    
+                  <CCol xs={12} sm={3}>
+                    <Select
+                      options={deptOptions}
+                      value={selectedDept}
+                      isMulti
+                      onChange={handleDeptChange}
+                      placeholder="Pilih Cabang"
+                      isClearable
+                    />
+                  </CCol>
+                  <CCol xs={12} sm={3}>
+                    <Select
+                      options={supplierOptions}
+                      value={selectedSupplier}
+                      isMulti
+                      onChange={handlePrincipalChange}
+                      placeholder="Pilih Supplier"
+                      isClearable
+                    />
+                  </CCol>
+                  <CCol xs={12} sm={3}>
+                    <Select
+                      options={deptOptions}
+                      value={selectedDept}
+                      onChange={setSelectedDept}
+                      placeholder="Pilih Cabang"
+                      isClearable
+                    />
+                  </CCol>
+                  <CCol xs={12} sm={3}>
+                    <Select
+                      options={deptOptions}
+                      value={selectedDept}
+                      onChange={setSelectedDept}
+                      placeholder="Pilih Cabang"
+                      isClearable
+                    />
                   </CCol>
                 </CRow>
               </div>
