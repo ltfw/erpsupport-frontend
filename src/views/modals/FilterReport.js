@@ -39,12 +39,6 @@ const FilterReport = ({ visible, onClose, onExport }) => {
                         <option value="3">Three</option>
                       </CFormSelect>
                     </CCol>
-                    <CFormSelect aria-label="Default select example">
-                      <option>Open this select menu</option>
-                      <option value="1">One</option>
-                      <option value="2">Two</option>
-                      <option value="3">Three</option>
-                    </CFormSelect>
                   </CRow>
                 </CCardBody>
               </CCard>

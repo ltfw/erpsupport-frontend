@@ -250,6 +250,12 @@ const Penjualan = () => {
       sortable: true,
       wrap: true,
     },
+    {
+      name: 'Nama Promosi',
+      selector: (row) => row.PromotionName,
+      sortable: true,
+      wrap: true,
+    },
   ];
 
   const fetchSales = async (page, keyword = search) => {
@@ -385,6 +391,13 @@ const Penjualan = () => {
                 Export Excel
               </button></CCardHeader>
             <CCardBody>
+              <div className="mb-3">
+                <CRow>
+                  <CCol xs={12} sm={4}>
+                    
+                  </CCol>
+                </CRow>
+              </div>
               <div className="mb-3">
                 <input
                   type="text"
