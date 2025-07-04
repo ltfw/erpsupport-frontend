@@ -24,9 +24,10 @@ const Penjualan = () => {
 
   const [deptOptions, setDeptOptions] = useState([])
   const [selectedDept, setSelectedDept] = useState([{ value: '', label: 'Semua Cabang' }]);
-  const [supplierOptions, setSupplierOptions] = useState([])
-  const [selectedSupplier, setSelectedSupplier] = useState([{ value: '', label: 'Semua Principal' }]);
-
+  const [principalOptions, setPrincipalOptions] = useState([])
+  const [selectedPrincipal, setSelectedPrincipal] = useState([{ value: '', label: 'Semua Principal' }]);
+  const [stockOptions, setStockOptions] = useState([])
+  const [selectedStock, setSelectedStock] = useState([{ value: '', label: 'Semua Barang' }]);
 
   const column = [
     {
@@ -327,25 +328,51 @@ const Penjualan = () => {
         value: item.VendorId,
         label: item.KodeLgn+'-'+item.NamaLgn,
       }))
-      setDeptOptions([{ value: '', label: 'Semua Principal' }, ...options]);
+      setPrincipalOptions([{ value: '', label: 'Semua Principal' }, ...options]);
     } catch (error) {
-      setDeptOptions([])
+      setPrincipalOptions([])
     }
   }
 
   const handlePrincipalChange = (selected) => {
     if (selected && selected.find(opt => opt.value === '')) {
-      setSelectedDept([{ value: '', label: 'Semua Principal' }]);
+      setSelectedPrincipal([{ value: '', label: 'Semua Principal' }]);
     } else if (!selected || selected.length === 0) {
-      setSelectedDept([]); 
+      setSelectedPrincipal([]); 
     } else {
-      setSelectedDept(selected);
+      setSelectedPrincipal(selected);
+    }
+  };
+
+  const fetchStocks = async () => {
+    try {
+      const response = await axios.get(`${ENDPOINT_URL}stocks`)
+      console.log('response.data', response.data.data)
+      const options = response.data.data.map((item) => ({
+        value: item.KodeItem,
+        label: item.KodeItem+'-'+item.NamaBarang,
+      }))
+      setPrincipalOptions([{ value: '', label: 'Semua Barang' }, ...options]);
+    } catch (error) {
+      setPrincipalOptions([])
+    }
+  }
+
+  const handleStockChange = (selected) => {
+    if (selected && selected.find(opt => opt.value === '')) {
+      setSelectedPrincipal([{ value: '', label: 'Semua Barang' }]);
+    } else if (!selected || selected.length === 0) {
+      setSelectedPrincipal([]); 
+    } else {
+      setSelectedPrincipal(selected);
     }
   };
 
   useEffect(() => {
     fetchDepts()
     fetchSales(1) // fetch page 1 of users
+    fetchPrincipals()
+    fetchStocks()
   }, [])
 
   const exportToExcel = async () => {
@@ -462,8 +489,8 @@ const Penjualan = () => {
                   </CCol>
                   <CCol xs={12} sm={3}>
                     <Select
-                      options={supplierOptions}
-                      value={selectedSupplier}
+                      options={principalOptions}
+                      value={selectedPrincipal}
                       isMulti
                       onChange={handlePrincipalChange}
                       placeholder="Pilih Supplier"
@@ -472,9 +499,10 @@ const Penjualan = () => {
                   </CCol>
                   <CCol xs={12} sm={3}>
                     <Select
-                      options={deptOptions}
-                      value={selectedDept}
-                      onChange={setSelectedDept}
+                      options={stockOptions}
+                      value={selectedStock}
+                      isMulti
+                      onChange={handleStockChange}
                       placeholder="Pilih Cabang"
                       isClearable
                     />
