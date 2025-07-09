@@ -342,7 +342,7 @@ const CustomerPrint = () => {
                           <td>Contact Person</td>
                           <td className="td-flex">
                             <span className="col">
-                              Lama : {data.customer?.HubunganDengan ?? ''}
+                              Lama : {data.customer?.HubungDengan ?? ''}
                             </span>
                             <span>Baru :</span>
                           </td>
@@ -375,7 +375,7 @@ const CustomerPrint = () => {
                           <td className='text-center'>18</td>
                           <td>Fax</td>
                           <td className="td-flex">
-                            <span>Lama : {data.customer?.NoFax ?? ''}</span>
+                            <span>Lama : {data.customer?.Nofax ?? ''}</span>
                             <span>Baru :</span>
                           </td>
                         </tr>

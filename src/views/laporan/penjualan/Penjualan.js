@@ -11,6 +11,9 @@ import axios from 'axios'
 import CIcon from '@coreui/icons-react'
 import { cilPencil, cilPrint, cilSpreadsheet, cilTrash } from '@coreui/icons'
 import FilterReport from '../../modals/FilterReport'
+import BarangSelector from '../../modals/BarangSelector'
+import CabangSelector from '../../modals/CabangSelector'
+import SupplierSelector from '../../modals/SupplierSelector'
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 
 const Penjualan = () => {
@@ -22,12 +25,9 @@ const Penjualan = () => {
   const navigate = useNavigate()
   const [search, setSearch] = useState('')
 
-  const [deptOptions, setDeptOptions] = useState([])
-  const [selectedDept, setSelectedDept] = useState([{ value: '', label: 'Semua Cabang' }]);
-  const [principalOptions, setPrincipalOptions] = useState([])
-  const [selectedPrincipal, setSelectedPrincipal] = useState([{ value: '', label: 'Semua Principal' }]);
-  const [stockOptions, setStockOptions] = useState([])
-  const [selectedStock, setSelectedStock] = useState([{ value: '', label: 'Semua Barang' }]);
+  const [selectedBarang, setSelectedBarang] = useState([])
+  const [selectedCabang, setSelectedCabang] = useState([]);
+  const [selectedSupplier, setSelectedSupplier] = useState([]);
 
   const column = [
     {
@@ -266,13 +266,26 @@ const Penjualan = () => {
     },
   ];
 
-  const fetchSales = async (page, keyword = search) => {
+  const fetchSales = async (page, keyword = '', cabangIds=[],supplierIds=[], barangIds=[]) => {
+    console.log('fetchSales called with page:', page, 'keyword:', keyword, 'cabangIds:', cabangIds, 'barangIds:', barangIds)
     setLoading(true)
     setPage(page)
 
-    const response = await axios.get(
-      `${ENDPOINT_URL}sales?page=${page}&per_page=${perPage}&search=${encodeURIComponent(keyword)}`,
-    )
+    const params = new URLSearchParams()
+    params.append('page', page)
+    params.append('per_page', perPage)
+    if (keyword) params.append('search', keyword)
+    if (cabangIds.length > 0) {
+      params.append('cabang', cabangIds.join(',')) // or whatever your API expects
+    }
+    if (supplierIds.length > 0) {
+      params.append('cabang', supplierIds.join(',')) // or whatever your API expects
+    }
+    if (barangIds.length > 0) {
+      params.append('barang', barangIds.join(',')) // or whatever your API expects
+    }
+
+    const response = await axios.get(`${ENDPOINT_URL}sales?${params.toString()}`)
 
     setData(response.data.data)
     setTotalRows(response.data.pagination.total)
@@ -295,85 +308,11 @@ const Penjualan = () => {
     setLoading(false)
   }
 
-  const fetchDepts = async () => {
-    try {
-      const response = await axios.get(`${ENDPOINT_URL}departments`)
-      console.log('response.data', response.data.data)
-      const options = response.data.data.map((dept) => ({
-        value: dept.KodeDept,
-        label: dept.NamaDept,
-      }))
-      setDeptOptions([{ value: '', label: 'Semua Cabang' }, ...options]);
-    } catch (error) {
-      setDeptOptions([])
-    }
-  }
-
-  const handleDeptChange = (selected) => {
-    // If "Semua Cabang" is selected, ignore other selections
-    if (selected && selected.find(opt => opt.value === '')) {
-      setSelectedDept([{ value: '', label: 'Semua Cabang' }]);
-    } else if (!selected || selected.length === 0) {
-      setSelectedDept([]); // Now allow clearing all selections
-    } else {
-      setSelectedDept(selected);
-    }
-  };
-
-  const fetchPrincipals = async () => {
-    try {
-      const response = await axios.get(`${ENDPOINT_URL}principals`)
-      console.log('response.data', response.data.data)
-      const options = response.data.data.map((item) => ({
-        value: item.VendorId,
-        label: item.KodeLgn+'-'+item.NamaLgn,
-      }))
-      setPrincipalOptions([{ value: '', label: 'Semua Principal' }, ...options]);
-    } catch (error) {
-      setPrincipalOptions([])
-    }
-  }
-
-  const handlePrincipalChange = (selected) => {
-    if (selected && selected.find(opt => opt.value === '')) {
-      setSelectedPrincipal([{ value: '', label: 'Semua Principal' }]);
-    } else if (!selected || selected.length === 0) {
-      setSelectedPrincipal([]); 
-    } else {
-      setSelectedPrincipal(selected);
-    }
-  };
-
-  const fetchStocks = async () => {
-    try {
-      const response = await axios.get(`${ENDPOINT_URL}stocks`)
-      console.log('response.data', response.data.data)
-      const options = response.data.data.map((item) => ({
-        value: item.KodeItem,
-        label: item.KodeItem+'-'+item.NamaBarang,
-      }))
-      setPrincipalOptions([{ value: '', label: 'Semua Barang' }, ...options]);
-    } catch (error) {
-      setPrincipalOptions([])
-    }
-  }
-
-  const handleStockChange = (selected) => {
-    if (selected && selected.find(opt => opt.value === '')) {
-      setSelectedPrincipal([{ value: '', label: 'Semua Barang' }]);
-    } else if (!selected || selected.length === 0) {
-      setSelectedPrincipal([]); 
-    } else {
-      setSelectedPrincipal(selected);
-    }
-  };
-
   useEffect(() => {
-    fetchDepts()
-    fetchSales(1) // fetch page 1 of users
-    fetchPrincipals()
-    fetchStocks()
-  }, [])
+    fetchSales(1,'',selectedCabang, selectedSupplier, selectedBarang) // fetch page 1 of users
+    // fetchDepts()
+    // fetchPrincipals()
+  }, [selectedCabang, selectedSupplier, selectedBarang])
 
   const exportToExcel = async () => {
     try {
@@ -477,44 +416,34 @@ const Penjualan = () => {
             <CCardBody>
               <div className="mb-3">
                 <CRow>
-                  <CCol xs={12} sm={3}>
-                    <Select
-                      options={deptOptions}
-                      value={selectedDept}
-                      isMulti
-                      onChange={handleDeptChange}
-                      placeholder="Pilih Cabang"
-                      isClearable
+                  <CCol xs={12} sm={3} className='d-grid'>
+                    <CabangSelector
+                      onSelect={(items) => {
+                        console.log('Selected items:', items)
+                        setSelectedCabang(items)
+                      }}
                     />
                   </CCol>
-                  <CCol xs={12} sm={3}>
-                    <Select
-                      options={principalOptions}
-                      value={selectedPrincipal}
-                      isMulti
-                      onChange={handlePrincipalChange}
-                      placeholder="Pilih Supplier"
-                      isClearable
-                    />
+                  <CCol xs={12} sm={3} className='d-grid'>
+                    <SupplierSelector onSelect={(items) => {
+                      console.log('Selected items:', items)
+                      setSelectedSupplier(items)
+                    }} />
+                  </CCol>
+                  <CCol xs={12} sm={3} className='d-grid'>
+                    <BarangSelector onSelect={(items) => {
+                      console.log('Selected items:', items)
+                      setSelectedBarang(items)
+                    }} />
                   </CCol>
                   <CCol xs={12} sm={3}>
-                    <Select
-                      options={stockOptions}
-                      value={selectedStock}
-                      isMulti
-                      onChange={handleStockChange}
-                      placeholder="Pilih Cabang"
-                      isClearable
-                    />
-                  </CCol>
-                  <CCol xs={12} sm={3}>
-                    <Select
+                    {/* <Select
                       options={deptOptions}
                       value={selectedDept}
                       onChange={setSelectedDept}
                       placeholder="Pilih Cabang"
                       isClearable
-                    />
+                    /> */}
                   </CCol>
                 </CRow>
               </div>
