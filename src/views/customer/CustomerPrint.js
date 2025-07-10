@@ -385,8 +385,7 @@ const CustomerPrint = () => {
                             <tr>
                               <td colSpan={3}>
                                 <strong>
-                                  Surat Izin Customer (Diisi sesuai tipe customer group) melampirkan
-                                  Fotocopy document
+                                  Surat Izin Customer (Diisi sesuai tipe customer group) melampirkan Fotocopy document
                                 </strong>
                               </td>
                             </tr>
@@ -407,9 +406,9 @@ const CustomerPrint = () => {
                                       Tgl Expired : {item.tglExpired}
                                     </span>
                                   )}
-                                  {item.CustomerGroupMasterPermissionCode === "ZC013" && (
+                                  {item.IsUploadFile === true && (
                                     <span style={{ display: 'block' }}>
-                                      <CImage src={convertLocalPathToUrl(item.FilePath)} style={{ maxWidth: '100%' }}/>
+                                      <CImage src={convertLocalPathToUrl(item.FilePath)} style={{ maxWidth: '200px' }}/>
                                     </span>
                                   )}
                                 </span>
@@ -442,9 +441,9 @@ const CustomerPrint = () => {
                                       Tgl Expired : {item.tglExpired}
                                     </span>
                                   )}
-                                  {item.CustomerGroupMasterPermissionCode === "ZC013" && (
+                                  {item.IsUploadFile === true && (
                                     <span style={{ display: 'block' }}>
-                                      <CImage src={convertLocalPathToUrl(item.FilePath)} style={{ maxWidth: '100%' }}/>
+                                      <CImage src={convertLocalPathToUrl(item.FilePath)} style={{ maxWidth: '200px' }}/>
                                     </span>
                                   )}
                                 </span>
@@ -477,9 +476,9 @@ const CustomerPrint = () => {
                                       Tgl Expired : {item.tglExpired}
                                     </span>
                                   )}
-                                  {item.CustomerGroupMasterPermissionCode === "ZC013" && (
+                                  {item.IsUploadFile === true && (
                                     <span style={{ display: 'block' }}>
-                                      <CImage src={convertLocalPathToUrl(item.FilePath)} style={{ maxWidth: '100%' }}/>
+                                      <CImage src={convertLocalPathToUrl(item.FilePath)} style={{ maxWidth: '200px' }}/>
                                     </span>
                                   )}
                                 </span>
@@ -512,9 +511,9 @@ const CustomerPrint = () => {
                                       Tgl Expired : {item.tglExpired}
                                     </span>
                                   )}
-                                  {item.CustomerGroupMasterPermissionCode === "ZC013" && (
+                                  {item.IsUploadFile === true && (
                                     <span style={{ display: 'block' }}>
-                                      <CImage src={convertLocalPathToUrl(item.FilePath)} style={{ maxWidth: '100%' }}/>
+                                      <CImage src={convertLocalPathToUrl(item.FilePath)} style={{ maxWidth: '200px' }}/>
                                     </span>
                                   )}
                                 </span>
