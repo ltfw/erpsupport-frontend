@@ -5,6 +5,7 @@ const CustomerPrint = React.lazy(() => import('./views/customer/CustomerPrint'))
 const ProtectedRoute = React.lazy(() => import('./components/ProtectedRoute'))
 const Penjualan = React.lazy(() => import('./views/laporan/penjualan/Penjualan'))
 const Persediaan = React.lazy(() => import('./views/laporan/persediaan/Persediaan'))
+const ImportPajak = React.lazy(() => import('./views/tools/ImportPajak'))
 // Dashboard
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
@@ -110,6 +111,15 @@ const routes = [
     element: (
       <ProtectedRoute>
         <Persediaan />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/tools/importpajak',
+    name: 'Import Faktur Pajak',
+    element: (
+      <ProtectedRoute>
+        <ImportPajak />
       </ProtectedRoute>
     ),
   },

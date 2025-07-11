@@ -18,23 +18,38 @@ const _nav = [
 
 // If not production, add more menu items
 if (mode !== 'production') {
-  _nav.push({
-    component: CNavGroup,
-    name: 'Daftar Laporan',
-    icon: <CIcon icon={cilChart} customClassName="nav-icon" />,
-    items: [
-      {
-        component: CNavItem,
-        name: 'Penjualan',
-        to: '/report/sales',
-      },
-      {
-        component: CNavItem,
-        name: 'Persediaan Barang',
-        to: '/report/stock',
-      },
-    ],
-  })
+  _nav.push(
+    {
+      component: CNavGroup,
+      name: 'Daftar Laporan',
+      icon: <CIcon icon={cilChart} customClassName="nav-icon" />,
+      items: [
+        {
+          component: CNavItem,
+          name: 'Penjualan',
+          to: '/report/sales',
+        },
+        {
+          component: CNavItem,
+          name: 'Persediaan Barang',
+          to: '/report/stock',
+        },
+      ],
+    },
+    {
+      component: CNavGroup,
+      name: 'Tools',
+      icon: <CIcon icon={cilApplications} customClassName="nav-icon" />,
+      items: [
+        {
+          component: CNavItem,
+          name: 'Import Faktur Pajak',
+          to: '/tools/importpajak',
+        },
+      ],
+    },
+  )
 }
 
-export default _nav
+
+  export default _nav

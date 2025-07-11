@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import Select from 'react-select'
+import DatePicker from '../../base/datepicker/DatePicker'
 
 import { CCard, CCardBody, CCardHeader, CCol, CRow } from '@coreui/react'
 import { useNavigate } from 'react-router-dom'
@@ -14,6 +14,7 @@ import FilterReport from '../../modals/FilterReport'
 import BarangSelector from '../../modals/BarangSelector'
 import CabangSelector from '../../modals/CabangSelector'
 import SupplierSelector from '../../modals/SupplierSelector'
+import { getCurrentDateFormatted, getFirstDayOfMonthFormatted } from '../../../utils/Date'
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 
 const Penjualan = () => {
@@ -28,6 +29,8 @@ const Penjualan = () => {
   const [selectedBarang, setSelectedBarang] = useState([])
   const [selectedCabang, setSelectedCabang] = useState([]);
   const [selectedSupplier, setSelectedSupplier] = useState([]);
+  const [startDate, setStartDate] = useState(getFirstDayOfMonthFormatted());
+  const [endDate, setEndDate] = useState(getCurrentDateFormatted());
 
   const column = [
     {
@@ -266,8 +269,8 @@ const Penjualan = () => {
     },
   ];
 
-  const fetchSales = async (page, keyword = '', cabangIds=[],supplierIds=[], barangIds=[]) => {
-    console.log('fetchSales called with page:', page, 'keyword:', keyword, 'cabangIds:', cabangIds, 'barangIds:', barangIds)
+  const fetchSales = async (page, keyword = '', cabangIds = [], supplierIds = [], barangIds = [], startDate = null, endDate = null) => {
+    console.log('fetchSales called with page:', page, 'keyword:', keyword, 'cabangIds:', cabangIds, 'barangIds:', barangIds, 'startDate:', startDate, 'endDate:', endDate)
     setLoading(true)
     setPage(page)
 
@@ -283,6 +286,12 @@ const Penjualan = () => {
     }
     if (barangIds.length > 0) {
       params.append('barang', barangIds.join(',')) // or whatever your API expects
+    }
+    if (startDate) {
+      params.append('start_date', startDate)
+    }
+    if (endDate) {
+      params.append('end_date', endDate)
     }
 
     const response = await axios.get(`${ENDPOINT_URL}sales?${params.toString()}`)
@@ -309,10 +318,10 @@ const Penjualan = () => {
   }
 
   useEffect(() => {
-    fetchSales(1,'',selectedCabang, selectedSupplier, selectedBarang) // fetch page 1 of users
-    // fetchDepts()
-    // fetchPrincipals()
-  }, [selectedCabang, selectedSupplier, selectedBarang])
+    if (startDate && endDate) {
+      fetchSales(1, '', selectedCabang, selectedSupplier, selectedBarang, startDate, endDate)
+    }
+  }, [selectedCabang, selectedSupplier, selectedBarang, startDate, endDate])
 
   const exportToExcel = async () => {
     try {
@@ -416,7 +425,7 @@ const Penjualan = () => {
             <CCardBody>
               <div className="mb-3">
                 <CRow>
-                  <CCol xs={12} sm={3} className='d-grid'>
+                  <CCol xs={12} sm={2} className='d-grid'>
                     <CabangSelector
                       onSelect={(items) => {
                         console.log('Selected items:', items)
@@ -424,26 +433,23 @@ const Penjualan = () => {
                       }}
                     />
                   </CCol>
-                  <CCol xs={12} sm={3} className='d-grid'>
+                  <CCol xs={12} sm={2} className='d-grid'>
                     <SupplierSelector onSelect={(items) => {
                       console.log('Selected items:', items)
                       setSelectedSupplier(items)
                     }} />
                   </CCol>
-                  <CCol xs={12} sm={3} className='d-grid'>
+                  <CCol xs={12} sm={2} className='d-grid'>
                     <BarangSelector onSelect={(items) => {
                       console.log('Selected items:', items)
                       setSelectedBarang(items)
                     }} />
                   </CCol>
-                  <CCol xs={12} sm={3}>
-                    {/* <Select
-                      options={deptOptions}
-                      value={selectedDept}
-                      onChange={setSelectedDept}
-                      placeholder="Pilih Cabang"
-                      isClearable
-                    /> */}
+                  <CCol xs={12} sm={2}>
+                    <DatePicker onChange={setStartDate} value={startDate} />
+                  </CCol>
+                  <CCol xs={12} sm={2}>
+                    <DatePicker onChange={setEndDate} value={endDate} />
                   </CCol>
                 </CRow>
               </div>
