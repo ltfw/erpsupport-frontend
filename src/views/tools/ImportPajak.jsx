@@ -1,5 +1,7 @@
-import { useState } from 'react'
-import Papa from 'papaparse'
+import { useRef, useState } from 'react'
+import * as XLSX from 'xlsx'
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import {
   CButton,
   CCard,
@@ -21,59 +23,70 @@ import axios from 'axios'
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 
 const ImportPajak = () => {
-  const [csvFile, setCsvFile] = useState(null)
+  const [excelFile, setExcelFile] = useState(null)
   const [parsedData, setParsedData] = useState([])
+  const fileInputRef = useRef();
 
   const handleFileChange = (e) => {
-    setCsvFile(e.target.files[0])
+    setExcelFile(e.target.files[0])
   }
 
-  const handleParseCsv = () => {
-    if (!csvFile) return
+  const handleParseExcel = async (e) => {
+    if (!excelFile) return
 
-    Papa.parse(csvFile, {
-      header: true,
-      skipEmptyLines: true,
-      complete: (result) => {
-        // Assuming the CSV has columns: TaxInvoiceYear, Signer, TaxInvoiceCode
-        const cleaned = result.data.map((row) => ({
-          TaxInvoiceYear: row.TaxInvoiceYear,
-          Signer: row.Signer,
-          TaxInvoiceCode: row.TaxInvoiceCode,
-        }))
-        console.log('Parsed CSV Data:', cleaned)
-        setParsedData(cleaned)
-      },
-    })
+    const file = excelFile
+    const data = await file.arrayBuffer()
+    const workbook = XLSX.read(data)
+
+    const worksheet = workbook.Sheets[workbook.SheetNames[0]]
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' })
+    // Only keep desired columns
+    const cleanedData = jsonData
+      .filter(row => row['Status Faktur'] === 'APPROVED')
+      .map((row) => ({
+        TaxInvoiceNumber: row['Nomor Faktur Pajak'] || '',
+        TaxStatus: row['Status Faktur'] || '',
+        TaxReference: row['Referensi'] || '',
+      }))
+    console.log('Parsed Data:', cleanedData)
+    setParsedData(cleanedData)
   }
 
   const handleUpload = async () => {
     try {
-      await axios.post(`${ENDPOINT_URL}import-pajak`, parsedData)
-      alert('Data imported successfully')
+      await axios.post(`${ENDPOINT_URL}others/importcoretax`, {
+        data: parsedData
+      });
+      toast.success('Data imported successfully')
+      setExcelFile(null)
+      setParsedData([])
+      fileInputRef.current.value = null;
+
     } catch (err) {
-      console.error(err)
-      alert('Failed to import data')
+      console.error(err);
+      toast.error('Failed to import data');
     }
   }
 
   return (
     <>
+      <ToastContainer />
       <CRow>
         <CCol xs>
           <CCard className="mb-4">
             <CCardHeader>Import Pajak</CCardHeader>
             <CCardBody>
               <CRow className="mb-3">
-                <CFormLabel htmlFor="formFile" className="col-sm-1 col-form-label">
-                  Pilih CSV
+                <CFormLabel htmlFor="formFile" className="col-sm-2 col-form-label">
+                  Pilih EXCEL
                 </CFormLabel>
                 <CCol xs={3}>
-                  <CFormInput type="file" id="formFile" accept=".csv" onChange={handleFileChange} />
+                  <CFormInput type="file" id="formFile" accept=".xlsx" onChange={handleFileChange} 
+                  ref={fileInputRef}/>
                 </CCol>
                 <CCol xs={2}>
-                  <CButton color="primary" onClick={handleParseCsv}>
-                    Preview CSV
+                  <CButton color="primary" onClick={handleParseExcel}>
+                    Preview EXCEL
                   </CButton>
                 </CCol>
               </CRow>
@@ -83,18 +96,20 @@ const ImportPajak = () => {
                   <CTable striped>
                     <CTableHead>
                       <CTableRow>
-                        <CTableHeaderCell>TaxInvoiceYear</CTableHeaderCell>
-                        <CTableHeaderCell>Signer</CTableHeaderCell>
-                        <CTableHeaderCell>TaxInvoiceCode</CTableHeaderCell>
+                        <CTableHeaderCell>Tax Invoice Number</CTableHeaderCell>
+                        <CTableHeaderCell>Status</CTableHeaderCell>
+                        <CTableHeaderCell>No Invoice</CTableHeaderCell>
                       </CTableRow>
                     </CTableHead>
                     <CTableBody>
                       {parsedData.map((item, idx) => (
                         <CTableRow key={idx}>
-                          <CTableDataCell>{item.TaxInvoiceYear}</CTableDataCell>
-                          <CTableDataCell>{item.Signer}</CTableDataCell>
                           <CTableDataCell>
-                            <CFormInput value={item.TaxInvoiceCode}/>
+                            <CFormInput value={item.TaxInvoiceNumber} />
+                          </CTableDataCell>
+                          <CTableDataCell>{item.TaxStatus}</CTableDataCell>
+                          <CTableDataCell>
+                            <CFormInput value={item.TaxReference} />
                           </CTableDataCell>
                         </CTableRow>
                       ))}

@@ -37,7 +37,6 @@
     "core-js": "^3.40.0",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
-    "papaparse": "^5.5.3",
     "prop-types": "^15.8.1",
     "react": "^19.0.0",
     "react-data-table-component": "^7.7.0",
@@ -47,9 +46,11 @@
     "react-router-dom": "^7.1.5",
     "react-select": "^5.10.1",
     "react-to-print": "^3.1.0",
+    "react-toastify": "^11.0.5",
     "redux": "5.0.1",
     "simplebar-react": "^3.3.0",
-    "styled-components": "^6.1.19"
+    "styled-components": "^6.1.19",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^4.3.4",

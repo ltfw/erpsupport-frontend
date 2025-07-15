@@ -6,6 +6,7 @@ const ProtectedRoute = React.lazy(() => import('./components/ProtectedRoute'))
 const Penjualan = React.lazy(() => import('./views/laporan/penjualan/Penjualan'))
 const Persediaan = React.lazy(() => import('./views/laporan/persediaan/Persediaan'))
 const ImportPajak = React.lazy(() => import('./views/tools/ImportPajak'))
+const Rekualifikasi = React.lazy(() => import('./views/customer/Rekualifikasi'))
 // Dashboard
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
@@ -70,7 +71,7 @@ const routes = [
     ),
   },
   {
-    path: '/customer',
+    path: '/customer/customers',
     name: 'Customer',
     element: (
       <ProtectedRoute>
@@ -120,6 +121,15 @@ const routes = [
     element: (
       <ProtectedRoute>
         <ImportPajak />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/customer/requalify',
+    name: 'Rekualifikasi Customer',
+    element: (
+      <ProtectedRoute>
+        <Rekualifikasi />
       </ProtectedRoute>
     ),
   },
