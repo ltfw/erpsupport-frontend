@@ -5,7 +5,8 @@ import { CNavGroup, CNavItem } from '@coreui/react'
 // Get the mode from env
 const mode = import.meta.env.VITE_APP_MODE || 'development'
 
-const _nav = [
+// Base menu always present
+const baseNav = [
   {
     component: CNavGroup,
     name: 'Customer',
@@ -16,49 +17,53 @@ const _nav = [
         name: 'Data Customer',
         to: '/customer/customers',
       },
-      {
+      // Only show Rekualifikasi Customer if not production
+      ...(mode !== 'production' ? [{
         component: CNavItem,
         name: 'Rekualifikasi Customer',
         to: '/customer/requalify',
+      }] : []),
+    ],
+  },
+  {
+    component: CNavGroup,
+    name: 'Tools',
+    icon: <CIcon icon={cilApplications} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Import Faktur Pajak',
+        to: '/tools/importpajak',
       },
     ],
   },
 ]
 
-// If not production, add more menu items
-if (mode !== 'production') {
-  _nav.push(
-    {
-      component: CNavGroup,
-      name: 'Daftar Laporan',
-      icon: <CIcon icon={cilChart} customClassName="nav-icon" />,
-      items: [
-        {
-          component: CNavItem,
-          name: 'Penjualan',
-          to: '/report/sales',
-        },
-        {
-          component: CNavItem,
-          name: 'Persediaan Barang',
-          to: '/report/stock',
-        },
-      ],
-    },
-    {
-      component: CNavGroup,
-      name: 'Tools',
-      icon: <CIcon icon={cilApplications} customClassName="nav-icon" />,
-      items: [
-        {
-          component: CNavItem,
-          name: 'Import Faktur Pajak',
-          to: '/tools/importpajak',
-        },
-      ],
-    },
-  )
-}
+// Additional menu only for non-production
+const devNav = (mode !== 'production') ? [
+  {
+    component: CNavGroup,
+    name: 'Daftar Laporan',
+    icon: <CIcon icon={cilChart} customClassName="nav-icon" />,
+    items: [
+      {
+        component: CNavItem,
+        name: 'Penjualan',
+        to: '/report/sales',
+      },
+      {
+        component: CNavItem,
+        name: 'Persediaan Barang',
+        to: '/report/stock',
+      },
+    ],
+  },
+] : []
 
+// Final nav
+const _nav = [
+  ...baseNav,
+  ...devNav,
+]
 
 export default _nav
