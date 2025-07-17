@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect,usenav } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {
   CButton,
   CModal,
@@ -33,6 +34,7 @@ const Rekualifikasi = ({ onSelect }) => {
   const [customerList, setCustomerList] = useState([])
   const [totalPages, setTotalPages] = useState(1)
 
+  const navigate = useNavigate()
 
   // Fetch Customer data
   useEffect(() => {
@@ -54,7 +56,7 @@ const Rekualifikasi = ({ onSelect }) => {
           <CCard className="mb-4">
             <CCardHeader>Data Customers</CCardHeader>
             <CCardBody>
-              <CRow className="g-1">
+              <CRow className="g-1 mb-3">
                 <CCol xs={2}>
                   <CFormSelect onChange={(e) => {
                     setPage(1)
@@ -66,7 +68,7 @@ const Rekualifikasi = ({ onSelect }) => {
                     <option value="10000">All</option>
                   </CFormSelect>
                 </CCol>
-                <CCol xs={8} className="mb-3">
+                <CCol xs={8}>
                   <CFormInput
                     type="text"
                     placeholder="Search Customer..."
@@ -75,8 +77,17 @@ const Rekualifikasi = ({ onSelect }) => {
                       setSearch(e.target.value)
                       setPage(1)
                     }}
-                    className="mb-3"
                   />
+                </CCol>
+                <CCol xs={2} className="d-grid gap-2">
+                  <CButton
+                    color="primary"
+                    onClick={() => {
+                      navigate('/customer/requalify/add')
+                    }}
+                  >
+                    Add New
+                  </CButton>
                 </CCol>
               </CRow>
 
@@ -90,7 +101,6 @@ const Rekualifikasi = ({ onSelect }) => {
                     <CTableHeaderCell scope="col">Salesman</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Periode</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Edit</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Delete</CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
                 <CTableBody>

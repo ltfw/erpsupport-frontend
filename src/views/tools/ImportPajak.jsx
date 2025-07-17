@@ -105,11 +105,25 @@ const ImportPajak = () => {
                       {parsedData.map((item, idx) => (
                         <CTableRow key={idx}>
                           <CTableDataCell>
-                            <CFormInput value={item.TaxInvoiceNumber} />
+                            <CFormInput
+                              value={item.TaxInvoiceNumber}
+                              onChange={e => {
+                                const newData = [...parsedData];
+                                newData[idx].TaxInvoiceNumber = e.target.value;
+                                setParsedData(newData);
+                              }}
+                            />
                           </CTableDataCell>
                           <CTableDataCell>{item.TaxStatus}</CTableDataCell>
                           <CTableDataCell>
-                            <CFormInput value={item.TaxReference} />
+                            <CFormInput
+                              value={item.TaxReference}
+                              onChange={e => {
+                                const newData = [...parsedData];
+                                newData[idx].TaxReference = e.target.value;
+                                setParsedData(newData);
+                              }}
+                            />
                           </CTableDataCell>
                         </CTableRow>
                       ))}

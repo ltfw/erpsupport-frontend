@@ -1,4 +1,5 @@
 import React from 'react'
+import RekualifikasiAdd from './views/customer/RekualifikasiAdd'
 const Customer = React.lazy(() => import('./views/customer/Customer'))
 const CustomerEdit = React.lazy(() => import('./views/customer/CustomerEdit'))
 const CustomerPrint = React.lazy(() => import('./views/customer/CustomerPrint'))
@@ -130,6 +131,15 @@ const routes = [
     element: (
       <ProtectedRoute>
         <Rekualifikasi />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/customer/requalify/add',
+    name: 'Form Rekualifikasi Customer',
+    element: (
+      <ProtectedRoute>
+        <RekualifikasiAdd />
       </ProtectedRoute>
     ),
   },
