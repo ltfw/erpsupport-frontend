@@ -8,6 +8,7 @@ import {
   CCardBody,
   CCardHeader,
   CCol,
+  CFormCheck,
   CFormInput,
   CFormLabel,
   CRow,
@@ -27,6 +28,13 @@ const ImportPajak = () => {
   const [parsedData, setParsedData] = useState([])
   const fileInputRef = useRef();
 
+  // Props for radio buttons
+  const radioOptions = [
+    { id: 'radio1', label: 'Penjualan', value: 'penjualan' },
+    { id: 'radio2', label: 'Retur', value: 'retur' },
+  ];
+  const [selectedRadio, setSelectedRadio] = useState(radioOptions[0].value);
+
   const handleFileChange = (e) => {
     setExcelFile(e.target.files[0])
   }
@@ -41,21 +49,34 @@ const ImportPajak = () => {
     const worksheet = workbook.Sheets[workbook.SheetNames[0]]
     const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' })
     // Only keep desired columns
-    const cleanedData = jsonData
-      .filter(row => row['Status Faktur'] === 'APPROVED')
-      .map((row) => ({
-        TaxInvoiceNumber: row['Nomor Faktur Pajak'] || '',
-        TaxStatus: row['Status Faktur'] || '',
-        TaxReference: row['Referensi'] || '',
-      }))
-    console.log('Parsed Data:', cleanedData)
-    setParsedData(cleanedData)
+    if( selectedRadio === 'penjualan') {
+      const cleanedData = jsonData
+        .filter(row => row['Status Faktur'] === 'APPROVED')
+        .map((row) => ({
+          TaxInvoiceNumber: row['Nomor Faktur Pajak'] || '',
+          TaxStatus: row['Status Faktur'] || '',
+          TaxReference: row['Referensi'] || '',
+        }))
+      console.log('Parsed Data:', cleanedData)
+      setParsedData(cleanedData)
+    }else if (selectedRadio === 'retur') {
+      const cleanedData = jsonData
+        .filter(row => row['Status'] === 'APPROVED')
+        .map((row) => ({
+          TaxInvoiceNumber: row['Nomor Faktur'] || '',
+          TaxStatus: row['Status'] || '',
+          TaxReturNumber: row['Nomor Retur'] || '',
+        }))
+      console.log('Parsed Data:', cleanedData)
+      setParsedData(cleanedData)
+    }
   }
 
   const handleUpload = async () => {
     try {
       await axios.post(`${ENDPOINT_URL}others/importcoretax`, {
-        data: parsedData
+        data: parsedData,
+        tipe: selectedRadio,
       });
       toast.success('Data imported successfully')
       setExcelFile(null)
@@ -76,15 +97,34 @@ const ImportPajak = () => {
           <CCard className="mb-4">
             <CCardHeader>Import Pajak</CCardHeader>
             <CCardBody>
-              <CRow className="mb-3">
+              <CRow className="mb-3 align-items-center">
                 <CFormLabel htmlFor="formFile" className="col-sm-2 col-form-label">
                   Pilih EXCEL
                 </CFormLabel>
                 <CCol xs={3}>
-                  <CFormInput type="file" id="formFile" accept=".xlsx" onChange={handleFileChange} 
-                  ref={fileInputRef}/>
+                  <CFormInput
+                    type="file"
+                    id="formFile"
+                    accept=".xlsx"
+                    onChange={handleFileChange}
+                    ref={fileInputRef}
+                  />
                 </CCol>
-                <CCol xs={2}>
+                <CCol xs="auto" className="d-flex align-items-center gap-2">
+                  {radioOptions.map(option => (
+                    <CFormCheck
+                      key={option.id}
+                      type="radio"
+                      id={option.id}
+                      name="radioType"
+                      label={option.label}
+                      value={option.value}
+                      checked={selectedRadio === option.value}
+                      onChange={() => setSelectedRadio(option.value)}
+                    />
+                  ))}
+                </CCol>
+                <CCol xs="auto">
                   <CButton color="primary" onClick={handleParseExcel}>
                     Preview EXCEL
                   </CButton>
@@ -98,7 +138,9 @@ const ImportPajak = () => {
                       <CTableRow>
                         <CTableHeaderCell>Tax Invoice Number</CTableHeaderCell>
                         <CTableHeaderCell>Status</CTableHeaderCell>
-                        <CTableHeaderCell>No Invoice</CTableHeaderCell>
+                        <CTableHeaderCell>
+                          {selectedRadio === 'penjualan' ? 'No Invoice' : 'No Retur'}
+                        </CTableHeaderCell>
                       </CTableRow>
                     </CTableHead>
                     <CTableBody>
@@ -116,14 +158,25 @@ const ImportPajak = () => {
                           </CTableDataCell>
                           <CTableDataCell>{item.TaxStatus}</CTableDataCell>
                           <CTableDataCell>
-                            <CFormInput
-                              value={item.TaxReference}
-                              onChange={e => {
-                                const newData = [...parsedData];
-                                newData[idx].TaxReference = e.target.value;
-                                setParsedData(newData);
-                              }}
-                            />
+                            {selectedRadio === 'penjualan' ? (
+                              <CFormInput
+                                value={item.TaxReference}
+                                onChange={e => {
+                                  const newData = [...parsedData];
+                                  newData[idx].TaxReference = e.target.value;
+                                  setParsedData(newData);
+                                }}
+                              />
+                            ) : (
+                              <CFormInput
+                                value={item.TaxReturNumber}
+                                onChange={e => {
+                                  const newData = [...parsedData];
+                                  newData[idx].TaxReturNumber = e.target.value;
+                                  setParsedData(newData);
+                                }}
+                              />
+                            )}
                           </CTableDataCell>
                         </CTableRow>
                       ))}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import Select from 'react-select'
+import { toast, ToastContainer } from 'react-toastify';
 import {
   CButton,
   CModal,
@@ -40,8 +41,16 @@ const RekualifikasiAdd = () => {
     const response = await axios.get(
       `${ENDPOINT_URL}customers/rayoncustomer?rayon=${rayonValue}&group=${groupValue}`
     )
-    console.log('response.data', response.data)
-    setCustomerData(response.data.data)
+    const dataWithDefaults = response.data.data.map(item => ({
+      ...item,
+      BawaSalesman: item.BawaSalesman || false,
+      SudahBalik: item.SudahBalik || false,
+      SudahUpdate: item.SudahUpdate || false,
+      SudahLengkap: item.SudahLengkap || false,
+    }))
+    console.log('dataWithDefaults', dataWithDefaults)
+    console.log('First item:', dataWithDefaults[0]) // Log the first item specifically
+    setCustomerData(dataWithDefaults)
   }
 
   const fetchSalesman = async () => {
@@ -73,6 +82,20 @@ const RekualifikasiAdd = () => {
     setGroupOptions(options)
   }
 
+  const handleSave = async () => {
+    try {
+      console.log('Saving customerData:', customerData)
+      // await axios.post(`${ENDPOINT_URL}customer/rayoncustomer`, {
+      //   data: customerData
+      // });
+      // toast.success('Data saved successfully')
+      // setCustomerData([]) // Clear the data after saving
+    } catch (err) {
+      console.error(err);
+      toast.error('Failed to import data');
+    }
+  }
+
   useEffect(() => {
     fetchSalesman()
     fetchGroup()
@@ -80,6 +103,7 @@ const RekualifikasiAdd = () => {
 
   return (
     <>
+      <ToastContainer />
       <CRow>
         <CCol xs>
           <CCard className="mb-4">
@@ -102,10 +126,18 @@ const RekualifikasiAdd = () => {
                 </CCol>
                 <CCol xs={2} className="d-grid gap-2">
                   <CButton
-                    color="primary"
+                    color="info"
                     onClick={fetchRayonCustomer}
                   >
                     Load Data
+                  </CButton>
+                </CCol>
+                <CCol xs={2} className="d-grid gap-2">
+                  <CButton
+                    color="primary"
+                    onClick={handleSave}
+                  >
+                    Save Data
                   </CButton>
                 </CCol>
               </CRow>
