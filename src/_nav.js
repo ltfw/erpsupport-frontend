@@ -18,7 +18,7 @@ const useNav = () => {
       component: CNavGroup,
       name: 'Customer',
       icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
-      roles: ['ADM', 'FAT'],
+      roles: ['ADM', 'FAS'],
       items: [
         {
           component: CNavItem,
@@ -40,7 +40,7 @@ const useNav = () => {
       component: CNavGroup,
       name: 'Tools',
       icon: <CIcon icon={cilApplications} customClassName="nav-icon" />,
-      roles: ['ADM', 'FAT'],
+      roles: ['ADM', 'FAS'],
       items: [
         {
           component: CNavItem,
@@ -53,7 +53,7 @@ const useNav = () => {
       component: CNavGroup,
       name: 'Daftar Laporan',
       icon: <CIcon icon={cilChart} customClassName="nav-icon" />,
-      roles: ['ADM', 'MKT-SANI (JABAR)', 'MKT-SANI (JATIM)',  'MKT-SANI (JATENG)', 'FAT'],
+      roles: ['ADM', 'MKT-SANI (JABAR)', 'MKT-SANI (JATIM)',  'MKT-SANI (JATENG)', 'FAS'],
       items: [
         {
           component: CNavItem,
