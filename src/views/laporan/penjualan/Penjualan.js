@@ -282,7 +282,7 @@ const Penjualan = () => {
       params.append('cabang', cabangIds.join(',')) // or whatever your API expects
     }
     if (supplierIds.length > 0) {
-      params.append('cabang', supplierIds.join(',')) // or whatever your API expects
+      params.append('vendor', supplierIds.join(',')) // or whatever your API expects
     }
     if (barangIds.length > 0) {
       params.append('barang', barangIds.join(',')) // or whatever your API expects
@@ -325,10 +325,30 @@ const Penjualan = () => {
 
   const exportToExcel = async () => {
     try {
-      // Fetch all data (adjust per_page or use a special endpoint if needed)
-      const response = await axios.get(
-        `${ENDPOINT_URL}sales?page=1&per_page=1000000&search=${encodeURIComponent(search)}`
-      );
+      setLoading(true)
+      setPage(page)
+
+      const params = new URLSearchParams()
+      params.append('page', page)
+      params.append('per_page', 100000)
+      if (search) params.append('search', search)
+      if (selectedCabang.length > 0) {
+        params.append('cabang', cabangIds.join(',')) // or whatever your API expects
+      }
+      if (selectedSupplier.length > 0) {
+        params.append('vendor', supplierIds.join(',')) // or whatever your API expects
+      }
+      if (selectedBarang.length > 0) {
+        params.append('barang', barangIds.join(',')) // or whatever your API expects
+      }
+      if (startDate) {
+        params.append('start_date', startDate)
+      }
+      if (endDate) {
+        params.append('end_date', endDate)
+      }
+
+      const response = await axios.get(`${ENDPOINT_URL}sales?${params.toString()}`)
       const allData = response.data.data;
 
       // Create workbook and worksheet
