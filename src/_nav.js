@@ -4,7 +4,7 @@ import CIcon from '@coreui/icons-react'
 import { CNavGroup, CNavItem } from '@coreui/react'
 import { useAuth } from './contexts/AuthContext'
 
-const mode = import.meta.env.VITE_APP_MODE || 'development'
+const mode = import.meta.env.VITE_APP_MODE || 'production'
 
 // ✅ Custom hook to return nav based on user role
 const useNav = () => {

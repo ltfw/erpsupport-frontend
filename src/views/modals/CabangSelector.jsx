@@ -20,10 +20,12 @@ import {
   CCol,
 } from '@coreui/react'
 import axios from 'axios'
+import { useAuth } from '../../contexts/AuthContext'
 
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 
 const CabangSelector = ({ onSelect }) => {
+  const { user } = useAuth()
   const [visible, setVisible] = useState(false)
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
@@ -35,8 +37,12 @@ const CabangSelector = ({ onSelect }) => {
 
   useEffect(() => {
     const fetchData = async () => {
+      // If user has no access to all branches, filter by user's branch
+      const userBranch = user?.KodeDept || ''
+      const accessFilter = userBranch ? `&cabang=${userBranch}` : ''
+
       const response = await axios.get(
-        `${ENDPOINT_URL}departments?page=${page}&per_page=${perPage}&search=${encodeURIComponent(search)}`
+        `${ENDPOINT_URL}departments?page=${page}&per_page=${perPage}&search=${encodeURIComponent(search)}${accessFilter}`
       )
       console.log('response.data', response.data)
       setItemList(response.data.data)

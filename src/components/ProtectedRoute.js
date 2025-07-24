@@ -8,7 +8,7 @@ const ProtectedRoute = ({ children }) => {
 
   if (!authChecked) return <div>Loading...</div>
 
-  console.log('authChecked:', authChecked, 'user:', user)
+  // console.log('authChecked:', authChecked, 'user:', user)
 
   if (!user) {
     return <Navigate to="/login" replace />

@@ -23,7 +23,6 @@ const Penjualan = () => {
   const [totalRows, setTotalRows] = useState(0)
   const [perPage, setPerPage] = useState(10)
   const [page, setPage] = useState(1)
-  const navigate = useNavigate()
   const [search, setSearch] = useState('')
 
   const [selectedBarang, setSelectedBarang] = useState([])
@@ -269,11 +268,17 @@ const Penjualan = () => {
     },
   ];
 
-  const fetchSales = async (page, keyword = '', cabangIds = [], supplierIds = [], barangIds = [], startDate = null, endDate = null) => {
-    console.log('fetchSales called with page:', page, 'keyword:', keyword, 'cabangIds:', cabangIds, 'barangIds:', barangIds, 'startDate:', startDate, 'endDate:', endDate)
+  const loadDataSales = async (page, perPage, keyword = '', cabangIds = [], supplierIds = [], barangIds = [], startDate = null, endDate = null) => {
     setLoading(true)
     setPage(page)
+    const fetchData = await fetchSales(page, perPage, keyword, cabangIds, supplierIds, barangIds, startDate, endDate)
+    setData(fetchData.data)
+    setTotalRows(fetchData.total)
+    setLoading(false)
+  }
 
+  const fetchSales = async (page, perPage, keyword = '', cabangIds = [], supplierIds = [], barangIds = [], startDate = null, endDate = null) => {
+    console.log('fetchSales called with page:', page, 'keyword:', keyword, 'cabangIds:', cabangIds, 'barangIds:', barangIds, 'startDate:', startDate, 'endDate:', endDate)
     const params = new URLSearchParams()
     params.append('page', page)
     params.append('per_page', perPage)
@@ -296,115 +301,100 @@ const Penjualan = () => {
 
     const response = await axios.get(`${ENDPOINT_URL}sales?${params.toString()}`)
 
-    setData(response.data.data)
-    setTotalRows(response.data.pagination.total)
-    setLoading(false)
+    return { data: response.data.data, total: response.data.pagination.total }
   }
 
   const handlePageChange = (page) => {
-    fetchSales(page)
+    loadDataSales(page, perPage, search, selectedCabang, selectedSupplier, selectedBarang, startDate, endDate)
   }
 
   const handlePerRowsChange = async (newPerPage, page) => {
-    setLoading(true)
-
-    const response = await axios.get(
-      `${ENDPOINT_URL}sales?page=${page}&per_page=${newPerPage}&search=${encodeURIComponent(search)}`,
-    )
-
-    setData(response.data.data)
-    setPerPage(newPerPage)
-    setLoading(false)
+    loadDataSales(page, newPerPage)
   }
 
   useEffect(() => {
+    setPerPage(perPage)
     if (startDate && endDate) {
-      fetchSales(1, '', selectedCabang, selectedSupplier, selectedBarang, startDate, endDate)
+      loadDataSales(1, perPage, '', selectedCabang, selectedSupplier, selectedBarang, startDate, endDate)
     }
-  }, [selectedCabang, selectedSupplier, selectedBarang, startDate, endDate])
+  }, [perPage, selectedCabang, selectedSupplier, selectedBarang, startDate, endDate])
 
   const exportToExcel = async () => {
     try {
-      setLoading(true)
-      setPage(page)
+      const response = await fetchSales(
+        1,
+        1000000,
+        search,
+        selectedCabang,
+        selectedSupplier,
+        selectedBarang,
+        startDate,
+        endDate
+      );
+      const allData = response.data;
 
-      const params = new URLSearchParams()
-      params.append('page', page)
-      params.append('per_page', 100000)
-      if (search) params.append('search', search)
-      if (selectedCabang.length > 0) {
-        params.append('cabang', cabangIds.join(',')) // or whatever your API expects
-      }
-      if (selectedSupplier.length > 0) {
-        params.append('vendor', supplierIds.join(',')) // or whatever your API expects
-      }
-      if (selectedBarang.length > 0) {
-        params.append('barang', barangIds.join(',')) // or whatever your API expects
-      }
-      if (startDate) {
-        params.append('start_date', startDate)
-      }
-      if (endDate) {
-        params.append('end_date', endDate)
-      }
-
-      const response = await axios.get(`${ENDPOINT_URL}sales?${params.toString()}`)
-      const allData = response.data.data;
-
-      // Create workbook and worksheet
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet('Sales');
 
-      // Add title in the first row
-      worksheet.mergeCells('A1:AJ1'); // Adjust 'AJ' to the last column you have
-      worksheet.getCell('A1').value = 'Laporan Penjualan';
-      worksheet.getCell('A1').alignment = { horizontal: 'center', vertical: 'middle' };
-      worksheet.getCell('A1').font = { size: 16, bold: true };
+      // Row 2: Title
+      worksheet.mergeCells('A2:AM2');
+      worksheet.getCell('A2').value = 'Laporan Penjualan';
+      worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('A2').font = { size: 16, bold: true };
 
-
-      // Define columns
+      // Set column widths only (DO NOT use headers here!)
       worksheet.columns = [
-        { header: 'No', key: 'no', width: 6 },
-        { header: 'Cabang', key: 'NamaDept', width: 15 },
-        { header: 'Kepala Cabang', key: 'KepalaCabang', width: 18 },
-        { header: 'Area', key: 'KodeWil', width: 10 },
-        { header: 'Salesman', key: 'NamaSales', width: 15 },
-        { header: 'Supervisor', key: 'NamaSpv', width: 15 },
-        { header: 'Rayon', key: 'RayonName', width: 15 },
-        { header: 'Tgl Faktur', key: 'TglFaktur', width: 15 },
-        { header: 'No Faktur', key: 'NoBukti', width: 15 },
-        { header: 'Group Customer', key: 'CustomerGroupName', width: 18 },
-        { header: 'Badan Usaha', key: 'BusinessEntityName', width: 18 },
-        { header: 'Kode Customer', key: 'KodeLgn', width: 15 },
-        { header: 'Nama Customer', key: 'NamaLgn', width: 18 },
-        { header: 'Alamat', key: 'Alamat1', width: 20 },
-        { header: 'Kode Item', key: 'KodeItem', width: 15 },
-        { header: 'Nama Item', key: 'NamaBarang', width: 18 },
-        { header: 'Supplier', key: 'NamaSupplier', width: 15 },
-        { header: 'Nama Business Centre', key: 'BusinessCentreName', width: 20 },
-        { header: 'HNA', key: 'Hna1', width: 10 },
-        { header: 'Qty', key: 'Qty', width: 8 },
-        { header: 'Satuan', key: 'SatuanNs', width: 10 },
-        { header: 'Value HNA', key: 'ValueHNA', width: 15 },
-        { header: 'Value Nett', key: 'ValueNett', width: 15 },
-        { header: 'Total Value Disc', key: 'TotalValueDisc', width: 18 },
-        { header: 'Value Disc Distributor', key: 'ValueDiscDist', width: 20 },
-        { header: 'Value Disc Principle', key: 'ValueDiscPrinc', width: 20 },
-        { header: 'Total Disc %', key: 'TotalDiscPsn', width: 15 },
-        { header: 'Disc Dist %', key: 'DiscDistPsn', width: 15 },
-        { header: 'Disc Princ %', key: 'DiscPrincPsn', width: 15 },
-        { header: 'Batch Number', key: 'BatchNumber', width: 15 },
-        { header: 'Tgl Expired', key: 'TglExpired', width: 15 },
-        { header: 'Province', key: 'Province', width: 15 },
-        { header: 'Regency', key: 'Regency', width: 15 },
-        { header: 'District', key: 'District', width: 15 },
-        { header: 'Village', key: 'Village', width: 15 },
-        { header: 'Tipe Jual', key: 'TipeJual', width: 12 },
-        { header: 'NoSP', key: 'PoLanggan', width: 15 },
-        { header: 'Kode Promosi', key: 'PromotionCode', width: 15 },
+        { key: 'no', width: 6 },
+        { key: 'NamaDept', width: 15 },
+        { key: 'KepalaCabang', width: 18 },
+        { key: 'KodeWil', width: 10 },
+        { key: 'NamaSales', width: 15 },
+        { key: 'NamaSpv', width: 15 },
+        { key: 'RayonName', width: 15 },
+        { key: 'TglFaktur', width: 15 },
+        { key: 'NoBukti', width: 15 },
+        { key: 'CustomerGroupName', width: 18 },
+        { key: 'BusinessEntityName', width: 18 },
+        { key: 'KodeLgn', width: 15 },
+        { key: 'NamaLgn', width: 18 },
+        { key: 'Alamat1', width: 20 },
+        { key: 'KodeItem', width: 15 },
+        { key: 'NamaBarang', width: 18 },
+        { key: 'NamaSupplier', width: 15 },
+        { key: 'BusinessCentreName', width: 20 },
+        { key: 'Hna1', width: 10 },
+        { key: 'Qty', width: 8 },
+        { key: 'SatuanNs', width: 10 },
+        { key: 'ValueHNA', width: 15 },
+        { key: 'ValueNett', width: 15 },
+        { key: 'TotalValueDisc', width: 18 },
+        { key: 'ValueDiscDist', width: 20 },
+        { key: 'ValueDiscPrinc', width: 20 },
+        { key: 'TotalDiscPsn', width: 15 },
+        { key: 'DiscDistPsn', width: 15 },
+        { key: 'DiscPrincPsn', width: 15 },
+        { key: 'BatchNumber', width: 15 },
+        { key: 'TglExpired', width: 15 },
+        { key: 'Province', width: 15 },
+        { key: 'Regency', width: 15 },
+        { key: 'District', width: 15 },
+        { key: 'Village', width: 15 },
+        { key: 'TipeJual', width: 12 },
+        { key: 'PoLanggan', width: 15 },
+        { key: 'PromotionCode', width: 15 },
       ];
 
-      // Add rows
+      // Row 3: Write headers manually
+      worksheet.addRow([
+        'No', 'Cabang', 'Kepala Cabang', 'Area', 'Salesman', 'Supervisor', 'Rayon', 'Tgl Faktur',
+        'No Faktur', 'Group Customer', 'Badan Usaha', 'Kode Customer', 'Nama Customer', 'Alamat',
+        'Kode Item', 'Nama Item', 'Supplier', 'Nama Business Centre', 'HNA', 'Qty', 'Satuan',
+        'Value HNA', 'Value Nett', 'Total Value Disc', 'Value Disc Distributor', 'Value Disc Principle',
+        'Total Disc %', 'Disc Dist %', 'Disc Princ %', 'Batch Number', 'Tgl Expired', 'Province',
+        'Regency', 'District', 'Village', 'Tipe Jual', 'NoSP', 'Kode Promosi'
+      ]);
+
+      // Row 4+: Add data
       allData.forEach((row, idx) => {
         worksheet.addRow({
           no: idx + 1,
@@ -412,7 +402,10 @@ const Penjualan = () => {
         });
       });
 
-      // Generate buffer and save
+      // Optional: Freeze title and header
+      worksheet.views = [{ state: 'frozen', ySplit: 3 }];
+
+      // Generate and save
       const buffer = await workbook.xlsx.writeBuffer();
       saveAs(new Blob([buffer]), 'sales_all.xlsx');
     } catch (error) {
@@ -424,18 +417,20 @@ const Penjualan = () => {
 
   return (
     <>
-      <FilterReport
+      {/* <FilterReport
         visible={showFilterModal}
         onClose={() => setShowFilterModal(false)}
         onExport={exportToExcel} // Call exportToExcel from modal if needed
-      />
+      /> */}
+
       <CRow>
         <CCol xs>
           <CCard className="mb-4">
             <CCardHeader>Data Sales
               <button
                 className="btn btn-success btn-sm float-end text-white"
-                onClick={() => setShowFilterModal(true)}
+                // onClick={() => setShowFilterModal(true)}
+                onClick={exportToExcel}
                 type="button"
                 style={{ marginLeft: 8 }}
               >
@@ -481,7 +476,7 @@ const Penjualan = () => {
                   value={search}
                   onChange={(e) => {
                     setSearch(e.target.value)
-                    fetchSales(1, e.target.value) // reset to page 1 on search
+                    loadDataSales(1, e.target.value) // reset to page 1 on search
                   }}
                 />
               </div>

@@ -27,6 +27,7 @@ import {
 
 import { AppBreadcrumb } from './index'
 import { AppHeaderDropdown } from './header/index'
+import { useAuth } from '../contexts/AuthContext'
 
 const AppHeader = () => {
   const headerRef = useRef()
@@ -34,6 +35,7 @@ const AppHeader = () => {
 
   const dispatch = useDispatch()
   const sidebarShow = useSelector((state) => state.sidebarShow)
+  const {user} = useAuth();
 
   useEffect(() => {
     document.addEventListener('scroll', () => {
@@ -55,6 +57,13 @@ const AppHeader = () => {
           <li className="nav-item py-1">
             <div className="vr h-100 mx-2 text-body text-opacity-75"></div>
           </li>
+          {user && (
+            <CNavItem>
+              <CNavLink className="fw-bold text-primary" style={{ pointerEvents: 'none' }}>
+                {user.UserName}
+              </CNavLink>
+            </CNavItem>
+          )}
           <CDropdown variant="nav-item" placement="bottom-end">
             <CDropdownToggle caret={false}>
               {colorMode === 'dark' ? (
