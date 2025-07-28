@@ -151,6 +151,12 @@ const BarangSelector = ({ onSelect }) => {
               <CPagination>
                 <CPaginationItem
                   disabled={page === 1}
+                  onClick={() => setPage(1)}
+                >
+                  First
+                </CPaginationItem>
+                <CPaginationItem
+                  disabled={page === 1}
                   onClick={() => setPage(page - 1)}
                 >
                   Previous
@@ -169,6 +175,12 @@ const BarangSelector = ({ onSelect }) => {
                   onClick={() => setPage(page + 1)}
                 >
                   Next
+                </CPaginationItem>
+                <CPaginationItem
+                  disabled={page === totalPages}
+                  onClick={() => setPage(totalPages)}
+                >
+                  Last
                 </CPaginationItem>
               </CPagination>
             </div>

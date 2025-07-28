@@ -1,7 +1,13 @@
 import { useEffect, useState } from 'react'
 import DatePicker from '../../base/datepicker/DatePicker'
+import { formatDateToDDMMYYYY } from '../../../utils/Date'
+import pdfMake from 'pdfmake/build/pdfmake';
+import 'pdfmake/build/vfs_fonts';
 
-import { CCard, CCardBody, CCardHeader, CCol, CRow } from '@coreui/react'
+// pdfMake.vfs = pdfFonts.pdfMake.vfs;
+
+
+import { CCard, CCardBody, CCardHeader, CCol, CDropdown, CDropdownItem, CDropdownMenu, CDropdownToggle, CRow } from '@coreui/react'
 import { useNavigate } from 'react-router-dom'
 
 import ExcelJS from 'exceljs'
@@ -309,7 +315,8 @@ const Penjualan = () => {
   }
 
   const handlePerRowsChange = async (newPerPage, page) => {
-    loadDataSales(page, newPerPage)
+    setPerPage(newPerPage)
+    loadDataSales(page, newPerPage, search, selectedCabang, selectedSupplier, selectedBarang, startDate, endDate)
   }
 
   useEffect(() => {
@@ -320,6 +327,7 @@ const Penjualan = () => {
   }, [perPage, selectedCabang, selectedSupplier, selectedBarang, startDate, endDate])
 
   const exportToExcel = async () => {
+    document.body.style.cursor = 'wait';
     try {
       const response = await fetchSales(
         1,
@@ -337,10 +345,14 @@ const Penjualan = () => {
       const worksheet = workbook.addWorksheet('Sales');
 
       // Row 2: Title
-      worksheet.mergeCells('A2:AM2');
+      worksheet.mergeCells('A2:AL2');
       worksheet.getCell('A2').value = 'Laporan Penjualan';
       worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' };
       worksheet.getCell('A2').font = { size: 16, bold: true };
+      worksheet.mergeCells('A3:AL3');
+      worksheet.getCell('A3').value = 'Periode ' + formatDateToDDMMYYYY(startDate) + ' s.d. ' + formatDateToDDMMYYYY(endDate);
+      worksheet.getCell('A3').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('A3').font = { size: 16, bold: true };
 
       // Set column widths only (DO NOT use headers here!)
       worksheet.columns = [
@@ -384,6 +396,28 @@ const Penjualan = () => {
         { key: 'PromotionCode', width: 15 },
       ];
 
+      const numberFormatThousandTwoDecimal = '#,##0.00'; // Format: 1,000.00
+      const numberFormatThousand = '#,##0'; // Format: 1,000
+
+      // Format specific columns by key
+      const columnsToFormatDecimal = ['ValueHNA', 'ValueNett', 'TotalValueDisc', 'ValueDiscDist', 'ValueDiscPrinc',
+        'TotalDiscPsn',
+        'DiscDistPsn',
+        'DiscPrincPsn'
+      ];
+
+      columnsToFormatDecimal.forEach((key) => {
+        const column = worksheet.getColumn(key);
+        column.numFmt = numberFormatThousandTwoDecimal;
+      });
+
+      const columnsToFormat = ['Hna1', 'Qty'];
+
+      columnsToFormat.forEach((key) => {
+        const column = worksheet.getColumn(key);
+        column.numFmt = numberFormatThousand;
+      });
+
       // Row 3: Write headers manually
       worksheet.addRow([
         'No', 'Cabang', 'Kepala Cabang', 'Area', 'Salesman', 'Supervisor', 'Rayon', 'Tgl Faktur',
@@ -396,20 +430,183 @@ const Penjualan = () => {
 
       // Row 4+: Add data
       allData.forEach((row, idx) => {
+        const cleanRow = {
+          ...row,
+          Hna1: Math.round(parseFloat(row.Hna1 || 0) * 100) / 100,
+          Qty: Math.round(parseFloat(row.Qty || 0) * 100) / 100,
+          ValueHNA: Math.round(parseFloat(row.ValueHNA || 0) * 100) / 100,
+          ValueNett: Math.round(parseFloat(row.ValueNett || 0) * 100) / 100,
+          TotalValueDisc: Math.round(parseFloat(row.TotalValueDisc || 0) * 100) / 100,
+          ValueDiscDist: Math.round(parseFloat(row.ValueDiscDist || 0) * 100) / 100,
+          ValueDiscPrinc: Math.round(parseFloat(row.ValueDiscPrinc || 0) * 100) / 100,
+        };
+
         worksheet.addRow({
           no: idx + 1,
-          ...row,
+          ...cleanRow,
         });
       });
 
+      // Calculate total rows added (header is row 4, so data starts from row 5)
+      const totalRowNumber = worksheet.lastRow.number + 1;
+
+      // Add total label
+      worksheet.mergeCells(`A${totalRowNumber}:S${totalRowNumber}`);
+      worksheet.getCell(`A${totalRowNumber}`).value = 'TOTAL';
+      worksheet.getCell(`A${totalRowNumber}`).alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell(`A${totalRowNumber}`).font = { bold: true };
+
+      // Add formula-based totals
+      worksheet.getCell(`T${totalRowNumber}`).value = { formula: `SUM(T5:S${totalRowNumber - 1})` }; // Qty
+      worksheet.getCell(`V${totalRowNumber}`).value = { formula: `SUM(V5:V${totalRowNumber - 1})` }; // ValueHNA
+      worksheet.getCell(`W${totalRowNumber}`).value = { formula: `SUM(W5:W${totalRowNumber - 1})` }; // ValueNett
+      worksheet.getCell(`X${totalRowNumber}`).value = { formula: `SUM(X5:X${totalRowNumber - 1})` }; // TotalValueDisc
+      worksheet.getCell(`Y${totalRowNumber}`).value = { formula: `SUM(Y5:Y${totalRowNumber - 1})` }; // ValueDiscDist
+      worksheet.getCell(`Z${totalRowNumber}`).value = { formula: `SUM(Z5:Z${totalRowNumber - 1})` }; // ValueDiscPrinc
+
+      // Optional: bold all total row
+      worksheet.getRow(totalRowNumber).font = { bold: true };
+
+
       // Optional: Freeze title and header
-      worksheet.views = [{ state: 'frozen', ySplit: 3 }];
+      worksheet.views = [{ state: 'frozen', ySplit: 4 }];
+
+      worksheet.autoFilter = {
+        from: 'A4',
+        to: 'AL4',
+      };
+
 
       // Generate and save
       const buffer = await workbook.xlsx.writeBuffer();
       saveAs(new Blob([buffer]), 'sales_all.xlsx');
     } catch (error) {
       alert('Gagal mengunduh data!');
+    } finally {
+      document.body.style.cursor = 'default';
+    }
+  }
+
+  const exportToPDF = async () => {
+    try {
+      document.body.style.cursor = 'wait';
+
+      const response = await fetchSales(
+        1,
+        1000000,
+        search,
+        selectedCabang,
+        selectedSupplier,
+        selectedBarang,
+        startDate,
+        endDate
+      );
+
+      const allData = response.data;
+
+      // Define columns
+      const headers = [
+        'No', 'Cabang', 'Kepala Cabang', 'Area', 'Salesman', 'Supervisor', 'Rayon', 'Tgl Faktur',
+        'No Faktur', 'Group Customer', 'Badan Usaha', 'Kode Customer', 'Nama Customer', 'Alamat',
+        'Kode Item', 'Nama Item', 'Supplier', 'Nama Business Centre', 'HNA', 'Qty', 'Satuan',
+        'Value HNA', 'Value Nett', 'Total Value Disc', 'Value Disc Distributor', 'Value Disc Principle',
+        'Total Disc %', 'Disc Dist %', 'Disc Princ %', 'Batch Number', 'Tgl Expired', 'Province',
+        'Regency', 'District', 'Village', 'Tipe Jual', 'NoSP', 'Kode Promosi', 'Surat Keluar/No. DPL/F'
+      ];
+
+      // Prepare table body
+      const body = [
+        headers,
+        ...allData.map((row, idx) => [
+          idx + 1,
+          row.NamaDept,
+          row.KepalaCabang,
+          row.KodeWil,
+          row.NamaSales,
+          row.NamaSpv,
+          row.RayonName,
+          row.TglFaktur,
+          row.NoBukti,
+          row.CustomerGroupName,
+          row.BusinessEntityName,
+          row.KodeLgn,
+          row.NamaLgn,
+          row.Alamat1,
+          row.KodeItem,
+          row.NamaBarang,
+          row.NamaSupplier,
+          row.BusinessCentreName,
+          parseFloat(row.Hna1 || 0).toFixed(2),
+          parseFloat(row.Qty || 0).toFixed(2),
+          row.SatuanNs,
+          parseFloat(row.ValueHNA || 0).toFixed(2),
+          parseFloat(row.ValueNett || 0).toFixed(2),
+          parseFloat(row.TotalValueDisc || 0).toFixed(2),
+          parseFloat(row.ValueDiscDist || 0).toFixed(2),
+          parseFloat(row.ValueDiscPrinc || 0).toFixed(2),
+          parseFloat(row.TotalDiscPsn || 0).toFixed(2),
+          parseFloat(row.DiscDistPsn || 0).toFixed(2),
+          parseFloat(row.DiscPrincPsn || 0).toFixed(2),
+          row.BatchNumber,
+          row.TglExpired,
+          row.Province,
+          row.Regency,
+          row.District,
+          row.Village,
+          row.TipeJual,
+          row.PoLanggan,
+          row.PromotionCode,
+          row.PromotionName
+        ])
+      ];
+
+      const docDefinition = {
+        content: [
+          {
+            text: 'Laporan Penjualan',
+            style: 'header',
+            alignment: 'center'
+          },
+          {
+            text: `Periode ${formatDateToDDMMYYYY(startDate)} s.d. ${formatDateToDDMMYYYY(endDate)}`,
+            style: 'subheader',
+            alignment: 'center',
+            margin: [0, 0, 0, 10]
+          },
+          {
+            style: 'tableExample',
+            table: {
+              // headerRows: 1,
+              // widths: Array(headers.length).fill('*'),
+              body: body
+            },
+            layout: 'lightHorizontalLines'
+          }
+        ],
+        styles: {
+          header: {
+            fontSize: 16,
+            bold: true,
+            margin: [0, 0, 0, 4]
+          },
+          subheader: {
+            fontSize: 12,
+            margin: [0, 0, 0, 10]
+          },
+          tableExample: {
+            fontSize: 8
+          }
+        },
+        pageOrientation: 'landscape',
+        pageSize: 'A1',
+      };
+
+      pdfMake.createPdf(docDefinition).download('sales_all.pdf');
+    } catch (error) {
+      alert('Gagal mengunduh PDF!');
+      console.error('Error exporting to PDF:', error);
+    } finally {
+      document.body.style.cursor = 'default';
     }
   }
 
@@ -427,16 +624,14 @@ const Penjualan = () => {
         <CCol xs>
           <CCard className="mb-4">
             <CCardHeader>Data Sales
-              <button
-                className="btn btn-success btn-sm float-end text-white"
-                // onClick={() => setShowFilterModal(true)}
-                onClick={exportToExcel}
-                type="button"
-                style={{ marginLeft: 8 }}
-              >
-                <CIcon icon={cilSpreadsheet} className="me-2" />
-                Export Excel
-              </button></CCardHeader>
+              <CDropdown className='float-end'>
+                <CDropdownToggle color="warning" size='sm' >Export</CDropdownToggle>
+                <CDropdownMenu>
+                  <CDropdownItem onClick={exportToExcel}><CIcon icon={cilSpreadsheet} className="me-2" />Excel</CDropdownItem>
+                  <CDropdownItem onClick={exportToPDF}><CIcon icon={cilPrint} className="me-2" />Pdf</CDropdownItem>
+                </CDropdownMenu>
+              </CDropdown>
+            </CCardHeader>
             <CCardBody>
               <div className="mb-3">
                 <CRow>
@@ -476,7 +671,7 @@ const Penjualan = () => {
                   value={search}
                   onChange={(e) => {
                     setSearch(e.target.value)
-                    loadDataSales(1, e.target.value) // reset to page 1 on search
+                    loadDataSales(1, perPage, e.target.value, selectedCabang, selectedSupplier, selectedBarang, startDate, endDate) // Ensure it loads page 1
                   }}
                 />
               </div>

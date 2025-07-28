@@ -15,16 +15,7 @@ const Persediaan = () => {
   const [totalRows, setTotalRows] = useState(0)
   const [perPage, setPerPage] = useState(10)
   const [page, setPage] = useState(1)
-  const navigate = useNavigate()
   const [search, setSearch] = useState('')
-
-  // const handleEdit = (customerId) => {
-  //   navigate(`/customer/${customerId}/edit`)
-  // }
-
-  const handlePrint = (customerId) => {
-    navigate(`/customer/${customerId}/print`)
-  }
 
   const column = [
     {
@@ -72,38 +63,6 @@ const Persediaan = () => {
       selector: (row) => row.Alamat1,
       sortable: true,
       wrap: true,
-    },
-    {
-      name: 'Aksi', // Nama kolom
-      cell: (row) => (
-        <div className="d-grid gap-2 d-md-flex justify-content-md-end">
-          {/* <button
-            onClick={() => handleEdit(row.CustomerId)}
-            className="btn btn-info text-white"
-            size="sm"
-          >
-            <CIcon icon={cilPencil} size="sm" />
-          </button>
-          <button
-            onClick={() => handleDelete(row.CustomerId)}
-            className="btn btn-danger text-white"
-            size="sm"
-          >
-            <CIcon icon={cilTrash} size="sm" />
-          </button> */}
-          <button
-            onClick={() => handlePrint(row.CustomerId)}
-            className="btn btn-info text-white"
-            size="sm"
-          >
-            <CIcon icon={cilPrint} size="sm" />
-          </button>
-        </div>
-      ),
-      ignoreRowClick: true, // Penting agar klik pada tombol tidak memicu event klik baris
-      // allowOverflow: true, // Memungkinkan konten meluap jika diperlukan
-      // button: 'true', // Mengindikasikan bahwa ini adalah kolom tombol
-      width: '12%', // Sesuaikan lebar kolom jika diperlukan
     },
   ]
 

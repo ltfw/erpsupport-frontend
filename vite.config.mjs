@@ -7,6 +7,7 @@ export default defineConfig(() => {
   return {
     base: './',
     build: {
+      manifest: true,
       outDir: 'build',
     },
     css: {

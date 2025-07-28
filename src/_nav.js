@@ -64,7 +64,7 @@ const useNav = () => {
           ? [
               {
                 component: CNavItem,
-                name: 'Persediaan Barang',
+                name: 'Stock Per Batch',
                 to: '/report/stock',
               },
             ]

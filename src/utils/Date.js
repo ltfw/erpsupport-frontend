@@ -27,3 +27,9 @@ export const getFirstDayOfGivenMonthFormatted = (date = new Date()) => {
   const day = '01';
   return `${year}-${month}-${day}`;
 };
+
+export const formatDateToDDMMYYYY = (dateStr) => {
+  const [year, month, day] = dateStr.split('-');
+  if (!year || !month || !day) return dateStr; // fallback for invalid format
+  return `${day}/${month}/${year}`;
+};
