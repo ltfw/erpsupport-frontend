@@ -10,7 +10,7 @@ const mode = import.meta.env.VITE_APP_MODE || 'production'
 const useNav = () => {
   const { user } = useAuth()
   console.log('useNav user:', user);
-  
+
   const role = user?.UserRoleCode || 'GUEST'
 
   const menuConfig = [
@@ -18,7 +18,14 @@ const useNav = () => {
       component: CNavGroup,
       name: 'Customer',
       icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
-      roles: ['ADM', 'FAS'],
+      roles: ['ADM', 'FAS', 'APJA-TGR',
+        'APJA-SMG',
+        'APJA-HO',
+        'APJF',
+        'APJF-TGR',
+        'APJF-SMG',
+        'SPV',
+        'SPV_JATIM001'],
       items: [
         {
           component: CNavItem,
@@ -27,12 +34,12 @@ const useNav = () => {
         },
         ...(mode !== 'production'
           ? [
-              {
-                component: CNavItem,
-                name: 'Rekualifikasi Customer',
-                to: '/customer/requalify',
-              },
-            ]
+            {
+              component: CNavItem,
+              name: 'Rekualifikasi Customer',
+              to: '/customer/requalify',
+            },
+          ]
           : []),
       ],
     },
@@ -53,7 +60,7 @@ const useNav = () => {
       component: CNavGroup,
       name: 'Daftar Laporan',
       icon: <CIcon icon={cilChart} customClassName="nav-icon" />,
-      roles: ['ADM', 'MKT-SANI (JABAR)', 'MKT-SANI (JATIM)',  'MKT-SANI (JATENG)', 'FAS'],
+      roles: ['ADM', 'MKT-SANI (JABAR)', 'MKT-SANI (JATIM)', 'MKT-SANI (JATENG)', 'FAS'],
       items: [
         {
           component: CNavItem,
@@ -62,12 +69,12 @@ const useNav = () => {
         },
         ...(mode !== 'production'
           ? [
-              {
-                component: CNavItem,
-                name: 'Stock Per Batch',
-                to: '/report/stock',
-              },
-            ]
+            {
+              component: CNavItem,
+              name: 'Stock Per Batch',
+              to: '/report/stock',
+            },
+          ]
           : []),
       ],
     },
