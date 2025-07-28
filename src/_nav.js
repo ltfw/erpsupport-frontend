@@ -66,14 +66,13 @@ const useNav = () => {
           name: 'Penjualan',
           to: '/report/sales',
         },
+        {
+          component: CNavItem,
+          name: 'Stock Per Batch',
+          to: '/report/stock',
+        },
         ...(mode !== 'production'
-          ? [
-            {
-              component: CNavItem,
-              name: 'Stock Per Batch',
-              to: '/report/stock',
-            },
-          ]
+          ? []
           : []),
       ],
     },
