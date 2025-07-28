@@ -24,7 +24,7 @@ const useNav = () => {
         'APJF-TGR',
         'APJF-SMG',
         'SPV',
-        'SPV_JATIM001'],
+        'SPV_JATIM001','DRO'],
       items: [
         {
           component: CNavItem,
@@ -46,7 +46,7 @@ const useNav = () => {
       component: CNavGroup,
       name: 'Tools',
       icon: <CIcon icon={cilApplications} customClassName="nav-icon" />,
-      roles: ['ADM', 'FAS'],
+      roles: ['ADM', 'FAS','DRO'],
       items: [
         {
           component: CNavItem,
@@ -59,7 +59,7 @@ const useNav = () => {
       component: CNavGroup,
       name: 'Daftar Laporan',
       icon: <CIcon icon={cilChart} customClassName="nav-icon" />,
-      roles: ['ADM', 'MKT-SANI (JABAR)', 'MKT-SANI (JATIM)', 'MKT-SANI (JATENG)', 'FAS'],
+      roles: ['ADM', 'MKT-SANI (JABAR)', 'MKT-SANI (JATIM)', 'MKT-SANI (JATENG)', 'FAS','DRO'],
       items: [
         {
           component: CNavItem,
