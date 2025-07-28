@@ -6,7 +6,6 @@ import { useAuth } from './contexts/AuthContext'
 
 const mode = import.meta.env.VITE_APP_MODE || 'production'
 
-// ✅ Custom hook to return nav based on user role
 const useNav = () => {
   const { user } = useAuth()
   console.log('useNav user:', user);

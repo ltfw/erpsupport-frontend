@@ -7,6 +7,11 @@ import { DataTable } from 'src/components'
 import axios from 'axios'
 import CIcon from '@coreui/icons-react'
 import { cilPencil, cilPrint, cilTrash } from '@coreui/icons'
+import { getCurrentDateFormatted } from '../../../utils/Date'
+import CabangSelector from '../../modals/CabangSelector'
+import SupplierSelector from '../../modals/SupplierSelector'
+import BarangSelector from '../../modals/BarangSelector'
+import DatePicker from '../../base/datepicker/DatePicker'
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 
 const Persediaan = () => {
@@ -17,6 +22,11 @@ const Persediaan = () => {
   const [page, setPage] = useState(1)
   const [search, setSearch] = useState('')
 
+  const [selectedBarang, setSelectedBarang] = useState([])
+  const [selectedCabang, setSelectedCabang] = useState([]);
+  const [selectedSupplier, setSelectedSupplier] = useState([]);
+  const [endDate, setEndDate] = useState(getCurrentDateFormatted());
+
   const column = [
     {
       name: 'No',
@@ -25,79 +35,101 @@ const Persediaan = () => {
       width: '6%',
     },
     {
-      name: 'Kode Customer',
-      selector: (row) => row.KodeLgn,
+      name: 'Business Center',
+      selector: (row) => row.BusinessCentreName,
       sortable: true,
     },
     {
-      name: 'Nama Customer',
-      selector: (row) => row.NamaLgn,
-      sortable: true,
-      wrap: true,
-    },
-    {
-      name: 'Group Customer',
-      selector: (row) => row.CustomerGroupName,
+      name: 'Kode Gudang',
+      selector: (row) => row.KodeGudang,
       sortable: true,
       wrap: true,
     },
     {
-      name: 'Badan Usaha',
-      selector: (row) => row.BusinessEntityName,
+      name: 'Nama Gudang',
+      selector: (row) => row.NamaGudang,
       sortable: true,
       wrap: true,
     },
     {
-      name: 'Cabang',
-      selector: (row) => row.NamaDept,
-      sortable: true,
-    },
-    {
-      name: 'Salesman',
-      selector: (row) => row.NamaSales,
+      name: 'Kode Barang',
+      selector: (row) => row.KodeItem,
       sortable: true,
       wrap: true,
     },
     {
-      name: 'Alamat',
-      selector: (row) => row.Alamat1,
+      name: 'Nama Barang',
+      selector: (row) => row.NamaBarang,
+      sortable: true,
+    },
+    {
+      name: 'Batch Number',
+      selector: (row) => row.BatchNumber,
+      sortable: true,
+      wrap: true,
+    },
+    {
+      name: 'Tgl Expired',
+      selector: (row) => row.TglExpired,
+      sortable: true,
+      wrap: true,
+    },
+    {
+      name: 'Qty',
+      selector: (row) => row.Qty,
       sortable: true,
       wrap: true,
     },
   ]
 
-  const fetchCustomers = async (page, keyword = search) => {
+  const loadDataPersediaan = async (page, perPage, keyword = '', cabangIds = [], supplierIds = [], barangIds = [],  endDate = null) => {
     setLoading(true)
     setPage(page)
-
-    const response = await axios.get(
-      `${ENDPOINT_URL}customers?page=${page}&per_page=${perPage}&search=${encodeURIComponent(keyword)}`,
-    )
-
-    setData(response.data.data)
-    setTotalRows(response.data.pagination.total)
+    const fetchData = await fetchPersediaan(page, perPage, keyword, cabangIds, supplierIds, barangIds, endDate)
+    setData(fetchData.data)
+    setTotalRows(fetchData.total)
     setLoading(false)
+  }
+
+  const fetchPersediaan = async (page, perPage, keyword = '', cabangIds = [], supplierIds = [], barangIds = [],  endDate = null) => {
+    console.log('fetchSales called with page:', page, 'keyword:', keyword, 'cabangIds:', cabangIds, 'barangIds:', barangIds, 'endDate:', endDate)
+    const params = new URLSearchParams()
+    params.append('page', page)
+    params.append('per_page', perPage)
+    if (keyword) params.append('search', keyword)
+    if (cabangIds.length > 0) {
+      params.append('cabang', cabangIds.join(',')) // or whatever your API expects
+    }
+    if (supplierIds.length > 0) {
+      params.append('vendor', supplierIds.join(',')) // or whatever your API expects
+    }
+    if (barangIds.length > 0) {
+      params.append('barang', barangIds.join(',')) // or whatever your API expects
+    }
+    if (endDate) {
+      params.append('date', endDate)
+    }
+
+    const response = await axios.get(`${ENDPOINT_URL}stocks/perbatch?${params.toString()}`)
+
+    return { data: response.data.data, total: response.data.pagination.total }
   }
 
   const handlePageChange = (page) => {
-    fetchCustomers(page)
+    loadDataPersediaan(page, perPage, search, selectedCabang, selectedSupplier, selectedBarang,  endDate)
   }
 
   const handlePerRowsChange = async (newPerPage, page) => {
-    setLoading(true)
-
-    const response = await axios.get(
-      `${ENDPOINT_URL}customers?page=${page}&per_page=${newPerPage}&search=${encodeURIComponent(search)}`,
-    )
-
-    setData(response.data.data)
     setPerPage(newPerPage)
-    setLoading(false)
+    loadDataPersediaan(page, newPerPage, search, selectedCabang, selectedSupplier, selectedBarang,  endDate)
   }
 
   useEffect(() => {
-    fetchCustomers(1) // fetch page 1 of users
-  }, [])
+    setPerPage(perPage)
+    if (endDate) {
+      loadDataPersediaan(1, perPage, '', selectedCabang, selectedSupplier, selectedBarang,  endDate)
+    }
+  }, [perPage, selectedCabang, selectedSupplier, selectedBarang, endDate])
 
   return (
     <>
@@ -107,6 +139,33 @@ const Persediaan = () => {
             <CCardHeader>Data Customers</CCardHeader>
             <CCardBody>
               <div className="mb-3">
+                <CRow>
+                  <CCol xs={12} sm={2} className='d-grid'>
+                    <CabangSelector
+                      onSelect={(items) => {
+                        console.log('Selected items:', items)
+                        setSelectedCabang(items)
+                      }}
+                    />
+                  </CCol>
+                  <CCol xs={12} sm={2} className='d-grid'>
+                    <SupplierSelector onSelect={(items) => {
+                      console.log('Selected items:', items)
+                      setSelectedSupplier(items)
+                    }} />
+                  </CCol>
+                  <CCol xs={12} sm={2} className='d-grid'>
+                    <BarangSelector onSelect={(items) => {
+                      console.log('Selected items:', items)
+                      setSelectedBarang(items)
+                    }} />
+                  </CCol>
+                  <CCol xs={12} sm={2}>
+                    <DatePicker onChange={setEndDate} value={endDate} />
+                  </CCol>
+                </CRow>
+              </div>
+              <div className="mb-3">
                 <input
                   type="text"
                   className="form-control"
@@ -114,14 +173,14 @@ const Persediaan = () => {
                   value={search}
                   onChange={(e) => {
                     setSearch(e.target.value)
-                    fetchCustomers(1, e.target.value) // reset to page 1 on search
+                    fetchPersediaan(1, e.target.value) // reset to page 1 on search
                   }}
                 />
               </div>
 
               <DataTable
                 dense
-                title="Customers List"
+                title="Data Barang Per Batch"
                 columns={column}
                 data={data}
                 progressPending={loading}
