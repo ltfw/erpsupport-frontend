@@ -36,6 +36,7 @@
     "classnames": "^2.5.1",
     "core-js": "^3.40.0",
     "date-fns": "^4.1.0",
+    "esbuild": "0.25.8",
     "exceljs": "^4.4.0",
     "file-saver": "^2.0.5",
     "pdfmake": "^0.2.20",
