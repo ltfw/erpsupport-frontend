@@ -174,7 +174,7 @@ const Customer = () => {
         { key: 'TOP', width: 15 },
         { key: 'Kode Customer BPOM', width: 15 },
         { key: 'Nama Customer BPOM', width: 15 },
-        { key: 'Nama Customer KEMENKES', width: 15 },
+        { key: 'Kode Customer KEMENKES', width: 15 },
         { key: 'Nama Customer KEMENKES', width: 15 },
         { key: 'Badan Usaha', width: 15 },
         { key: 'Customer Group', width: 15 },
@@ -209,7 +209,7 @@ const Customer = () => {
       // Row 3: Write headers manually
       worksheet.addRow([
         'No', 'Nama Cabang', 'Kode Customer', 'Nama Customer', 'Kredit Limit', 'TOP', 
-        'Kode Customer BPOM', 'Nama Customer BPOM', 'Nama Customer KEMENKES', 
+        'Kode Customer BPOM', 'Nama Customer BPOM', 'Kode Customer KEMENKES', 
         'Nama Customer KEMENKES', 'Badan Usaha', 'Customer Group', 
         'Tgl Registrasi', 'Tgl Update', 'Nama Pemilik', 'CP', 'Tipe Identitas', 
         'No Identitas', 'TKUId', 'Kode Pajak', 'Status Customer', 'Alamat', 
