@@ -36,7 +36,6 @@ const AppHeader = () => {
   const dispatch = useDispatch()
   const sidebarShow = useSelector((state) => state.sidebarShow)
   const {user} = useAuth();
-  console.log('AppHeader user:', user);
 
   useEffect(() => {
     document.addEventListener('scroll', () => {

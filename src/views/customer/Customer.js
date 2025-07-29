@@ -155,11 +155,11 @@ const Customer = () => {
       const worksheet = workbook.addWorksheet('Customer Data');
 
       // Row 2: Title
-      worksheet.mergeCells('A2:AL2');
+      worksheet.mergeCells('A2:AM2');
       worksheet.getCell('A2').value = 'Laporan Customer';
       worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' };
       worksheet.getCell('A2').font = { size: 16, bold: true };
-      worksheet.mergeCells('A3:AL3');
+      worksheet.mergeCells('A3:AM3');
       worksheet.getCell('A3').value = 'Update ' + formatDateToDDMMYYYY(getCurrentDateFormatted());
       worksheet.getCell('A3').alignment = { horizontal: 'center', vertical: 'middle' };
       worksheet.getCell('A3').font = { size: 16, bold: true };
@@ -188,7 +188,8 @@ const Customer = () => {
         { key: 'Kode Pajak', width: 15 },
         { key: 'Status Customer', width: 15 },
         { key: 'Alamat', width: 15 },
-        { key: 'Rayon', width: 15 },
+        { key: 'Kode Rayon', width: 15 },
+        { key: 'Nama Rayon', width: 15 },
         { key: 'Provinsi', width: 15 },
         { key: 'Kota/Kabupaten', width: 15 },
         { key: 'Kecamatan', width: 15 },
@@ -213,7 +214,7 @@ const Customer = () => {
         'Nama Customer KEMENKES', 'Badan Usaha', 'Customer Group', 
         'Tgl Registrasi', 'Tgl Update', 'Nama Pemilik', 'CP', 'Tipe Identitas', 
         'No Identitas', 'TKUId', 'Kode Pajak', 'Status Customer', 'Alamat', 
-        'Rayon', 'Provinsi', 'Kota/Kabupaten', 'Kecamatan', 'Desa/Kelurahan', 
+        'Kode Rayon','Nama Rayon', 'Provinsi', 'Kota/Kabupaten', 'Kecamatan', 'Desa/Kelurahan', 
         'Kode Pos', 'Salesman', 'Latitude', 'Longitude', 'Lokasi Customer', 
         'Npwp', 'NpwpOwner', 'Pkp', 'AlamatPajak', 'Tipe PPn', 'URL'
       ]);
@@ -231,7 +232,7 @@ const Customer = () => {
 
       worksheet.autoFilter = {
         from: 'A4',
-        to: 'AL4',
+        to: 'AM4',
       };
 
       // Generate and save
