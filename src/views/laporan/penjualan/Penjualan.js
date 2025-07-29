@@ -610,8 +610,6 @@ const Penjualan = () => {
     }
   }
 
-  const [showFilterModal, setShowFilterModal] = useState(false);
-
   return (
     <>
       {/* <FilterReport

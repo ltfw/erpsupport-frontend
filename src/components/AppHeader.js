@@ -36,6 +36,7 @@ const AppHeader = () => {
   const dispatch = useDispatch()
   const sidebarShow = useSelector((state) => state.sidebarShow)
   const {user} = useAuth();
+  console.log('AppHeader user:', user);
 
   useEffect(() => {
     document.addEventListener('scroll', () => {
@@ -60,7 +61,7 @@ const AppHeader = () => {
           {user && (
             <CNavItem>
               <CNavLink className="fw-bold text-primary" style={{ pointerEvents: 'none' }}>
-                {user.UserName}
+                {user.FullName || user.UserName}
               </CNavLink>
             </CNavItem>
           )}

@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useLayoutEffect } from 'react';
 
 const DatePicker = ({ 
   value, 
@@ -12,6 +12,8 @@ const DatePicker = ({
   const [currentDate, setCurrentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState(value ? new Date(value) : null);
   const containerRef = useRef(null);
+  const calendarRef = useRef(null);
+  const [position, setPosition] = useState({ left: 0, right: 'auto' });
 
   useEffect(() => {
     if (value) {
@@ -19,6 +21,7 @@ const DatePicker = ({
     }
   }, [value]);
 
+  // Handle click outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (containerRef.current && !containerRef.current.contains(event.target)) {
@@ -29,6 +32,31 @@ const DatePicker = ({
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
+
+  // Calculate calendar position
+  useLayoutEffect(() => {
+    if (isOpen && containerRef.current && calendarRef.current) {
+      const containerRect = containerRef.current.getBoundingClientRect();
+      const calendarRect = calendarRef.current.getBoundingClientRect();
+      const viewportWidth = window.innerWidth;
+
+      // Reset position
+      setPosition({ left: 0, right: 'auto' });
+
+      // Check if calendar overflows to the right
+      if (containerRect.left + calendarRect.width > viewportWidth) {
+        setPosition({ 
+          left: 'auto', 
+          right: 0 
+        });
+      } else {
+        setPosition({ 
+          left: 0, 
+          right: 'auto' 
+        });
+      }
+    }
+  }, [isOpen]);
 
   const formatDate = (date) => {
     if (!date) return '';
@@ -140,13 +168,14 @@ const DatePicker = ({
 
       {isOpen && (
         <div 
+          ref={calendarRef}
           className="card position-absolute shadow-lg border"
           style={{ 
             top: '100%', 
-            left: 0, 
-            right: 0, 
             zIndex: 1050,
-            minWidth: '280px'
+            minWidth: '280px',
+            maxWidth: 'min(350px, 90vw)', // Prevent overflow on small screens
+            ...position // Dynamic positioning
           }}
         >
           <div className="card-header bg-primary text-white p-2">

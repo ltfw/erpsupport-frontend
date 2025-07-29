@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react'
-
-import { CCard, CCardBody, CCardHeader, CCol, CRow } from '@coreui/react'
+import pdfMake from 'pdfmake/build/pdfmake';
+import 'pdfmake/build/vfs_fonts';
+import { CCard, CCardBody, CCardHeader, CCol, CDropdown, CDropdownItem, CDropdownMenu, CDropdownToggle, CRow } from '@coreui/react'
 import { useNavigate } from 'react-router-dom'
-
+import ExcelJS from 'exceljs'
+import { saveAs } from 'file-saver'
 import { DataTable } from 'src/components'
 import axios from 'axios'
 import CIcon from '@coreui/icons-react'
-import { cilPencil, cilPrint, cilTrash } from '@coreui/icons'
-import { getCurrentDateFormatted } from '../../../utils/Date'
+import { cilPencil, cilPrint, cilSpreadsheet, cilTrash } from '@coreui/icons'
+import { formatDateToDDMMYYYY, getCurrentDateFormatted } from '../../../utils/Date'
 import CabangSelector from '../../modals/CabangSelector'
 import SupplierSelector from '../../modals/SupplierSelector'
 import BarangSelector from '../../modals/BarangSelector'
@@ -82,7 +84,7 @@ const Persediaan = () => {
     },
   ]
 
-  const loadDataPersediaan = async (page, perPage, keyword = '', cabangIds = [], supplierIds = [], barangIds = [],  endDate = null) => {
+  const loadDataPersediaan = async (page, perPage, keyword = '', cabangIds = [], supplierIds = [], barangIds = [], endDate = null) => {
     setLoading(true)
     setPage(page)
     const fetchData = await fetchPersediaan(page, perPage, keyword, cabangIds, supplierIds, barangIds, endDate)
@@ -91,8 +93,8 @@ const Persediaan = () => {
     setLoading(false)
   }
 
-  const fetchPersediaan = async (page, perPage, keyword = '', cabangIds = [], supplierIds = [], barangIds = [],  endDate = null) => {
-    console.log('fetchSales called with page:', page, 'keyword:', keyword, 'cabangIds:', cabangIds, 'barangIds:', barangIds, 'endDate:', endDate)
+  const fetchPersediaan = async (page, perPage, keyword = '', cabangIds = [], supplierIds = [], barangIds = [], endDate = null) => {
+    console.log('fetchPersediaan called with page:', page, 'keyword:', keyword, 'cabangIds:', cabangIds, 'supplierIds:',supplierIds, 'barangIds:', barangIds, 'endDate:', endDate)
     const params = new URLSearchParams()
     params.append('page', page)
     params.append('per_page', perPage)
@@ -116,27 +118,232 @@ const Persediaan = () => {
   }
 
   const handlePageChange = (page) => {
-    loadDataPersediaan(page, perPage, search, selectedCabang, selectedSupplier, selectedBarang,  endDate)
+    loadDataPersediaan(page, perPage, search, selectedCabang, selectedSupplier, selectedBarang, endDate)
   }
 
   const handlePerRowsChange = async (newPerPage, page) => {
     setPerPage(newPerPage)
-    loadDataPersediaan(page, newPerPage, search, selectedCabang, selectedSupplier, selectedBarang,  endDate)
+    loadDataPersediaan(page, newPerPage, search, selectedCabang, selectedSupplier, selectedBarang, endDate)
   }
 
   useEffect(() => {
     setPerPage(perPage)
     if (endDate) {
-      loadDataPersediaan(1, perPage, '', selectedCabang, selectedSupplier, selectedBarang,  endDate)
+      loadDataPersediaan(1, perPage, '', selectedCabang, selectedSupplier, selectedBarang, endDate)
     }
   }, [perPage, selectedCabang, selectedSupplier, selectedBarang, endDate])
+
+  const exportToExcel = async () => {
+    document.body.style.cursor = 'wait';
+    try {
+      const response = await fetchPersediaan(
+        1,
+        1000000,
+        search,
+        selectedCabang,
+        selectedSupplier,
+        selectedBarang,
+        endDate
+      );
+      const allData = response.data;
+
+      const workbook = new ExcelJS.Workbook();
+      const worksheet = workbook.addWorksheet('Sales');
+
+      // Row 2: Title
+      worksheet.mergeCells('A2:I2');
+      worksheet.getCell('A2').value = 'Laporan Persediaan Barang Per Batch';
+      worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('A2').font = { size: 16, bold: true };
+      worksheet.mergeCells('A3:I3');
+      worksheet.getCell('A3').value = 'Periode per ' + formatDateToDDMMYYYY(endDate);
+      worksheet.getCell('A3').alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell('A3').font = { size: 16, bold: true };
+
+      // Set column widths only (DO NOT use headers here!)
+      worksheet.columns = [
+        { key: 'no', width: 6 },
+        { key: 'BusinessCentreName', width: 15 },
+        { key: 'KodeGudang', width: 18 },
+        { key: 'NamaGudang', width: 10 },
+        { key: 'KodeItem', width: 15 },
+        { key: 'NamaBarang', width: 15 },
+        { key: 'BatchNumber', width: 15 },
+        { key: 'TglExpired', width: 15 },
+        { key: 'Qty', width: 15 },
+      ];
+
+      const numberFormatThousand = '#,##0'; // Format: 1,000
+
+      const columnsToFormat = ['Qty'];
+
+      columnsToFormat.forEach((key) => {
+        const column = worksheet.getColumn(key);
+        column.numFmt = numberFormatThousand;
+      });
+
+      // Row 3: Write headers manually
+      worksheet.addRow([
+        'No', 'BusinessCentreName',
+        'KodeGudang',
+        'NamaGudang',
+        'KodeItem',
+        'NamaBarang',
+        'BatchNumber',
+        'TglExpired',
+        'Qty'
+      ]);
+
+      // Row 4+: Add data
+      allData.forEach((row, idx) => {
+        worksheet.addRow({
+          no: idx + 1,
+          ...row,
+        });
+      });
+
+      // Calculate total rows added (header is row 4, so data starts from row 5)
+      const totalRowNumber = worksheet.lastRow.number + 1;
+
+      // Add total label
+      worksheet.mergeCells(`A${totalRowNumber}:H${totalRowNumber}`);
+      worksheet.getCell(`A${totalRowNumber}`).value = 'TOTAL';
+      worksheet.getCell(`A${totalRowNumber}`).alignment = { horizontal: 'center', vertical: 'middle' };
+      worksheet.getCell(`A${totalRowNumber}`).font = { bold: true };
+
+      // Add formula-based totals
+      worksheet.getCell(`I${totalRowNumber}`).value = { formula: `SUM(I5:S${totalRowNumber - 1})` }; // Qty
+
+      // Optional: bold all total row
+      worksheet.getRow(totalRowNumber).font = { bold: true };
+
+      // Optional: Freeze title and header
+      worksheet.views = [{ state: 'frozen', ySplit: 4 }];
+
+      worksheet.autoFilter = {
+        from: 'A4',
+        to: 'I4',
+      };
+
+      // Generate and save
+      const buffer = await workbook.xlsx.writeBuffer();
+      saveAs(new Blob([buffer]), 'Persediaan per' + formatDateToDDMMYYYY(endDate) + '.xlsx');
+    } catch (error) {
+      alert('Gagal mengunduh data!');
+      console.error('Error exporting to Excel:', error);
+    } finally {
+      document.body.style.cursor = 'default';
+    }
+  }
+
+  const exportToPDF = async () => {
+    try {
+      document.body.style.cursor = 'wait';
+
+      const response = await fetchPersediaan(
+        1,
+        1000000,
+        search,
+        selectedCabang,
+        selectedSupplier,
+        selectedBarang,
+        endDate
+      );
+
+      const allData = response.data;
+
+      // Define columns
+      const headers = [
+        'No', 'BusinessCentreName',
+        'KodeGudang',
+        'NamaGudang',
+        'KodeItem',
+        'NamaBarang',
+        'BatchNumber',
+        'TglExpired',
+        'Qty'
+      ];
+
+      // Prepare table body
+      const body = [
+        headers,
+        ...allData.map((row, idx) => [
+          idx + 1,
+          row.BusinessCentreName,
+          row.KodeGudang,
+          row.NamaGudang,
+          row.KodeItem,
+          row.NamaBarang,
+          row.BatchNumber,
+          row.TglExpired,
+          parseFloat(row.Qty || 0).toFixed(2),
+        ])
+      ];
+
+      const docDefinition = {
+        content: [
+          {
+            text: 'Laporan Persediaan Barang Per Batch',
+            style: 'header',
+            alignment: 'center'
+          },
+          {
+            text: `Periode per ${formatDateToDDMMYYYY(endDate)}`,
+            style: 'subheader',
+            alignment: 'center',
+            margin: [0, 0, 0, 10]
+          },
+          {
+            style: 'tableExample',
+            table: {
+              // headerRows: 1,
+              // widths: Array(headers.length).fill('*'),
+              body: body
+            },
+            layout: 'lightHorizontalLines'
+          }
+        ],
+        styles: {
+          header: {
+            fontSize: 16,
+            bold: true,
+            margin: [0, 0, 0, 4]
+          },
+          subheader: {
+            fontSize: 12,
+            margin: [0, 0, 0, 10]
+          },
+          tableExample: {
+            fontSize: 8
+          }
+        },
+        pageOrientation: 'portrait',
+        pageSize: 'A4',
+      };
+
+      pdfMake.createPdf(docDefinition).download('Persediaan per' + formatDateToDDMMYYYY(endDate) + '.pdf');
+    } catch (error) {
+      alert('Gagal mengunduh PDF!');
+      console.error('Error exporting to PDF:', error);
+    } finally {
+      document.body.style.cursor = 'default';
+    }
+  }
 
   return (
     <>
       <CRow>
         <CCol xs>
           <CCard className="mb-4">
-            <CCardHeader>Data Customers</CCardHeader>
+            <CCardHeader>Data Persediaan
+              <CDropdown className='float-end'>
+                <CDropdownToggle color="warning" size='sm' >Export</CDropdownToggle>
+                <CDropdownMenu>
+                  <CDropdownItem onClick={exportToExcel}><CIcon icon={cilSpreadsheet} className="me-2" />Excel</CDropdownItem>
+                  <CDropdownItem onClick={exportToPDF}><CIcon icon={cilPrint} className="me-2" />Pdf</CDropdownItem>
+                </CDropdownMenu>
+              </CDropdown>
+            </CCardHeader>
             <CCardBody>
               <div className="mb-3">
                 <CRow>
