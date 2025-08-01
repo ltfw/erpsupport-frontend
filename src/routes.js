@@ -1,5 +1,6 @@
 import React from 'react'
 import RekualifikasiAdd from './views/customer/RekualifikasiAdd'
+import NavigationAdmin from './views/admin/NavigationAdmin'
 const Customer = React.lazy(() => import('./views/customer/Customer'))
 const CustomerEdit = React.lazy(() => import('./views/customer/CustomerEdit'))
 const CustomerPrint = React.lazy(() => import('./views/customer/CustomerPrint'))
@@ -8,6 +9,7 @@ const Penjualan = React.lazy(() => import('./views/laporan/penjualan/Penjualan')
 const Persediaan = React.lazy(() => import('./views/laporan/persediaan/Persediaan'))
 const ImportPajak = React.lazy(() => import('./views/tools/ImportPajak'))
 const Rekualifikasi = React.lazy(() => import('./views/customer/Rekualifikasi'))
+const RayonCabang = React.lazy(() => import('./views/laporan/RayonCabang'))
 // Dashboard
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
@@ -143,6 +145,25 @@ const routes = [
       </ProtectedRoute>
     ),
   },
+  {
+    path: '/admin/navigation',
+    name: 'Navigation',
+    element: (
+      <ProtectedRoute>
+        <NavigationAdmin />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/report/rayon',
+    name: 'Rayon Cabang',
+    element: (
+      <ProtectedRoute>
+        <RayonCabang />
+      </ProtectedRoute>
+    ),
+  },
+
 
   // Theme
   { path: '/theme', name: 'Theme', element: Colors, exact: true },

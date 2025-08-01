@@ -1,86 +1,70 @@
 // _nav.js
-import { cilApplications, cilChart, cilPeople } from '@coreui/icons'
+import { cilApplications, cilChart, cilPeople, cilSettings } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 import { CNavGroup, CNavItem } from '@coreui/react'
 import { useAuth } from './contexts/AuthContext'
+import { useEffect, useState } from 'react'
+import axios from 'axios'
 
 const mode = import.meta.env.VITE_APP_MODE || 'production'
+const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
+
+const ICON_MAP = {
+  cilPeople: cilPeople,
+  cilApplications: cilApplications,
+  cilChart: cilChart,
+  cilSettings: cilSettings,
+  // Add others as needed
+}
 
 const useNav = () => {
   const { user } = useAuth()
-  console.log('useNav user:', user);
+  const [nav, setNav] = useState([]);
 
-  const role = user?.UserRoleCode || 'GUEST'
+  useEffect(() => {
+    const fetchNav = async () => {
+      if (!user?.UserRoleCode) return;
 
-  const menuConfig = [
-    {
-      component: CNavGroup,
-      name: 'Customer',
-      icon: <CIcon icon={cilPeople} customClassName="nav-icon" />,
-      roles: ['ADM', 'FAS', 'APJA-TGR',
-        'APJA-SMG',
-        'APJA-HO',
-        'APJF',
-        'APJF-TGR',
-        'APJF-SMG',
-        'SPV',
-        'SPV_JATIM001','DRO'],
-      items: [
-        {
-          component: CNavItem,
-          name: 'Data Customer',
-          to: '/customer/customers',
-        },
-        ...(mode !== 'production'
-          ? [
-            {
+      try {
+        const response = await axios.get(
+          `${ENDPOINT_URL}navigations?role=${user.UserRoleCode}`
+        );
+        const data = response.data.data;
+
+        const transformedNav = data.map(item => {
+          // Only include items not marked as devOnly in production
+          const filteredItems = item.items?.filter(sub => {
+            if (mode === 'production' && sub.devOnly) return false
+            return true
+          }) || []
+
+          // Don't include group if no items left
+          if (filteredItems.length === 0 && item.type === 'group') return null
+          console.log('Processing nav item:', item, 'with items:', filteredItems);
+          return {
+            component: CNavGroup,
+            name: item.menuName,
+            icon: <CIcon icon={ICON_MAP[item.iconClass]} customClassName="nav-icon" />,
+            items: filteredItems.map(sub => ({
               component: CNavItem,
-              name: 'Rekualifikasi Customer',
-              to: '/customer/requalify',
-            },
-          ]
-          : []),
-      ],
-    },
-    {
-      component: CNavGroup,
-      name: 'Tools',
-      icon: <CIcon icon={cilApplications} customClassName="nav-icon" />,
-      roles: ['ADM', 'FAS','DRO'],
-      items: [
-        {
-          component: CNavItem,
-          name: 'Import Faktur Pajak',
-          to: '/tools/importpajak',
-        },
-      ],
-    },
-    {
-      component: CNavGroup,
-      name: 'Daftar Laporan',
-      icon: <CIcon icon={cilChart} customClassName="nav-icon" />,
-      roles: ['ADM', 'MKT-SANI (JABAR)', 'MKT-SANI (JATIM)', 'MKT-SANI (JATENG)', 'FAS','DRO'],
-      items: [
-        {
-          component: CNavItem,
-          name: 'Penjualan',
-          to: '/report/sales',
-        },
-        {
-          component: CNavItem,
-          name: 'Stock Per Batch',
-          to: '/report/stock',
-        },
-        ...(mode !== 'production'
-          ? []
-          : []),
-      ],
-    },
-  ]
+              name: sub.name,
+              to: sub.to,
+            })),
+          }
+        }).filter(Boolean)
 
-  const _nav = menuConfig.filter((section) => section.roles.includes(role))
+        console.log('Navigation data:', transformedNav);
+        setNav(transformedNav);
+      } catch (err) {
+        console.error('Failed to load navigation', err);
+        // Optional: fallback to static nav
+        setNav([]); // or a minimal static version
+      }
+    };
 
-  return _nav
+    fetchNav();
+  }, [user]);
+  return nav
 }
 
 export default useNav

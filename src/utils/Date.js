@@ -33,3 +33,26 @@ export const formatDateToDDMMYYYY = (dateStr) => {
   if (!year || !month || !day) return dateStr; // fallback for invalid format
   return `${day}/${month}/${year}`;
 };
+
+export const formatISODateToDDMMYYYY = (isoDateString) => {
+  try {
+    const date = new Date(isoDateString);
+
+    // Check for invalid date
+    if (isNaN(date.getTime())) {
+      console.warn(`Invalid date string provided to formatISODateToDDMMYYYY: ${isoDateString}`);
+      return isoDateString; // Return original string or handle error as preferred
+    }
+
+    // Use UTC methods (getUTCDate, getUTCMonth, getUTCFullYear)
+    // as the 'Z' in the ISO string indicates UTC time.
+    const day = String(date.getUTCDate()).padStart(2, '0');
+    const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-indexed
+    const year = date.getUTCFullYear();
+
+    return `${day}/${month}/${year}`;
+  } catch (error) {
+    console.error(`Error formatting ISO date string "${isoDateString}":`, error);
+    return isoDateString; // Fallback in case of unexpected errors during parsing
+  }
+};
