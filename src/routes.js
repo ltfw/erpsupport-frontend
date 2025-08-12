@@ -10,6 +10,10 @@ const Persediaan = React.lazy(() => import('./views/laporan/persediaan/Persediaa
 const ImportPajak = React.lazy(() => import('./views/tools/ImportPajak'))
 const Rekualifikasi = React.lazy(() => import('./views/customer/Rekualifikasi'))
 const RayonCabang = React.lazy(() => import('./views/laporan/RayonCabang'))
+const DaftarBarang = React.lazy(() => import('./views/laporan/persediaan/DaftarBarang'))
+const KonfirmasiPiutang = React.lazy(() => import('./views/piutang/KonfirmasiPiutang'))
+const KonfirmasiPiutangPrint = React.lazy(() => import('./views/piutang/KonfirmasiPiutangPrint'))
+const ImportVA = React.lazy(() => import('./views/tools/ImportVA'))
 // Dashboard
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
@@ -128,6 +132,15 @@ const routes = [
     ),
   },
   {
+    path: '/tools/importva',
+    name: 'Import VA',
+    element: (
+      <ProtectedRoute>
+        <ImportVA />
+      </ProtectedRoute>
+    ),
+  },
+  {
     path: '/customer/requalify',
     name: 'Rekualifikasi Customer',
     element: (
@@ -163,7 +176,33 @@ const routes = [
       </ProtectedRoute>
     ),
   },
-
+  {
+    path: '/report/daftarbarang',
+    name: 'Rayon Cabang',
+    element: (
+      <ProtectedRoute>
+        <DaftarBarang />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/piutang/konfirmasipiutang',
+    name: 'Konfirmasi Piutang',
+    element: (
+      <ProtectedRoute>
+        <KonfirmasiPiutang />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/piutang/konfirmasipiutang/:customerId/print',
+    name: 'Cetak Konfirmasi Piutang',
+    element: (
+      <ProtectedRoute>
+        <KonfirmasiPiutangPrint />
+      </ProtectedRoute>
+    ),
+  },
 
   // Theme
   { path: '/theme', name: 'Theme', element: Colors, exact: true },

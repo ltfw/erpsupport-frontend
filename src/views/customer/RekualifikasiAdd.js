@@ -122,6 +122,7 @@ const RekualifikasiAdd = () => {
                     options={groupOptions}
                     value={selectedGroup}
                     onChange={setSelectedGroup}
+                    isMulti
                   />
                 </CCol>
                 <CCol xs={2} className="d-grid gap-2">
