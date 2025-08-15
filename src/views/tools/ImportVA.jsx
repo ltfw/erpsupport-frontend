@@ -57,7 +57,7 @@ const ImportVA = () => {
 
 
       setParsedData(cleanedData);
-      toast.success('File loaded successfully');
+      toast.info('File loaded successfully');
     } catch (err) {
       console.error(err);
       toast.error('Failed to parse file');
@@ -101,8 +101,11 @@ const ImportVA = () => {
                   />
                 </CCol>
                 <CCol xs="auto">
-                  <CButton color="primary" onClick={handleParseFile}>
+                  <CButton color="primary" className="me-2" onClick={handleParseFile}>
                     Preview File
+                  </CButton>
+                  <CButton color="success text-white" onClick={handleUpload}>
+                    Import ke Server
                   </CButton>
                 </CCol>
               </CRow>
@@ -144,7 +147,7 @@ const ImportVA = () => {
                     </CTableBody>
                   </CTable>
 
-                  <CButton color="success" className="mt-3" onClick={handleUpload}>
+                  <CButton color="success text-white" className="mt-3" onClick={handleUpload}>
                     Import ke Server
                   </CButton>
                 </>

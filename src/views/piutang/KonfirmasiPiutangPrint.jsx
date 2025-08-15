@@ -7,7 +7,7 @@ import { formatRupiah } from "../../utils/Number";
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL;
 const cellStyle = {
   border: "1px solid black",
-  padding: "8px",
+  padding: "4px",
   textAlign: "left"
 };
 
@@ -25,8 +25,24 @@ export default function KonfirmasiPiutangPrint() {
     contentRef: componentRef,
     documentTitle: "Konfirmasi Piutang",
     pageStyle: `
-      @page { size: A4 portrait; margin: 10mm; }
-      body { -webkit-print-color-adjust: exact; font-family: serif; line-height: 1.5}
+      @page { 
+        size: A4 portrait;
+        margin: 0;
+        padding: 0;
+      }
+      body { 
+        -webkit-print-color-adjust: exact; 
+        font-family: Arial, sans-serif; 
+        font-weight: 400;
+        line-height: 1.5;
+        margin: 0;
+        padding: 0;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
       .page-break { page-break-before: always; }
       @media print {
         .avoid-page-break {
@@ -61,30 +77,46 @@ export default function KonfirmasiPiutangPrint() {
 
   const PrintTemplate = forwardRef((props, ref) => (
     <div ref={ref}>
+      <img src="/img/accent.png" style={{ 
+        position:"fixed",
+        top:"0",
+        left:"0",
+        width:"300px",
+        opacity:"0.3",
+        zIndex: "-1"
+      }}/>
       <img src="/img/logo-sdl.png" style={{ 
         position:"absolute",
+        top:"0",
+        // left:"0",
+        right:"10px",
+        marginRight:"50px",
+        marginTop:"30px",
         width:"120px",
-        marginLeft:"10px"
       }}/>
-      <div style={{ padding: "10px", fontSize:"12px" }}>
-        <h2 style={{ textAlign: "center", textDecoration: "underline", marginBottom:"3rem", marginTop:"1rem" }}>KONFIRMASI PIUTANG</h2>
+      
+      <div style={{ padding: "50px", fontSize:"12px" }}>
+        <h2 style={{ textAlign: "center", textDecoration: "underline", marginBottom:"3rem", marginTop:"1rem", zIndex:"1000" }}>
+          KONFIRMASI PIUTANG
+        </h2>
 
-        <p>{props.Kota}, {props.tanggalSurat}</p>
-        <p>
+        <p style={{ zIndex:"1000" }}>{props.Kota}, {props.tanggalSurat}</p>
+        <p style={{ zIndex:"1000" }}>
           Kepada Yang Terhormat,<br />
           {props.BusinessEntityName} {props.namaPenerima},<br />
           Di tempat,
         </p>
 
-        <p>Dengan hormat,</p>
-        <p>
-          Sesuai dengan data Saldo Piutang Dagang <b>PT Satoria Distribusi Lestari</b> per tanggal {props.tanggalSurat},
-          bahwa outlet Bapak/Ibu masih memiliki Saldo Hutang Dagang sebesar
-          <b> Rp {formatRupiah(props.saldoHutang)}</b> kepada PT Satoria Distribusi Lestari.
+        <p style={{ zIndex:"1000" }}>Dengan hormat,</p>
+        <p style={{ textIndent: "30px" }}>
+          Pertama-tama, kami mengucapkan terima kasih atas kerja sama yang telah terjalin dengan baik selama ini bersama 
+          PT Satoria Distribusi Lestari. Demi kenyamanan Bapak/Ibu dalam bertransaksi dengan PT Satoria Distribusi Lestari, 
+          bersama ini kami sampaikan daftar piutang outlet Bapak/Ibu per tanggal {props.tanggalSurat}.
         </p>
-
-        <p>Adapun rincian sebagai berikut :</p>
-        <table cellPadding="8" style={{
+        <p style={{ textIndent: "30px" }}>
+          Berdasarkan data kami, outlet Bapak/Ibu memiliki saldo hutang dagang sebesar <b>Rp {formatRupiah(props.saldoHutang)} </b> 
+           kepada PT Satoria Distribusi Lestari. Berikut adalah rinciannya :</p>
+        <table style={{
           width: "100%", 
           borderCollapse: "collapse",
           border: "1px solid black",
@@ -92,29 +124,29 @@ export default function KonfirmasiPiutangPrint() {
         }}>
           <thead>
             <tr>
-              <th style={cellStyle}>No</th>
+              <th style={cellStyle} className="text-center">No</th>
               <th style={cellStyle}>No Faktur</th>
               <th style={cellStyle} className="text-center">Tgl Faktur</th>
+              <th style={cellStyle} className="text-center">Nilai Piutang</th>
               <th style={cellStyle} className="text-center">Jatuh Tempo</th>
               <th style={cellStyle} className="text-center">Umur</th>
-              <th style={cellStyle} className="text-center">Nilai Piutang</th>
             </tr>
           </thead>
           <tbody>
             {props.rincian.map((row, idx) => (
               <tr key={idx}>
-                <td style={cellStyle}>{idx + 1}</td>
+                <td style={cellStyle} className="text-center">{idx + 1}</td>
                 <td style={cellStyle}>{row.ParentTransaction}</td>
                 <td style={cellStyle} className="text-center">{row.TglTrnFaktur}</td>
+                <td style={cellStyle} className="text-end">{formatRupiah(row.nominal)}</td>
                 <td style={cellStyle} className="text-center">{row.TglJthTmp}</td>
                 <td style={cellStyle} className="text-center">{row.aging}</td>
-                <td style={cellStyle} className="text-end">{formatRupiah(row.nominal)}</td>
               </tr>
             ))}
           </tbody>
         </table>
 
-        <p className="mt-5">
+        <p className="mt-5" style={{ textIndent: "30px" }}>
           Atas dasar hal tersebut, kami hendak melakukan konfirmasi kesesuaian data Saldo Piutang Dagang kami
           dengan catatan pembukuan Bapak/Ibu.<br />
           <i>(Catatan : hal ini sifatnya hanya merupakan konfirmasi bukan penagihan)</i>
@@ -128,14 +160,14 @@ export default function KonfirmasiPiutangPrint() {
 
         <div className="page-break" />
 
-        <p>
+        <p style={{ marginTop:"100px", zIndex:"1000" }}>
           Kepada:<br />
           Internal Auditor<br />
           PT. Satoria Distribusi Lestari<br />
           Di Tempat
         </p>
 
-        <p>
+        <p style={{ zIndex:"1000" }}>
           Bersama ini kami menyatakan kepada PT Satoria Distribusi Lestari per tanggal ___________
           bahwa kami mempunyai Saldo Hutang Dagang sebesar Rp. _________________________
         </p>

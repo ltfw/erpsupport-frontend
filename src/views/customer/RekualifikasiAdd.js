@@ -36,10 +36,22 @@ const RekualifikasiAdd = () => {
   const [selectedGroup, setSelectedGroup] = useState(null)
 
   const fetchRayonCustomer = async () => {
-    const rayonValue = selectedRayon?.value || ''
-    const groupValue = selectedGroup?.value || ''
+
+    const params = new URLSearchParams()
+
+    if (selectedRayon) {
+      params.append('rayon', selectedRayon.value)
+      console.log('selectedRayon', selectedRayon.value)
+    }
+
+    if (selectedGroup) {
+      params.append('group', selectedGroup.map(item => item.value).join(','))
+    }
+
+    // console.log('params', selectedGroup.map(item => item.value).join(','))
+
     const response = await axios.get(
-      `${ENDPOINT_URL}customers/rayoncustomer?rayon=${rayonValue}&group=${groupValue}`
+      `${ENDPOINT_URL}customers/rayoncustomer?${params.toString()}`
     )
     const dataWithDefaults = response.data.data.map(item => ({
       ...item,
@@ -85,14 +97,20 @@ const RekualifikasiAdd = () => {
   const handleSave = async () => {
     try {
       console.log('Saving customerData:', customerData)
-      // await axios.post(`${ENDPOINT_URL}customer/rayoncustomer`, {
-      //   data: customerData
-      // });
-      // toast.success('Data saved successfully')
-      // setCustomerData([]) // Clear the data after saving
+      await axios.post(`${ENDPOINT_URL}customers/rayoncustomer`, {
+        header: {
+          KodeDept: customerData[0].KodeDept,
+          RayonName: customerData[0].RayonName,
+          NamaSales: customerData[0].NamaSales,
+        },
+        detail: customerData,
+      });
+      toast.success('Data saved successfully')
+      // setCustomerData([]) 
+      // navigate(-1)
     } catch (err) {
       console.error(err);
-      toast.error('Failed to import data');
+      toast.error('Failed to save data');
     }
   }
 
@@ -158,7 +176,7 @@ const RekualifikasiAdd = () => {
                           <CTableHeaderCell scope="col">Dibawa Salesman</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Sudah Dikembalikan</CTableHeaderCell>
                           <CTableHeaderCell scope="col">Sudah Update</CTableHeaderCell>
-                          <CTableHeaderCell scope="col">Dokumen Sudah Lengkap</CTableHeaderCell>
+                          <CTableHeaderCell scope="col">Dokumen Sudah Lengkap / Tidak Ada Perubahan</CTableHeaderCell>
                         </CTableRow>
                       </CTableHead>
                       <CTableBody>
