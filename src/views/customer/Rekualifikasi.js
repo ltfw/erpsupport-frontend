@@ -24,6 +24,9 @@ import {
   CCardBody,
 } from '@coreui/react'
 import axios from 'axios'
+import { cilPencil } from '@coreui/icons'
+import CIcon from '@coreui/icons-react'
+import { formatISODateToDDMMYYYY } from '../../utils/Date'
 
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 
@@ -40,7 +43,7 @@ const Rekualifikasi = ({ onSelect }) => {
   useEffect(() => {
     const fetchData = async () => {
       const response = await axios.get(
-        `${ENDPOINT_URL}customer/requalify?page=${page}&per_page=${perPage}&search=${encodeURIComponent(search)}`
+        `${ENDPOINT_URL}customers/requalify?page=${page}&per_page=${perPage}&search=${encodeURIComponent(search)}`
       )
       console.log('response.data', response.data)
       setCustomerList(response.data.data)
@@ -99,22 +102,22 @@ const Rekualifikasi = ({ onSelect }) => {
                     <CTableHeaderCell scope="col">Cabang</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Rayon</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Salesman</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Periode</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Edit</CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
                 <CTableBody>
                   {customerList.map((item) => (
-                    <CTableRow key={item.KodeItem}>
+                    <CTableRow key={item.NoTransaksi}>
+                      <CTableDataCell>{item.NoTransaksi}</CTableDataCell>
+                      <CTableDataCell>{formatISODateToDDMMYYYY(item.TglInput)}</CTableDataCell>
+                      <CTableDataCell>{item.NamaDept}</CTableDataCell>
+                      <CTableDataCell>{item.Rayon}</CTableDataCell>
+                      <CTableDataCell>{item.Salesman}</CTableDataCell>
                       <CTableDataCell>
-                        <CFormCheck
-                          checked={selectedItems.includes(item.KodeItem)}
-                          onChange={() => toggleItem(item)}
-                        />
+                        <CButton color="info" size="sm" onClick={() => navigate(`/customer/requalify/edit/${item.NoTransaksi}`)}>
+                          <CIcon icon={cilPencil} />
+                        </CButton>
                       </CTableDataCell>
-                      <CTableDataCell>{item.KodeItem}</CTableDataCell>
-                      <CTableDataCell>{item.NamaBarang}</CTableDataCell>
-                      <CTableDataCell>{item.Keterangan}</CTableDataCell>
                     </CTableRow>
                   ))}
                 </CTableBody>
