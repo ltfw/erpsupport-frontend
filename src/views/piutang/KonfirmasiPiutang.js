@@ -33,14 +33,31 @@ import { formatRupiah } from '../../utils/Number'
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 
 const KonfirmasiPiutang = () => {
-  const [search, setSearch] = useState('')
-  const [page, setPage] = useState(1)
-  const [perPage, setPerPage] = useState(10)
+  // Load search value from localStorage on component mount
+  const [search, setSearch] = useState(() => {
+    const savedSearch = localStorage.getItem('konfirmasiPiutang_search')
+    return savedSearch || ''
+  })
+  // Load pagination values from localStorage on component mount
+  const [page, setPage] = useState(() => {
+    const savedPage = localStorage.getItem('konfirmasiPiutang_page')
+    return savedPage ? parseInt(savedPage, 10) : 1
+  })
+  const [perPage, setPerPage] = useState(() => {
+    const savedPerPage = localStorage.getItem('konfirmasiPiutang_perPage')
+    return savedPerPage ? parseInt(savedPerPage, 10) : 10
+  })
   const [selectedCabang, setSelectedCabang] = useState([]);
   const [customerList, setCustomerList] = useState([])
   const [totalPages, setTotalPages] = useState(1)
 
   const navigate = useNavigate()
+
+  // Custom setPage function that saves to localStorage
+  const handlePageChange = (newPage) => {
+    setPage(newPage)
+    localStorage.setItem('konfirmasiPiutang_page', newPage.toString())
+  }
 
   // Fetch Customer data
   useEffect(() => {
@@ -82,10 +99,17 @@ const KonfirmasiPiutang = () => {
               </CRow>
               <CRow className="g-1 mb-3">
                 <CCol xs={1}>
-                  <CFormSelect onChange={(e) => {
-                    setPage(1)
-                    setPerPage(parseInt(e.target.value, 10))
-                  }}>
+                  <CFormSelect 
+                    value={perPage}
+                    onChange={(e) => {
+                      const newPerPage = parseInt(e.target.value, 10)
+                      setPage(1)
+                      setPerPage(newPerPage)
+                      // Save pagination values to localStorage
+                      localStorage.setItem('konfirmasiPiutang_perPage', newPerPage.toString())
+                      localStorage.setItem('konfirmasiPiutang_page', '1')
+                    }}
+                  >
                     <option value="10">10</option>
                     <option value="20">20</option>
                     <option value="50">50</option>
@@ -98,8 +122,11 @@ const KonfirmasiPiutang = () => {
                     placeholder="Search Customer..."
                     value={search}
                     onChange={(e) => {
-                      setSearch(e.target.value)
+                      const newSearchValue = e.target.value
+                      setSearch(newSearchValue)
                       setPage(1)
+                      // Save search value to localStorage
+                      localStorage.setItem('konfirmasiPiutang_search', newSearchValue)
                     }}
                   />
                 </CCol>
@@ -146,7 +173,7 @@ const KonfirmasiPiutang = () => {
 
               <div className="d-flex justify-content-between mt-3">
                 <div>
-                  <Pagination page={page} totalPages={totalPages} setPage={setPage} />
+                  <Pagination page={page} totalPages={totalPages} setPage={handlePageChange} />
                 </div>
               </div>
             </CCardBody>

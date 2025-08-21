@@ -108,13 +108,13 @@ export default function KonfirmasiPiutangPrint() {
         </p>
 
         <p style={{ zIndex:"1000" }}>Dengan hormat,</p>
-        <p style={{ textIndent: "30px" }}>
+        <p style={{ textIndent: "30px", textAlign: "justify" }}>
           Pertama-tama, kami mengucapkan terima kasih atas kerja sama yang telah terjalin dengan baik selama ini bersama 
           PT Satoria Distribusi Lestari. Demi kenyamanan Bapak/Ibu dalam bertransaksi dengan PT Satoria Distribusi Lestari, 
-          bersama ini kami sampaikan daftar piutang outlet Bapak/Ibu per tanggal {props.tanggalSurat}.
+          bersama ini kami sampaikan daftar piutang {props.BusinessEntityName} {props.namaPenerima} per tanggal {props.tanggalSurat}.
         </p>
         <p style={{ textIndent: "30px" }}>
-          Berdasarkan data kami, outlet Bapak/Ibu memiliki saldo hutang dagang sebesar <b>Rp {formatRupiah(props.saldoHutang)} </b> 
+          Berdasarkan data kami, {props.BusinessEntityName} {props.namaPenerima} memiliki saldo hutang dagang sebesar <b>Rp {formatRupiah(props.saldoHutang)} </b> 
            kepada PT Satoria Distribusi Lestari. Berikut adalah rinciannya :</p>
         <table style={{
           width: "100%", 
@@ -149,10 +149,10 @@ export default function KonfirmasiPiutangPrint() {
         <p className="mt-5" style={{ textIndent: "30px" }}>
           Atas dasar hal tersebut, kami hendak melakukan konfirmasi kesesuaian data Saldo Piutang Dagang kami
           dengan catatan pembukuan Bapak/Ibu.<br />
-          <i>(Catatan : hal ini sifatnya hanya merupakan konfirmasi bukan penagihan)</i>
         </p>
           
         <div className="avoid-page-break">
+          <i>(Catatan : hal ini sifatnya hanya merupakan konfirmasi bukan penagihan)</i>
           <p>Atas perhatian dan kerja sama Bapak/Ibu, kami ucapkan banyak terima kasih.</p>
           <p className="text-end mb-5">Hormat Kami,</p>
           <p className="text-end">Tim AR Control</p>

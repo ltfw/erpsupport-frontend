@@ -61,7 +61,7 @@ const DaftarBarang = () => {
     },
     {
       name: 'Qty',
-      selector: (row) => row.QtyShow,
+      selector: (row) => row.SumQtyPhysical,
       sortable: true,
       wrap: true,
     },
@@ -150,12 +150,12 @@ const DaftarBarang = () => {
         { key: 'NamaGudang', width: 10 },
         { key: 'KodeItem', width: 15 },
         { key: 'NamaBarang', width: 15 },
-        { key: 'QtyShow', width: 15 },
+        { key: 'SumQtyPhysical', width: 15 },
       ];
 
       const numberFormatThousand = '#,##0'; // Format: 1,000
 
-      const columnsToFormat = ['QtyShow'];
+      const columnsToFormat = ['SumQtyPhysical'];
 
       columnsToFormat.forEach((key) => {
         const column = worksheet.getColumn(key);
@@ -169,7 +169,7 @@ const DaftarBarang = () => {
         'NamaGudang',
         'KodeItem',
         'NamaBarang',
-        'QtyShow'
+        'SumQtyPhysical'
       ]);
 
       // Row 4+: Add data

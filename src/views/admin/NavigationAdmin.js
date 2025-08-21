@@ -26,7 +26,7 @@ const NavigationAdmin = () => {
   const [activeTab, setActiveTab] = useState('groups')
   const [groups, setGroups] = useState([])
   const [items, setItems] = useState([])
-  const [roles, setRoles] = useState(['ADM', 'FAS', 'MKT-SANI (JABAR)', 'MKT-SANI (JATIM)', 'MKT-SANI (JATENG)', 'GUEST'])
+  const [roles, setRoles] = useState(['ADM', 'FAS','MKT-SANI', 'MKT-SANI (JABAR)', 'MKT-SANI (JATIM)', 'MKT-SANI (JATENG)', 'GUEST'])
   const [access, setAccess] = useState([])
 
   const [loading, setLoading] = useState(false)
