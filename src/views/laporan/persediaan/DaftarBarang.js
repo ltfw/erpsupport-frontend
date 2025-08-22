@@ -65,6 +65,12 @@ const DaftarBarang = () => {
       sortable: true,
       wrap: true,
     },
+    {
+      name: 'Keterangan',
+      selector: (row) => row.Keterangan,
+      sortable: true,
+      wrap: true,
+    },
   ]
 
   const loadDataDaftarBarang = async (page, perPage, keyword = '', cabangIds = [], supplierIds = [], barangIds = [], endDate = null) => {
@@ -151,6 +157,8 @@ const DaftarBarang = () => {
         { key: 'KodeItem', width: 15 },
         { key: 'NamaBarang', width: 15 },
         { key: 'SumQtyPhysical', width: 15 },
+        { key: 'Keterangan', width: 15 },
+        
       ];
 
       const numberFormatThousand = '#,##0'; // Format: 1,000
@@ -169,7 +177,8 @@ const DaftarBarang = () => {
         'NamaGudang',
         'KodeItem',
         'NamaBarang',
-        'SumQtyPhysical'
+        'SumQtyPhysical',
+        'Keterangan'
       ]);
 
       // Row 4+: Add data
@@ -184,7 +193,7 @@ const DaftarBarang = () => {
       const totalRowNumber = worksheet.lastRow.number + 1;
 
       // Add total label
-      worksheet.mergeCells(`A${totalRowNumber}:F${totalRowNumber}`);
+      worksheet.mergeCells(`A${totalRowNumber}:G${totalRowNumber}`);
       worksheet.getCell(`A${totalRowNumber}`).value = 'TOTAL';
       worksheet.getCell(`A${totalRowNumber}`).alignment = { horizontal: 'center', vertical: 'middle' };
       worksheet.getCell(`A${totalRowNumber}`).font = { bold: true };
@@ -200,7 +209,7 @@ const DaftarBarang = () => {
 
       worksheet.autoFilter = {
         from: 'A4',
-        to: 'F4',
+        to: 'G4',
       };
 
       // Generate and save
@@ -237,7 +246,8 @@ const DaftarBarang = () => {
         'NamaGudang',
         'KodeItem',
         'NamaBarang',
-        'Qty'
+        'SumQtyPhysical',
+        'Keterangan'
       ];
 
       // Prepare table body
@@ -245,12 +255,12 @@ const DaftarBarang = () => {
         headers,
         ...allData.map((row, idx) => [
           idx + 1,
-          row.BusinessCentreName,
           row.KodeGudang,
           row.NamaGudang,
           row.KodeItem,
           row.NamaBarang,
-          parseFloat(row.Qty || 0).toFixed(2),
+          parseFloat(row.SumQtyPhysical || 0).toFixed(2),
+          row.Keterangan
         ])
       ];
 
@@ -346,7 +356,7 @@ const DaftarBarang = () => {
                   </CCol>
                 </CRow>
               </div>
-              <div className="mb-3">
+              {/* <div className="mb-3">
                 <input
                   type="text"
                   className="form-control"
@@ -357,7 +367,7 @@ const DaftarBarang = () => {
                     fetchDaftarBarang(1, e.target.value) // reset to page 1 on search
                   }}
                 />
-              </div>
+              </div> */}
 
               <DataTable
                 dense
