@@ -8,6 +8,17 @@ export const getCurrentDateFormatted = () => {
   return `${year}-${month}-${day}`;
 };
 
+export const getCurrentDateTimeFormatted = () => {
+  const now = new Date();
+  const day = String(now.getDate()).padStart(2, '0');
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const year = now.getFullYear();
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
+};
+
 export const getFirstDayOfMonthFormatted = () => {
   const today = new Date();
   const year = today.getFullYear();
@@ -56,3 +67,4 @@ export const formatISODateToDDMMYYYY = (isoDateString) => {
     return isoDateString; // Fallback in case of unexpected errors during parsing
   }
 };
+

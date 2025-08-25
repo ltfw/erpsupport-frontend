@@ -9,7 +9,7 @@ import { DataTable } from 'src/components'
 import axios from 'axios'
 import CIcon from '@coreui/icons-react'
 import { cilPencil, cilPrint, cilSpreadsheet, cilTrash } from '@coreui/icons'
-import { formatDateToDDMMYYYY, getCurrentDateFormatted } from '../../../utils/Date'
+import { formatDateToDDMMYYYY, getCurrentDateFormatted, getCurrentDateTimeFormatted } from '../../../utils/Date'
 import CabangSelector from '../../modals/CabangSelector'
 import SupplierSelector from '../../modals/SupplierSelector'
 import BarangSelector from '../../modals/BarangSelector'
@@ -28,6 +28,8 @@ const DaftarBarang = () => {
   const [selectedCabang, setSelectedCabang] = useState([]);
   const [selectedSupplier, setSelectedSupplier] = useState([]);
   const [endDate, setEndDate] = useState(getCurrentDateFormatted());
+
+  const userData = JSON.parse(localStorage.getItem('user'));
 
   const column = [
     {
@@ -57,6 +59,11 @@ const DaftarBarang = () => {
     {
       name: 'Nama Barang',
       selector: (row) => row.NamaBarang,
+      sortable: true,
+    },
+    {
+      name: 'UoM',
+      selector: (row) => row.KodeSatuan,
       sortable: true,
     },
     {
@@ -140,14 +147,21 @@ const DaftarBarang = () => {
       const worksheet = workbook.addWorksheet('Sales');
 
       // Row 2: Title
-      worksheet.mergeCells('A2:F2');
+      worksheet.mergeCells('A2:H2');
       worksheet.getCell('A2').value = 'Laporan Daftar Barang';
       worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' };
       worksheet.getCell('A2').font = { size: 16, bold: true };
-      worksheet.mergeCells('A3:F3');
+      worksheet.mergeCells('A3:H3');
       worksheet.getCell('A3').value = 'Periode per ' + formatDateToDDMMYYYY(endDate);
       worksheet.getCell('A3').alignment = { horizontal: 'center', vertical: 'middle' };
       worksheet.getCell('A3').font = { size: 16, bold: true };
+
+      // Row 4: Export info
+      worksheet.mergeCells('A4:H4');
+      worksheet.getCell('A4').value = `Exported at ${getCurrentDateTimeFormatted()} by ${userData?.UserName || '-'}`;
+      worksheet.getCell('A4').alignment = { horizontal: 'right', vertical: 'middle' };
+      worksheet.getCell('A4').font = { italic: true, size: 10 };
+      worksheet.mergeCells('A5:H5');
 
       // Set column widths only (DO NOT use headers here!)
       worksheet.columns = [
@@ -156,32 +170,31 @@ const DaftarBarang = () => {
         { key: 'NamaGudang', width: 10 },
         { key: 'KodeItem', width: 15 },
         { key: 'NamaBarang', width: 15 },
+        { key: 'KodeSatuan', width: 15 },
         { key: 'SumQtyPhysical', width: 15 },
         { key: 'Keterangan', width: 15 },
-        
       ];
 
       const numberFormatThousand = '#,##0'; // Format: 1,000
-
       const columnsToFormat = ['SumQtyPhysical'];
-
       columnsToFormat.forEach((key) => {
         const column = worksheet.getColumn(key);
         column.numFmt = numberFormatThousand;
       });
 
-      // Row 3: Write headers manually
+      // Row 5: Write headers manually
       worksheet.addRow([
         'No',
         'KodeGudang',
         'NamaGudang',
         'KodeItem',
         'NamaBarang',
-        'SumQtyPhysical',
+        'KodeSatuan',
+        'Qty',
         'Keterangan'
       ]);
 
-      // Row 4+: Add data
+      // Row 6+: Add data
       allData.forEach((row, idx) => {
         worksheet.addRow({
           no: idx + 1,
@@ -189,27 +202,27 @@ const DaftarBarang = () => {
         });
       });
 
-      // Calculate total rows added (header is row 4, so data starts from row 5)
+      // Calculate total rows added (header is row 5, so data starts from row 6)
       const totalRowNumber = worksheet.lastRow.number + 1;
 
       // Add total label
-      worksheet.mergeCells(`A${totalRowNumber}:G${totalRowNumber}`);
+      worksheet.mergeCells(`A${totalRowNumber}:F${totalRowNumber}`);
       worksheet.getCell(`A${totalRowNumber}`).value = 'TOTAL';
       worksheet.getCell(`A${totalRowNumber}`).alignment = { horizontal: 'center', vertical: 'middle' };
       worksheet.getCell(`A${totalRowNumber}`).font = { bold: true };
 
       // Add formula-based totals
-      worksheet.getCell(`F${totalRowNumber}`).value = { formula: `SUM(F5:F${totalRowNumber - 1})` }; // Qty
+      worksheet.getCell(`G${totalRowNumber}`).value = { formula: `SUM(G6:G${totalRowNumber - 1})` }; // Qty
 
       // Optional: bold all total row
       worksheet.getRow(totalRowNumber).font = { bold: true };
 
       // Optional: Freeze title and header
-      worksheet.views = [{ state: 'frozen', ySplit: 4 }];
+      worksheet.views = [{ state: 'frozen', ySplit: 5 }];
 
       worksheet.autoFilter = {
-        from: 'A4',
-        to: 'G4',
+        from: 'A6',
+        to: 'H6',
       };
 
       // Generate and save
@@ -246,11 +259,17 @@ const DaftarBarang = () => {
         'NamaGudang',
         'KodeItem',
         'NamaBarang',
-        'SumQtyPhysical',
+        'KodeSatuan',
+        'Qty',
         'Keterangan'
       ];
 
       // Prepare table body
+      const formatThousand = (num) => {
+        if (num == null) return '';
+        return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+      };
+
       const body = [
         headers,
         ...allData.map((row, idx) => [
@@ -259,10 +278,13 @@ const DaftarBarang = () => {
           row.NamaGudang,
           row.KodeItem,
           row.NamaBarang,
-          parseFloat(row.SumQtyPhysical || 0).toFixed(2),
+          row.KodeSatuan,
+          formatThousand(row.SumQtyPhysical),
           row.Keterangan
         ])
       ];
+
+      const printedInfo = `Printed at ${getCurrentDateTimeFormatted()} by ${userData?.UserName || '-'}`;
 
       const docDefinition = {
         content: [
@@ -275,6 +297,12 @@ const DaftarBarang = () => {
             text: `Periode per ${formatDateToDDMMYYYY(endDate)}`,
             style: 'subheader',
             alignment: 'center',
+            margin: [0, 0, 0, 10]
+          },
+          {
+            text: printedInfo,
+            style: 'printedInfo',
+            alignment: 'right',
             margin: [0, 0, 0, 10]
           },
           {
@@ -296,6 +324,10 @@ const DaftarBarang = () => {
           subheader: {
             fontSize: 12,
             margin: [0, 0, 0, 10]
+          },
+          printedInfo: {
+            fontSize: 8,
+            italics: true
           },
           tableExample: {
             fontSize: 8
