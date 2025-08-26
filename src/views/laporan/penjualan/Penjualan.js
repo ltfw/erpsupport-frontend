@@ -457,7 +457,7 @@ const Penjualan = () => {
       worksheet.getCell(`A${totalRowNumber}`).font = { bold: true };
 
       // Add formula-based totals
-      worksheet.getCell(`T${totalRowNumber}`).value = { formula: `SUM(T5:S${totalRowNumber - 1})` }; // Qty
+      worksheet.getCell(`T${totalRowNumber}`).value = { formula: `SUM(T5:T${totalRowNumber - 1})` }; // Qty
       worksheet.getCell(`V${totalRowNumber}`).value = { formula: `SUM(V5:V${totalRowNumber - 1})` }; // ValueHNA
       worksheet.getCell(`W${totalRowNumber}`).value = { formula: `SUM(W5:W${totalRowNumber - 1})` }; // ValueNett
       worksheet.getCell(`X${totalRowNumber}`).value = { formula: `SUM(X5:X${totalRowNumber - 1})` }; // TotalValueDisc

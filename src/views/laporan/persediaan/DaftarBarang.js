@@ -291,7 +291,7 @@ const DaftarBarang = () => {
       worksheet.getCell(`A${totalRowNumber}`).font = { bold: true }
 
       // Add formula-based totals
-      worksheet.getCell(`G${totalRowNumber}`).value = { formula: `SUM(G6:G${totalRowNumber - 1})` } // Qty
+      worksheet.getCell(`G${totalRowNumber}`).value = { formula: `SUM(G7:G${totalRowNumber - 1})` } // Qty
 
       // Optional: bold all total row
       worksheet.getRow(totalRowNumber).font = { bold: true }
