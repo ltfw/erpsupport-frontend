@@ -345,11 +345,11 @@ const Penjualan = () => {
       const worksheet = workbook.addWorksheet('Sales');
 
       // Row 2: Title
-      worksheet.mergeCells('A2:AL2');
+      worksheet.mergeCells('A2:AM2');
       worksheet.getCell('A2').value = 'Laporan Penjualan';
       worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' };
       worksheet.getCell('A2').font = { size: 16, bold: true };
-      worksheet.mergeCells('A3:AL3');
+      worksheet.mergeCells('A3:AM3');
       worksheet.getCell('A3').value = 'Periode ' + formatDateToDDMMYYYY(startDate) + ' s.d. ' + formatDateToDDMMYYYY(endDate);
       worksheet.getCell('A3').alignment = { horizontal: 'center', vertical: 'middle' };
       worksheet.getCell('A3').font = { size: 16, bold: true };
@@ -394,6 +394,7 @@ const Penjualan = () => {
         { key: 'TipeJual', width: 12 },
         { key: 'PoLanggan', width: 15 },
         { key: 'PromotionCode', width: 15 },
+        { key: 'PromotionName', width: 15 },
       ];
 
       const numberFormatThousandTwoDecimal = '#,##0.00'; // Format: 1,000.00
@@ -425,7 +426,7 @@ const Penjualan = () => {
         'Kode Item', 'Nama Item', 'Supplier', 'Nama Business Centre', 'HNA', 'Qty', 'Satuan',
         'Value HNA', 'Value Nett', 'Total Value Disc', 'Value Disc Distributor', 'Value Disc Principle',
         'Total Disc %', 'Disc Dist %', 'Disc Princ %', 'Batch Number', 'Tgl Expired', 'Province',
-        'Regency', 'District', 'Village', 'Tipe Jual', 'NoSP', 'Kode Promosi'
+        'Regency', 'District', 'Village', 'Tipe Jual', 'NoSP', 'Kode Promosi','Surat Keluar/No. DPL/F'
       ]);
 
       // Row 4+: Add data
@@ -473,7 +474,7 @@ const Penjualan = () => {
 
       worksheet.autoFilter = {
         from: 'A4',
-        to: 'AL4',
+        to: 'AM4',
       };
 
 
