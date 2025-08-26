@@ -332,7 +332,13 @@ const DaftarBarang = () => {
         endDate,
       )
 
-      const allData = response.data
+      // Map: If KodeGudang == '03-GUU-02', update NamaGudang
+      const allData = response.data.map(item => {
+        if (item.KodeGudang === '03-GUU-02') {
+          return { ...item, NamaGudang: 'Gudang Utama-TGR 2 (Gudang Buffer SAI)' }
+        }
+        return item
+      })
 
       const formatThousand = (num) => {
         if (num == null) return ''
