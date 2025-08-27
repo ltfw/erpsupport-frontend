@@ -604,9 +604,6 @@ const Penjualan = () => {
         'Total Value Disc': 'TotalValueDisc',
         'Value Disc Distributor': 'ValueDiscDist',
         'Value Disc Principle': 'ValueDiscPrinc',
-        'Total Disc %': 'TotalDiscPsn',
-        'Disc Dist %': 'DiscDistPsn',
-        'Disc Princ %': 'DiscPrincPsn'
       };
 
       Object.keys(totalColumnsMap).forEach(header => {
@@ -644,6 +641,14 @@ const Penjualan = () => {
             margin: [0, 0, 0, 10]
           },
           {
+            text: `Printed at ${getCurrentDateTimeFormatted()} by ${userData?.UserName || '-'}`,
+            style: 'printedInfo',
+            alignment: 'right',
+            margin: [0, 0, 0, 10],
+            italics: true,
+            fontSize: 8
+          },
+          {
             style: 'tableExample',
             table: {
               headerRows: 1, // This makes the header repeat on new pages
@@ -668,7 +673,7 @@ const Penjualan = () => {
           }
         },
         pageOrientation: 'landscape',
-        pageSize: 'A1',
+        pageSize: 'A0',
       };
 
       pdfMake.createPdf(docDefinition).download('Laporan Penjualan SDL ' + startDate + ' - ' + endDate + '.pdf');
