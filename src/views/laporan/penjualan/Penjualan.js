@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import DatePicker from '../../base/datepicker/DatePicker'
-import { formatDateToDDMMYYYY } from '../../../utils/Date'
+import { formatDateToDDMMYYYY, getCurrentDateTimeFormatted } from '../../../utils/Date'
 import pdfMake from 'pdfmake/build/pdfmake';
 import 'pdfmake/build/vfs_fonts';
 
@@ -23,7 +23,14 @@ import SupplierSelector from '../../modals/SupplierSelector'
 import { getCurrentDateFormatted, getFirstDayOfMonthFormatted } from '../../../utils/Date'
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 
+const userData = JSON.parse(localStorage.getItem('user'))
+
 const Penjualan = () => {
+  const formatThousand = (num) => {
+    if (num == null) return ''
+    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+  }
+
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
   const [totalRows, setTotalRows] = useState(0)
@@ -148,7 +155,7 @@ const Penjualan = () => {
     },
     {
       name: 'HNA',
-      selector: (row) => row.Hna1,
+      selector: (row) => row.Hna,
       sortable: true,
       wrap: true,
     },
@@ -346,13 +353,21 @@ const Penjualan = () => {
 
       // Row 2: Title
       worksheet.mergeCells('A2:AM2');
-      worksheet.getCell('A2').value = 'Laporan Penjualan';
+      worksheet.getCell('A2').value = 'Laporan Penjualan PT Satoria Distribusi Lestari';
       worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' };
       worksheet.getCell('A2').font = { size: 16, bold: true };
       worksheet.mergeCells('A3:AM3');
       worksheet.getCell('A3').value = 'Periode ' + formatDateToDDMMYYYY(startDate) + ' s.d. ' + formatDateToDDMMYYYY(endDate);
       worksheet.getCell('A3').alignment = { horizontal: 'center', vertical: 'middle' };
       worksheet.getCell('A3').font = { size: 16, bold: true };
+
+      // Export info
+      worksheet.mergeCells('A4:AM4')
+      worksheet.getCell('A4').value =
+        `Exported at ${getCurrentDateTimeFormatted()} by ${userData?.UserName || '-'}`
+      worksheet.getCell('A4').alignment = { horizontal: 'right', vertical: 'middle' }
+      worksheet.getCell('A4').font = { italic: true, size: 10 }
+      worksheet.mergeCells('A5:AM5')
 
       // Set column widths only (DO NOT use headers here!)
       worksheet.columns = [
@@ -426,14 +441,14 @@ const Penjualan = () => {
         'Kode Item', 'Nama Item', 'Supplier', 'Nama Business Centre', 'HNA', 'Qty', 'Satuan',
         'Value HNA', 'Value Nett', 'Total Value Disc', 'Value Disc Distributor', 'Value Disc Principle',
         'Total Disc %', 'Disc Dist %', 'Disc Princ %', 'Batch Number', 'Tgl Expired', 'Province',
-        'Regency', 'District', 'Village', 'Tipe Jual', 'NoSP', 'Kode Promosi','Surat Keluar/No. DPL/F'
+        'Regency', 'District', 'Village', 'Tipe Jual', 'NoSP', 'Kode Promosi', 'Surat Keluar/No. DPL/F'
       ]);
 
       // Row 4+: Add data
       allData.forEach((row, idx) => {
         const cleanRow = {
           ...row,
-          Hna1: Math.round(parseFloat(row.Hna1 || 0) * 100) / 100,
+          Hna1: Math.round(parseFloat(row.Hna || 0) * 100) / 100,
           Qty: Math.round(parseFloat(row.Qty || 0) * 100) / 100,
           ValueHNA: Math.round(parseFloat(row.ValueHNA || 0) * 100) / 100,
           ValueNett: Math.round(parseFloat(row.ValueNett || 0) * 100) / 100,
@@ -458,31 +473,32 @@ const Penjualan = () => {
       worksheet.getCell(`A${totalRowNumber}`).font = { bold: true };
 
       // Add formula-based totals
-      worksheet.getCell(`T${totalRowNumber}`).value = { formula: `SUM(T5:T${totalRowNumber - 1})` }; // Qty
-      worksheet.getCell(`V${totalRowNumber}`).value = { formula: `SUM(V5:V${totalRowNumber - 1})` }; // ValueHNA
-      worksheet.getCell(`W${totalRowNumber}`).value = { formula: `SUM(W5:W${totalRowNumber - 1})` }; // ValueNett
-      worksheet.getCell(`X${totalRowNumber}`).value = { formula: `SUM(X5:X${totalRowNumber - 1})` }; // TotalValueDisc
-      worksheet.getCell(`Y${totalRowNumber}`).value = { formula: `SUM(Y5:Y${totalRowNumber - 1})` }; // ValueDiscDist
-      worksheet.getCell(`Z${totalRowNumber}`).value = { formula: `SUM(Z5:Z${totalRowNumber - 1})` }; // ValueDiscPrinc
+      worksheet.getCell(`T${totalRowNumber}`).value = { formula: `SUM(T7:T${totalRowNumber - 1})` }; // Qty
+      worksheet.getCell(`V${totalRowNumber}`).value = { formula: `SUM(V7:V${totalRowNumber - 1})` }; // ValueHNA
+      worksheet.getCell(`W${totalRowNumber}`).value = { formula: `SUM(W7:W${totalRowNumber - 1})` }; // ValueNett
+      worksheet.getCell(`X${totalRowNumber}`).value = { formula: `SUM(X7:X${totalRowNumber - 1})` }; // TotalValueDisc
+      worksheet.getCell(`Y${totalRowNumber}`).value = { formula: `SUM(Y7:Y${totalRowNumber - 1})` }; // ValueDiscDist
+      worksheet.getCell(`Z${totalRowNumber}`).value = { formula: `SUM(Z7:Z${totalRowNumber - 1})` }; // ValueDiscPrinc
 
       // Optional: bold all total row
       worksheet.getRow(totalRowNumber).font = { bold: true };
 
 
       // Optional: Freeze title and header
-      worksheet.views = [{ state: 'frozen', ySplit: 4 }];
+      worksheet.views = [{ state: 'frozen', ySplit: 6 }];
 
       worksheet.autoFilter = {
-        from: 'A4',
-        to: 'AM4',
+        from: 'A6',
+        to: 'AM6',
       };
 
 
       // Generate and save
       const buffer = await workbook.xlsx.writeBuffer();
-      saveAs(new Blob([buffer]), 'sales_all.xlsx');
+      saveAs(new Blob([buffer]), 'Laporan Penjualan SDL ' + startDate + ' - ' + endDate + '.xlsx');
     } catch (error) {
       alert('Gagal mengunduh data!');
+      console.error('Error exporting to Excel:', error);
     } finally {
       document.body.style.cursor = 'default';
     }
@@ -515,9 +531,23 @@ const Penjualan = () => {
         'Regency', 'District', 'Village', 'Tipe Jual', 'NoSP', 'Kode Promosi', 'Surat Keluar/No. DPL/F'
       ];
 
-      // Prepare table body
+      // Define which columns to right-align
+      const rightAlignHeaders = [
+        'HNA', 'Qty', 'Value HNA', 'Value Nett', 'Total Value Disc',
+        'Value Disc Distributor', 'Value Disc Principle', 'Total Disc %',
+        'Disc Dist %', 'Disc Princ %'
+      ];
+
+      const rightAlignIndices = rightAlignHeaders.map(h => headers.indexOf(h));
+
+      // Prepare table body and apply alignment
       const body = [
-        headers,
+        // Header Row with Alignment
+        headers.map((header, idx) => ({
+          text: header,
+          alignment: rightAlignIndices.includes(idx) ? 'right' : 'left'
+        })),
+        // Data Rows with Alignment
         ...allData.map((row, idx) => [
           idx + 1,
           row.NamaDept,
@@ -537,17 +567,17 @@ const Penjualan = () => {
           row.NamaBarang,
           row.NamaSupplier,
           row.BusinessCentreName,
-          parseFloat(row.Hna1 || 0).toFixed(2),
-          parseFloat(row.Qty || 0).toFixed(2),
+          formatThousand(parseFloat(row.Hna || 0).toFixed(2)),
+          formatThousand(parseFloat(row.Qty || 0).toFixed(2)),
           row.SatuanNs,
-          parseFloat(row.ValueHNA || 0).toFixed(2),
-          parseFloat(row.ValueNett || 0).toFixed(2),
-          parseFloat(row.TotalValueDisc || 0).toFixed(2),
-          parseFloat(row.ValueDiscDist || 0).toFixed(2),
-          parseFloat(row.ValueDiscPrinc || 0).toFixed(2),
-          parseFloat(row.TotalDiscPsn || 0).toFixed(2),
-          parseFloat(row.DiscDistPsn || 0).toFixed(2),
-          parseFloat(row.DiscPrincPsn || 0).toFixed(2),
+          formatThousand(parseFloat(row.ValueHNA || 0).toFixed(2)),
+          formatThousand(parseFloat(row.ValueNett || 0).toFixed(2)),
+          formatThousand(parseFloat(row.TotalValueDisc || 0).toFixed(2)),
+          formatThousand(parseFloat(row.ValueDiscDist || 0).toFixed(2)),
+          formatThousand(parseFloat(row.ValueDiscPrinc || 0).toFixed(2)),
+          formatThousand(parseFloat(row.TotalDiscPsn || 0).toFixed(2)),
+          formatThousand(parseFloat(row.DiscDistPsn || 0).toFixed(2)),
+          formatThousand(parseFloat(row.DiscPrincPsn || 0).toFixed(2)),
           row.BatchNumber,
           row.TglExpired,
           row.Province,
@@ -558,13 +588,52 @@ const Penjualan = () => {
           row.PoLanggan,
           row.PromotionCode,
           row.PromotionName
-        ])
+        ].map((cell, cellIdx) => ({
+          text: cell,
+          alignment: rightAlignIndices.includes(cellIdx) ? 'right' : 'left'
+        })))
       ];
+
+      // Calculate and add total row
+      const totalRowData = {};
+      const totalColumnsMap = {
+        'HNA': 'Hna',
+        'Qty': 'Qty',
+        'Value HNA': 'ValueHNA',
+        'Value Nett': 'ValueNett',
+        'Total Value Disc': 'TotalValueDisc',
+        'Value Disc Distributor': 'ValueDiscDist',
+        'Value Disc Principle': 'ValueDiscPrinc',
+        'Total Disc %': 'TotalDiscPsn',
+        'Disc Dist %': 'DiscDistPsn',
+        'Disc Princ %': 'DiscPrincPsn'
+      };
+
+      Object.keys(totalColumnsMap).forEach(header => {
+        const dataKey = totalColumnsMap[header];
+        totalRowData[header] = allData.reduce((sum, row) => sum + parseFloat(row[dataKey] || 0), 0);
+      });
+
+      const totalRow = headers.map((header, idx) => {
+        if (idx === 17) {
+          return { text: 'Total', bold: true };
+        }
+        if (totalColumnsMap[header]) {
+          return {
+            text: formatThousand(totalRowData[header].toFixed(2)),
+            alignment: 'right',
+            bold: true
+          };
+        }
+        return ''; // Empty cell for other columns
+      });
+      body.push(totalRow);
+
 
       const docDefinition = {
         content: [
           {
-            text: 'Laporan Penjualan',
+            text: 'Laporan Penjualan PT Satoria Distribusi Lestari',
             style: 'header',
             alignment: 'center'
           },
@@ -577,8 +646,8 @@ const Penjualan = () => {
           {
             style: 'tableExample',
             table: {
-              // headerRows: 1,
-              // widths: Array(headers.length).fill('*'),
+              headerRows: 1, // This makes the header repeat on new pages
+              widths: Array(headers.length).fill('auto'),
               body: body
             },
             layout: 'lightHorizontalLines'
@@ -602,7 +671,7 @@ const Penjualan = () => {
         pageSize: 'A1',
       };
 
-      pdfMake.createPdf(docDefinition).download('sales_all.pdf');
+      pdfMake.createPdf(docDefinition).download('Laporan Penjualan SDL ' + startDate + ' - ' + endDate + '.pdf');
     } catch (error) {
       alert('Gagal mengunduh PDF!');
       console.error('Error exporting to PDF:', error);
