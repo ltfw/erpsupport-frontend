@@ -14,8 +14,10 @@ const DaftarBarang = React.lazy(() => import('./views/laporan/persediaan/DaftarB
 const KonfirmasiPiutang = React.lazy(() => import('./views/piutang/KonfirmasiPiutang'))
 const KonfirmasiPiutangPrint = React.lazy(() => import('./views/piutang/KonfirmasiPiutangPrint'))
 const ImportVA = React.lazy(() => import('./views/tools/ImportVA'))
+const OutstandingSJ = React.lazy(() => import('./views/laporan/penjualan/OutstandingSJ'))
 // Dashboard
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
+const ChangePassword = React.lazy(() => import('./views/pages/ChangePassword'))
 const Colors = React.lazy(() => import('./views/theme/colors/Colors'))
 const Typography = React.lazy(() => import('./views/theme/typography/Typography'))
 
@@ -67,13 +69,22 @@ const Toasts = React.lazy(() => import('./views/notifications/toasts/Toasts'))
 const Widgets = React.lazy(() => import('./views/widgets/Widgets'))
 
 const routes = [
-  { path: '/', exact: true, name: 'Home' },
+  // { path: '/', exact: true, name: 'Home' },
   {
     path: '/dashboard',
     name: 'Dashboard',
     element: (
       <ProtectedRoute>
         <Dashboard />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/change-password',
+    name: 'Change Password',
+    element: (
+      <ProtectedRoute>
+        <ChangePassword />
       </ProtectedRoute>
     ),
   },
@@ -203,6 +214,16 @@ const routes = [
       </ProtectedRoute>
     ),
   },
+  {
+    path: '/report/outstandingsj/',
+    name: 'Outstanding SJ',
+    element: (
+      <ProtectedRoute>
+        <OutstandingSJ />
+      </ProtectedRoute>
+    ),
+  },
+  
 
   // Theme
   { path: '/theme', name: 'Theme', element: Colors, exact: true },

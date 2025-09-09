@@ -47,6 +47,16 @@ const AppHeaderDropdown = () => {
           <CIcon icon={cilSettings} className="me-2" />
           Settings
         </CDropdownItem>
+        <CDropdownItem
+          href="#"
+          onClick={e => {
+            e.preventDefault();
+            navigate('/change-password');
+          }}
+        >
+          <CIcon icon={cilLockLocked} className="me-2" />
+          Change Password
+        </CDropdownItem>
         <CDropdownDivider />
         <CDropdownItem
           href="#"

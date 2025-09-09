@@ -79,6 +79,17 @@ const RayonCabang = () => {
       wrap: true,
     },
     {
+      name: 'Kode Rayon',
+      selector: (row) => row.RayonCode,
+      sortable: true,
+    },
+    {
+      name: 'Nama Rayon',
+      selector: (row) => row.RayonName,
+      sortable: true,
+      wrap: true,
+    },
+    {
       name: 'Kode Kecamatan',
       selector: (row) => row.DistrictId,
       sortable: true,
@@ -154,7 +165,7 @@ const RayonCabang = () => {
     try {
       const response = await fetchRayonCabang(
         1,
-        1000000,
+        -1,
         periode
       );
       const allData = response.data;
@@ -183,6 +194,8 @@ const RayonCabang = () => {
         { key: 'NamaWil', width: 15 },
         { key: 'Provinsi', width: 15 },
         { key: 'Kabupaten', width: 15 },
+        { key: 'RayonCode', width: 15 },
+        { key: 'RayonName', width: 20 },
         { key: 'DistrictId', width: 15 },
         { key: 'Kecamatan', width: 18 },
         { key: 'KodeSales', width: 10 },
@@ -210,6 +223,8 @@ const RayonCabang = () => {
         'NamaWil',
         'Provinsi',
         'Kabupaten',
+        'RayonCode',
+        'RayonName',
         'DistrictId',
         'Kecamatan',
         'KodeSales',
@@ -268,6 +283,8 @@ const RayonCabang = () => {
         'NamaWil',
         'Provinsi',
         'Kabupaten',
+        'RayonCode',
+        'RayonName',
         'DistrictId',
         'Kecamatan',
         'KodeSales',
@@ -288,6 +305,8 @@ const RayonCabang = () => {
           row.NamaWil,
           row.Provinsi,
           row.Kabupaten,
+          row.RayonCode,
+          row.RayonName,
           row.DistrictId,
           row.Kecamatan,
           row.KodeSales,
@@ -299,7 +318,7 @@ const RayonCabang = () => {
       const docDefinition = {
         content: [
           {
-            text: 'Laporan RayonCabang Barang Per Batch',
+            text: 'Laporan Rayon Cabang Barang Per Batch',
             style: 'header',
             alignment: 'center'
           },
@@ -370,7 +389,7 @@ const RayonCabang = () => {
               </div>
               <DataTable
                 dense
-                title="Data Barang Per Batch"
+                title="Data Rayon Per Cabang"
                 columns={column}
                 data={data}
                 progressPending={loading}
