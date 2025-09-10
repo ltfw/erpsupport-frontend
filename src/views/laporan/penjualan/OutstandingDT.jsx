@@ -31,10 +31,11 @@ import DatePicker from '../../base/datepicker/DatePicker'
 
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 
-const OutstandingSJ = () => {
+const OutstandingDT = () => {
   const formatThousand = (num) => {
-    if (num == null) return ''
-    return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.')
+    if (num == null || isNaN(num)) return ''
+    return Number(num)
+      .toLocaleString('id-ID', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   }
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
@@ -56,21 +57,16 @@ const OutstandingSJ = () => {
       sortable: true,
       width: '6%',
     },
-    { name: 'Tanggal SJ', selector: (row) => row.TglSj, sortable: true, wrap: true },
-    { name: 'No SJ', selector: (row) => row.NoSJ, sortable: true, wrap: true },
-    { name: 'No SO', selector: (row) => row.NoSo, sortable: true, wrap: true },
-    { name: 'No PO', selector: (row) => row.PoLanggan, sortable: true },
-    { name: 'Nama Customer', selector: (row) => row.NamaLgn, sortable: true },
-    { name: 'Nama Barang', selector: (row) => row.NamaBarang, sortable: true, wrap: true },
-    { name: 'Satuan', selector: (row) => row.SatuanNs, sortable: true, wrap: true },
-    { name: 'Qty Kirim', selector: (row) => row.Qty, sortable: true, wrap: true, right: true, format: row => formatThousand(row.Qty) },
-    { name: 'Harga', selector: (row) => row.Hna, sortable: true, wrap: true, right: true, format: row => formatThousand(row.Qty) },
-    { name: 'Total', selector: (row) => row.Total, sortable: true, wrap: true, right: true, format: row => formatThousand(row.Qty) },
-    { name: 'Salesman', selector: (row) => row.NamaSales, sortable: true, wrap: true },
+    { name: 'NamaCabang', selector: (row) => row.NamaCabang, sortable: true, wrap: true },
+    { name: 'NoTagih', selector: (row) => row.NoTagih, sortable: true, wrap: true },
+    { name: 'TglTagih', selector: (row) => row.TglTagih, sortable: true, wrap: true },
+    { name: 'Bulan', selector: (row) => row.Bulan, sortable: true },
+    { name: 'NamaPenagih', selector: (row) => row.NamaPenagih, sortable: true },
+    { name: 'NominalTotal', selector: (row) => row.NominalTotal, sortable: true, wrap: true, right: true, format: (row) => formatThousand((row.NominalTotal)) },
   ]
 
   // ---- API call ----
-  const fetchOutstandingSJ = useCallback(
+  const fetchOutstandingDT = useCallback(
     async (page, perPage, keyword = '', cabangIds = [], supplierIds = [], endDate = null) => {
       const params = new URLSearchParams()
       params.append('page', page)
@@ -80,31 +76,31 @@ const OutstandingSJ = () => {
       if (supplierIds.length > 0) params.append('vendor', supplierIds.join(','))
       if (endDate) params.append('end_date', endDate)
 
-      const response = await axios.get(`${ENDPOINT_URL}sales/outstandingsj?${params.toString()}`)
+      const response = await axios.get(`${ENDPOINT_URL}sales/outstandingdt?${params.toString()}`)
       return { data: response.data.data, total: response.data.pagination.total }
     },
     []
   )
 
-  const loadDataOutstandingSJ = useCallback(
+  const loadDataOutstandingDT = useCallback(
     async (page, perPage, keyword, cabangIds, supplierIds, endDate) => {
       setLoading(true)
       setPage(page)
       try {
-        const fetchData = await fetchOutstandingSJ(page, perPage, keyword, cabangIds, supplierIds, endDate)
+        const fetchData = await fetchOutstandingDT(page, perPage, keyword, cabangIds, supplierIds, endDate)
         setData(fetchData.data)
         setTotalRows(fetchData.total)
       } finally {
         setLoading(false)
       }
     },
-    [fetchOutstandingSJ]
+    [fetchOutstandingDT]
   )
 
   // ---- Load once on mount + when filters/search change ----
   useEffect(() => {
-    loadDataOutstandingSJ(page, perPage, search, selectedCabang, selectedSupplier, endDate)
-  }, [page, perPage, search, selectedCabang, selectedSupplier, endDate, loadDataOutstandingSJ])
+    loadDataOutstandingDT(page, perPage, search, selectedCabang, selectedSupplier, endDate)
+  }, [page, perPage, search, selectedCabang, selectedSupplier, endDate, loadDataOutstandingDT])
 
   // ---- Handlers ----
   const handlePageChange = (newPage) => {
@@ -125,7 +121,7 @@ const OutstandingSJ = () => {
   const exportToExcel = async () => {
     document.body.style.cursor = 'wait'
     try {
-      const response = await fetchOutstandingSJ(
+      const response = await fetchOutstandingDT(
         1,
         -1,
         search,
@@ -144,60 +140,46 @@ const OutstandingSJ = () => {
       const worksheet = workbook.addWorksheet('Sales')
 
       // Row 2: Title
-      worksheet.mergeCells('A2:L2')
-      worksheet.getCell('A2').value = 'Laporan Outstanding SJ'
+      worksheet.mergeCells('A2:G2')
+      worksheet.getCell('A2').value = 'Laporan Outstanding DT'
       worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' }
       worksheet.getCell('A2').font = { size: 16, bold: true }
-      worksheet.mergeCells('A3:L3')
+      worksheet.mergeCells('A3:G3')
       worksheet.getCell('A3').value = 'Periode per ' + formatDateToDDMMYYYY(endDate)
       worksheet.getCell('A3').alignment = { horizontal: 'center', vertical: 'middle' }
       worksheet.getCell('A3').font = { size: 16, bold: true }
 
       // Row 4: Export info
-      worksheet.mergeCells('A4:L4')
+      worksheet.mergeCells('A4:G4')
       worksheet.getCell('A4').value =
         `Exported at ${getCurrentDateTimeFormatted()} by ${userData?.UserName || '-'}`
       worksheet.getCell('A4').alignment = { horizontal: 'right', vertical: 'middle' }
       worksheet.getCell('A4').font = { italic: true, size: 10 }
-      worksheet.mergeCells('A5:L5')
+      worksheet.mergeCells('A5:G5')
 
       // Set column widths only (DO NOT use headers here!)
       worksheet.columns = [
         { key: 'no', width: 6 },
-        { key: 'TglSj', width: 18 },
-        { key: 'NoSJ', width: 10 },
-        { key: 'NoSo', width: 15 },
-        { key: 'PoLanggan', width: 15 },
-        { key: 'NamaLgn', width: 15 },
-        { key: 'NamaBarang', width: 15 },
-        { key: 'SatuanNs', width: 15 },
-        { key: 'Qty', width: 15 },
-        { key: 'Hna', width: 15 },
-        { key: 'Total', width: 15 },
-        { key: 'NamaSales', width: 15 },
+        { key: 'NamaCabang', width: 18 },
+        { key: 'NoTagih', width: 10 },
+        { key: 'TglTagih', width: 15 },
+        { key: 'Bulan', width: 15 },
+        { key: 'NamaPenagih', width: 15 },
+        { key: 'NominalTotal', width: 15 },
       ]
 
-      const numberFormatThousand = '#,##0' // Format: 1,000
-      const columnsToFormat = ['Qty', 'Hna', 'Total']
-      columnsToFormat.forEach((key) => {
-        const column = worksheet.getColumn(key)
-        column.numFmt = numberFormatThousand
-      })
+      // Set number format for NominalTotal column
+      worksheet.getColumn('NominalTotal').numFmt = '#,##0.00'
 
       // Row 5: Write headers manually
       worksheet.addRow([
         'No',
-        'TglSj',
-        'NoSJ',
-        'NoSo',
-        'PoLanggan',
-        'NamaLgn',
-        'NamaBarang',
-        'SatuanNs',
-        'Qty',
-        'Hna',
-        'Total',
-        'NamaSales',
+        'NamaCabang',
+        'NoTagih',
+        'TglTagih',
+        'Bulan',
+        'NamaPenagih',
+        'NominalTotal',
       ])
 
       // Row 6+: Add data
@@ -205,7 +187,7 @@ const OutstandingSJ = () => {
         worksheet.addRow({
           no: idx + 1,
           ...row,
-          Hna: parseFloat(row.Hna || 0),
+          NominalTotal: parseFloat(row.NominalTotal || 0),
         })
       })
 
@@ -213,7 +195,7 @@ const OutstandingSJ = () => {
       const totalRowNumber = worksheet.lastRow.number + 1
 
       // Add total label
-      worksheet.mergeCells(`A${totalRowNumber}:H${totalRowNumber}`)
+      worksheet.mergeCells(`A${totalRowNumber}:F${totalRowNumber}`)
       worksheet.getCell(`A${totalRowNumber}`).value = 'TOTAL'
       worksheet.getCell(`A${totalRowNumber}`).alignment = {
         horizontal: 'center',
@@ -222,8 +204,7 @@ const OutstandingSJ = () => {
       worksheet.getCell(`A${totalRowNumber}`).font = { bold: true }
 
       // Add formula-based totals
-      worksheet.getCell(`I${totalRowNumber}`).value = { formula: `SUM(I7:I${totalRowNumber - 1})` } // Qty
-      worksheet.getCell(`K${totalRowNumber}`).value = { formula: `SUM(K7:K${totalRowNumber - 1})` } // Qty
+      worksheet.getCell(`G${totalRowNumber}`).value = { formula: `SUM(G7:G${totalRowNumber - 1})` } // Nominal Total
 
       // Optional: bold all total row
       worksheet.getRow(totalRowNumber).font = { bold: true }
@@ -233,14 +214,14 @@ const OutstandingSJ = () => {
 
       worksheet.autoFilter = {
         from: 'A6',
-        to: 'L6',
+        to: 'G6',
       }
 
       // Generate and save
       const buffer = await workbook.xlsx.writeBuffer()
       saveAs(
         new Blob([buffer]),
-        'Laporan Outstanding SJ per ' + formatDateToDDMMYYYY(endDate) + '.xlsx',
+        'Laporan Outstanding DT per ' + formatDateToDDMMYYYY(endDate) + '.xlsx',
       )
     } catch (error) {
       alert('Gagal mengunduh data!')
@@ -254,7 +235,7 @@ const OutstandingSJ = () => {
     try {
       document.body.style.cursor = 'wait';
 
-      const response = await fetchOutstandingSJ(
+      const response = await fetchOutstandingDT(
         1,
         -1,
         search,
@@ -268,54 +249,40 @@ const OutstandingSJ = () => {
       // Define columns
       const headers = [
         { text: 'No', bold: true, fillColor: '#f2f2f2', alignment: 'center', margin: [0, 5, 0, 5] },
-        { text: 'Tgl SJ', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
-        { text: 'No SJ', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
-        { text: 'No SO', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
-        { text: 'No PO', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
-        { text: 'Nama Customer', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
-        { text: 'Nama Barang', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
-        { text: 'Satuan', bold: true, fillColor: '#f2f2f2', alignment: 'center', margin: [0, 5, 0, 5] },
-        { text: 'Qty', bold: true, fillColor: '#f2f2f2', alignment: 'center', margin: [0, 5, 0, 5] },
-        { text: 'HNA', bold: true, fillColor: '#f2f2f2', alignment: 'center', margin: [0, 5, 0, 5] },
-        { text: 'Total', bold: true, fillColor: '#f2f2f2', alignment: 'center', margin: [0, 5, 0, 5] },
-        { text: 'Salesman', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
+        { text: 'NamaCabang', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
+        { text: 'NoTagih', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
+        { text: 'TglTagih', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
+        { text: 'Bulan', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
+        { text: 'NamaPenagih', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
+        { text: 'NominalTotal', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
       ];
 
       // Prepare table body
       // Calculate grand totals
-      const grandTotalQty = allData.reduce((sum, row) => sum + (parseFloat(row.Qty) || 0), 0)
-      const grandTotalTotal = allData.reduce((sum, row) => sum + (parseFloat(row.Total) || 0), 0)
+      const grandTotalTotal = allData.reduce((sum, row) => sum + (parseFloat(row.NominalTotal) || 0), 0)
 
       const body = [
         headers,
         ...allData.map((row, idx) => [
           { text: idx + 1, alignment: 'center', margin: [0, 5, 0, 5] },
-          { text: row.TglSj ?? '', margin: [0, 5, 0, 5] },
-          { text: row.NoSJ ?? '', margin: [0, 5, 0, 5] },
-          { text: row.NoSo ?? '', margin: [0, 5, 0, 5] },
-          { text: row.PoLanggan ?? '', margin: [0, 5, 0, 5] },
-          { text: row.NamaLgn ?? '', margin: [0, 5, 0, 5] },
-          { text: row.NamaBarang ?? '', margin: [0, 5, 0, 5] },
-          { text: row.SatuanNs ?? '', margin: [0, 5, 0, 5], alignment: 'center', },
-          { text: formatThousand(row.Qty), alignment: 'right', margin: [0, 5, 0, 5] },
-          { text: formatThousand(row.Hna), alignment: 'right', margin: [0, 5, 0, 5] },
-          { text: formatThousand(row.Total), alignment: 'right', margin: [0, 5, 0, 5] },
-          { text: row.NamaSales ?? '', margin: [0, 5, 0, 5] },
+          { text: row.NamaCabang ?? '', margin: [0, 5, 0, 5] },
+          { text: row.NoTagih ?? '', margin: [0, 5, 0, 5] },
+          { text: row.TglTagih ?? '', margin: [0, 5, 0, 5] },
+          { text: row.Bulan ?? '', margin: [0, 5, 0, 5] },
+          { text: row.NamaPenagih ?? '', margin: [0, 5, 0, 5] },
+          { text: formatThousand(row.NominalTotal) ?? '', alignment: 'right', margin: [0, 5, 0, 5] },
         ]),
         [
-          { text: 'GRAND TOTAL', colSpan: 8, alignment: 'center', bold: true, margin: [0, 5, 0, 5] },
-          ...Array(7).fill({}),
-          { text: formatThousand(grandTotalQty), alignment: 'right', bold: true, margin: [0, 5, 0, 5] },
-          { text: '', margin: [0, 5, 0, 5] },
+          { text: 'GRAND TOTAL', colSpan: 5, alignment: 'center', bold: true, margin: [0, 5, 0, 5] },
+          ...Array(5).fill({}),
           { text: formatThousand(grandTotalTotal), alignment: 'right', bold: true, margin: [0, 5, 0, 5] },
-          { text: '', margin: [0, 5, 0, 5] },
         ]
       ];
 
       const docDefinition = {
         content: [
           {
-            text: 'Laporan Outstanding SJ',
+            text: 'Laporan Outstanding DT',
             style: 'header',
             alignment: 'center'
           },
@@ -377,11 +344,11 @@ const OutstandingSJ = () => {
             fontSize: 8,
           }
         },
-        pageOrientation: 'landscape',
-        pageSize: 'A3',
+        pageOrientation: 'portrait',
+        pageSize: 'A4',
       };
 
-      pdfMake.createPdf(docDefinition).download('Laporan Outstanding SJ per ' + formatDateToDDMMYYYY(endDate) + '.pdf');
+      pdfMake.createPdf(docDefinition).download('Laporan Outstanding DT per ' + formatDateToDDMMYYYY(endDate) + '.pdf');
     } catch (error) {
       alert('Gagal mengunduh PDF!');
       console.error('Error exporting to PDF:', error);
@@ -395,7 +362,7 @@ const OutstandingSJ = () => {
       <CCol xs>
         <CCard className="mb-4">
           <CCardHeader>
-            Laporan Outstanding SJ
+            Laporan Outstanding DT
             <CDropdown className="float-end">
               <CDropdownToggle color="warning" size="sm">
                 Export
@@ -418,9 +385,9 @@ const OutstandingSJ = () => {
                 <CCol xs={12} sm={2} className="d-grid">
                   <CabangSelector onSelect={setSelectedCabang} />
                 </CCol>
-                <CCol xs={12} sm={2} className="d-grid">
+                {/* <CCol xs={12} sm={2} className="d-grid">
                   <SupplierSelector onSelect={setSelectedSupplier} />
-                </CCol>
+                </CCol> */}
                 <CCol xs={12} sm={2}>
                   <DatePicker onChange={setEndDate} value={endDate} />
                 </CCol>
@@ -456,4 +423,4 @@ const OutstandingSJ = () => {
   )
 }
 
-export default OutstandingSJ
+export default OutstandingDT

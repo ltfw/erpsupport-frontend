@@ -15,6 +15,7 @@ const KonfirmasiPiutang = React.lazy(() => import('./views/piutang/KonfirmasiPiu
 const KonfirmasiPiutangPrint = React.lazy(() => import('./views/piutang/KonfirmasiPiutangPrint'))
 const ImportVA = React.lazy(() => import('./views/tools/ImportVA'))
 const OutstandingSJ = React.lazy(() => import('./views/laporan/penjualan/OutstandingSJ'))
+const OutstandingDT = React.lazy(() => import('./views/laporan/penjualan/OutstandingDT'))
 // Dashboard
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const ChangePassword = React.lazy(() => import('./views/pages/ChangePassword'))
@@ -220,6 +221,15 @@ const routes = [
     element: (
       <ProtectedRoute>
         <OutstandingSJ />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/report/outstandingdt/',
+    name: 'Outstanding DT',
+    element: (
+      <ProtectedRoute>
+        <OutstandingDT />
       </ProtectedRoute>
     ),
   },
