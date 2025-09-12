@@ -16,7 +16,7 @@ pipeline {
         stage('Build Docker Image') {
             steps {
                 // Build the frontend Docker image
-                sh 'docker build -t frontend:latest ./frontend'
+                sh 'docker build -t frontend:latest .'
             }
         }
         stage('Deploy') {
