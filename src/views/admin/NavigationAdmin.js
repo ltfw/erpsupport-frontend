@@ -26,7 +26,8 @@ const NavigationAdmin = () => {
   const [activeTab, setActiveTab] = useState('groups')
   const [groups, setGroups] = useState([])
   const [items, setItems] = useState([])
-  const [roles, setRoles] = useState(['ADM', 'FAS','MKT-SANI', 'MKT-SANI (JABAR)', 'MKT-SANI (JATIM)', 'MKT-SANI (JATENG)', 'GUEST'])
+  // const [roles, setRoles] = useState(['ADM', 'FAS','MKT-SANI', 'MKT-SANI (JABAR)', 'MKT-SANI (JATIM)', 'MKT-SANI (JATENG)', 'GUEST'])
+  const [roles, setRoles] = useState([])
   const [access, setAccess] = useState([])
 
   const [loading, setLoading] = useState(false)
@@ -48,14 +49,16 @@ const NavigationAdmin = () => {
   const fetchData = async () => {
     try {
       setLoading(true)
-      const [groupRes, itemRes, accessRes] = await Promise.all([
+      const [groupRes, itemRes, accessRes, rolesRes] = await Promise.all([
         axios.get(API + '/groups'),
         axios.get(API + '/items'),
         axios.get(API + '/access'),
+        axios.get(API + '/roles'),
       ])
       setGroups(groupRes.data)
       setItems(itemRes.data)
       setAccess(accessRes.data)
+      setRoles(rolesRes.data)
     } catch (err) {
       setError('Failed to load data')
       console.error('Error fetching navigation data:', err)
@@ -358,7 +361,7 @@ const NavigationAdmin = () => {
               <label>Role</label>
               <CFormSelect value={editAccess?.RoleCode || ''} onChange={(e) => setEditAccess({ ...editAccess, RoleCode: e.target.value })}>
                 <option>Select Role</option>
-                {roles.map(r => <option key={r} value={r}>{r}</option>)}
+                {roles.map(r => <option key={r.UserRoleCode} value={r.UserRoleCode}>{r.UserRoleCode}</option>)}
               </CFormSelect>
             </div>
             <div className="mb-3">
