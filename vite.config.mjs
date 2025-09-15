@@ -1,7 +1,7 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import path from 'node:path'
-import autoprefixer from 'autoprefixer'
+import { defineConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import path from 'node:path';
+import autoprefixer from 'autoprefixer';
 
 export default defineConfig(() => {
   return {
@@ -9,12 +9,19 @@ export default defineConfig(() => {
     build: {
       manifest: true,
       outDir: 'build',
+      rollupOptions: {
+        output: {
+          manualChunks: {
+            vendor: ['react', 'react-dom'],
+            coreui: ['@coreui/react'],
+            flags: ['flag-icons'], // Adjust if using a specific flag package
+          },
+        },
+      },
     },
     css: {
       postcss: {
-        plugins: [
-          autoprefixer({}), // add options if needed
-        ],
+        plugins: [autoprefixer({})],
       },
     },
     esbuild: {
@@ -42,11 +49,11 @@ export default defineConfig(() => {
     },
     server: {
       host: '0.0.0.0',
-      allowedHosts: ['localhost','0c4bd92a549f.ngrok-free.app'],
+      allowedHosts: ['localhost', '0c4bd92a549f.ngrok-free.app'],
       port: 3000,
       proxy: {
         // https://vitejs.dev/config/server-options.html
       },
     },
-  }
-})
+  };
+});
