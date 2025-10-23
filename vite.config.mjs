@@ -50,7 +50,7 @@ export default defineConfig(() => {
     server: {
       host: '0.0.0.0',
       allowedHosts: ['localhost', '0c4bd92a549f.ngrok-free.app'],
-      port: 3000,
+      port: 3030,
       proxy: {
         // https://vitejs.dev/config/server-options.html
       },

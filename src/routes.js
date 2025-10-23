@@ -16,6 +16,8 @@ const KonfirmasiPiutangPrint = React.lazy(() => import('./views/piutang/Konfirma
 const ImportVA = React.lazy(() => import('./views/tools/ImportVA'))
 const OutstandingSJ = React.lazy(() => import('./views/laporan/penjualan/OutstandingSJ'))
 const OutstandingDT = React.lazy(() => import('./views/laporan/penjualan/OutstandingDT'))
+const PenyaluranMasuk = React.lazy(() => import('./views/laporan/alkes/PenyaluranMasuk'))
+const ReportFarmasi = React.lazy(() => import('./views/laporan/farmasi/ReportFarmasi'))
 // Dashboard
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const ChangePassword = React.lazy(() => import('./views/pages/ChangePassword'))
@@ -233,7 +235,24 @@ const routes = [
       </ProtectedRoute>
     ),
   },
-  
+  {
+    path: '/alkes/penyaluranmasuk/',
+    name: 'Penyaluran Masuk',
+    element: (
+      <ProtectedRoute>
+        <PenyaluranMasuk />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/farmasi/report/',
+    name: 'Report Farmasi',
+    element: (
+      <ProtectedRoute>
+        <ReportFarmasi />
+      </ProtectedRoute>
+    ),
+  },
 
   // Theme
   { path: '/theme', name: 'Theme', element: Colors, exact: true },
