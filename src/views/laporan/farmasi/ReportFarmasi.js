@@ -352,7 +352,7 @@ const ReportFarmasi = () => {
 
       // Generate and save
       const buffer = await workbook.xlsx.writeBuffer();
-      saveAs(new Blob([buffer]), 'ReportFarmasi dari ' + formatDateToDDMMYYYY(startDate) + ' sampai ' + formatDateToDDMMYYYY(endDate) + '.xlsx');
+      saveAs(new Blob([buffer]), `Report Farmasi Triwulan ${selectedTriwulan} ${selectedYear} .xlsx`);
     } catch (error) {
       alert('Gagal mengunduh data!');
       console.error('Error exporting to Excel:', error);
