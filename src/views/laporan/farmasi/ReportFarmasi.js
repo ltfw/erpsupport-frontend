@@ -334,7 +334,7 @@ const ReportFarmasi = () => {
           MasukPbf: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.MasukPbf === allData[idx - 1].MasukPbf ? 0 : row.MasukPbf ?? 0,
           KodePbf: row.KodePbf ?? 0,
           ReturMasuk: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.ReturMasuk === allData[idx - 1].ReturMasuk ? 0 : row.ReturMasuk ?? 0,
-          QtyJualPbf: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.QtyJualPbf === allData[idx - 1].QtyJualPbf ? 0 : row.QtyJualPbf ?? 0,
+          QtyJualPbf: idx > 0 && row.KodeBpom === allData[idx - 1].KodeBpom && row.QtyJualPbf === allData[idx - 1].QtyJualPbf ? 0 : row.QtyJualPbf ?? 0,
           KodeBpom: row.KodeBpom ?? 0,
           RS: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.RS === allData[idx - 1].RS ? 0 : row.RS ?? 0,
           APOTEK: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.APOTEK === allData[idx - 1].APOTEK ? 0 : row.APOTEK ?? 0,
