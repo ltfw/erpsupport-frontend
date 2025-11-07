@@ -43,8 +43,8 @@ const PenyaluranMasuk = () => {
       sortable: true,
     },
     {
-      name: 'Nama Dept',
-      selector: (row) => row.NamaDept,
+      name: 'Nama Cabang',
+      selector: (row) => row.NamaCabang,
       sortable: true,
     },
     {
@@ -103,8 +103,8 @@ const PenyaluranMasuk = () => {
       sortable: true,
     },
     {
-      name: 'Nama Lgn',
-      selector: (row) => row.namalgn,
+      name: 'Nama Perusahaan',
+      selector: (row) => row.NamaLgn,
       sortable: true,
     },
     {
@@ -202,8 +202,6 @@ const PenyaluranMasuk = () => {
       // Set column widths only (DO NOT use headers here!)
       worksheet.columns = [
         { key: 'no', width: 6 },
-        { key: 'KodeCabang', width: 15 },
-        { key: 'NamaDept', width: 15 },
         { key: 'IdProduk', width: 15 },
         { key: 'NamaProduk', width: 15 },
         { key: 'NomorIzinEdar', width: 15 },
@@ -211,7 +209,7 @@ const PenyaluranMasuk = () => {
         { key: 'BatchNumber', width: 15 },
         { key: 'Katalog', width: 15 },
         { key: 'JumlahPenyaluran', width: 15 },
-        { key: 'TanggalKeluar', width: 15 },
+        { key: 'TanggalTransaksi', width: 15 },
         { key: 'TanggalKadaluarsa', width: 15 },
         { key: 'parenttransaction', width: 15 },
         { key: 'KodeSumber', width: 15 },
@@ -231,7 +229,7 @@ const PenyaluranMasuk = () => {
 
       // Row 3: Write headers manually
       worksheet.addRow([
-        'No', 'KodeCabang', 'NamaDept', 'IdProduk', 'NamaProduk', 'NomorIzinEdar', 'TipeUkuran', 'BatchNumber', 'Katalog', 'JumlahPenyaluran', 'TanggalKeluar', 'TanggalKadaluarsa', 'parenttransaction', 'KodeSumber', 'namalgn', 'IdPartner', 'NamaPartner'
+        'No', 'KodeCabang', 'NamaCabang', 'IdProduk', 'NamaProduk', 'NomorIzinEdar', 'TipeUkuran', 'BatchNumber', 'Katalog', 'JumlahPenyaluran', 'TanggalKeluar', 'TanggalKadaluarsa', 'parenttransaction', 'KodeSumber', 'namalgn', 'IdPartner', 'NamaPartner'
       ]);
 
       // Row 4+: Add data
@@ -295,7 +293,7 @@ const PenyaluranMasuk = () => {
 
       // Define columns
       const headers = [
-        'No', 'KodeCabang', 'NamaDept', 'IdProduk', 'NamaProduk', 'NomorIzinEdar', 'TipeUkuran', 'BatchNumber', 'Katalog', 'JumlahPenyaluran', 'TanggalKeluar', 'TanggalKadaluarsa', 'parenttransaction', 'KodeSumber', 'namalgn', 'IdPartner', 'NamaPartner'
+        'No', 'KodeCabang', 'NamaCabang', 'IdProduk', 'NamaProduk', 'NomorIzinEdar', 'TipeUkuran', 'BatchNumber', 'Katalog', 'JumlahPenyaluran', 'TanggalKeluar', 'TanggalKadaluarsa', 'parenttransaction', 'KodeSumber', 'namalgn', 'IdPartner', 'NamaPartner'
       ];
 
       // Prepare table body
@@ -304,7 +302,7 @@ const PenyaluranMasuk = () => {
         ...allData.map((row, idx) => [
           idx + 1,
           row.KodeCabang,
-          row.NamaDept,
+          row.NamaCabang,
           row.IdProduk,
           row.NamaProduk,
           row.NomorIzinEdar,
@@ -397,7 +395,7 @@ const PenyaluranMasuk = () => {
                       }}
                     />
                   </CCol>
-                  <CCol xs={12} sm={2} className='d-grid'>
+                  {/* <CCol xs={12} sm={2} className='d-grid'>
                     <SupplierSelector onSelect={(items) => {
                       console.log('Selected items:', items)
                       setSelectedSupplier(items)
@@ -408,7 +406,7 @@ const PenyaluranMasuk = () => {
                       console.log('Selected items:', items)
                       setSelectedBarang(items)
                     }} />
-                  </CCol>
+                  </CCol> */}
                   <CCol xs={12} sm={2}>
                     <DatePicker onChange={setStartDate} value={startDate} />
                   </CCol>

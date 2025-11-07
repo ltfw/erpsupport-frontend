@@ -18,6 +18,7 @@ const OutstandingSJ = React.lazy(() => import('./views/laporan/penjualan/Outstan
 const OutstandingDT = React.lazy(() => import('./views/laporan/penjualan/OutstandingDT'))
 const PenyaluranMasuk = React.lazy(() => import('./views/laporan/alkes/PenyaluranMasuk'))
 const ReportFarmasi = React.lazy(() => import('./views/laporan/farmasi/ReportFarmasi'))
+const MasterAlkes = React.lazy(() => import('./views/master/MasterAlkes'))
 // Dashboard
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const ChangePassword = React.lazy(() => import('./views/pages/ChangePassword'))
@@ -253,9 +254,17 @@ const routes = [
       </ProtectedRoute>
     ),
   },
-
+  {
+    path: '/master/alkes',
+    name: 'Master Alkes',
+    element: (
+      <ProtectedRoute>
+        <MasterAlkes />
+      </ProtectedRoute>
+    ),
+  },
   // Theme
-  { path: '/theme', name: 'Theme', element: Colors, exact: true },
+  
   { path: '/theme/colors', name: 'Colors', element: Colors },
   { path: '/theme/typography', name: 'Typography', element: Typography },
   { path: '/base', name: 'Base', element: Cards, exact: true },
@@ -298,6 +307,15 @@ const routes = [
   { path: '/notifications/modals', name: 'Modals', element: (<Modals /> )},
   { path: '/notifications/toasts', name: 'Toasts', element: Toasts },
   { path: '/widgets', name: 'Widgets', element: Widgets },
+  {
+    path: '/master/alkes',
+    name: 'Master Alkes',
+    element: (
+      <ProtectedRoute>
+        <MasterAlkes />
+      </ProtectedRoute>
+    ),
+  },
 ]
 
 export default routes

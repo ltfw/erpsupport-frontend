@@ -345,7 +345,7 @@ const ReportFarmasi = () => {
           KEMENKES: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.KEMENKES === allData[idx - 1].KEMENKES ? 0 : row.KEMENKES ?? 0,
           ReturKeluar: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.ReturKeluar === allData[idx - 1].ReturKeluar ? 0 : row.ReturKeluar ?? 0,
           Lainnya: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.Lainnya === allData[idx - 1].Lainnya ? 0 : row.Lainnya ?? 0,
-          HNA: row.HNA ?? 0,
+          HNA: Math.round(row.HNA) ?? 0,
         };
         worksheet.addRow(processedRow);
       });

@@ -32,6 +32,7 @@ const ImportPajak = () => {
   const radioOptions = [
     { id: 'radio1', label: 'Penjualan', value: 'penjualan' },
     { id: 'radio2', label: 'Retur', value: 'retur' },
+    { id: 'radio3', label: 'Pembelian', value: 'pembelian' },
   ];
   const [selectedRadio, setSelectedRadio] = useState(radioOptions[0].value);
 
@@ -49,7 +50,7 @@ const ImportPajak = () => {
     const worksheet = workbook.Sheets[workbook.SheetNames[0]]
     const jsonData = XLSX.utils.sheet_to_json(worksheet, { defval: '' })
     // Only keep desired columns
-    if( selectedRadio === 'penjualan') {
+    if( selectedRadio === 'penjualan' || selectedRadio === 'pembelian') {
       const cleanedData = jsonData
         .filter(row => row['Status Faktur'] === 'APPROVED')
         .map((row) => ({
@@ -158,7 +159,7 @@ const ImportPajak = () => {
                           </CTableDataCell>
                           <CTableDataCell>{item.TaxStatus}</CTableDataCell>
                           <CTableDataCell>
-                            {selectedRadio === 'penjualan' ? (
+                            {selectedRadio === 'penjualan' || selectedRadio === 'pembelian' ? (
                               <CFormInput
                                 value={item.TaxReference}
                                 onChange={e => {
