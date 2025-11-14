@@ -123,16 +123,16 @@ export default function KonfirmasiPiutangPrint() {
             width: "100%",
             borderCollapse: "collapse",
             border: "1px solid black",
-            fontSize: "14px"
+            fontSize: "12px"
           }}>
             <thead>
               <tr>
                 <th style={cellStyle} className="text-center">No</th>
                 <th style={cellStyle} width="130px" className="text-center">No Faktur</th>
                 <th style={cellStyle} width="100px" className="text-center">Tgl Faktur</th>
-                <th style={cellStyle} width="140px" className="text-center">Nilai Piutang</th>
+                <th style={cellStyle} width="115px" className="text-center">Nilai Piutang</th>
                 <th style={cellStyle} width="100px" className="text-center">Jatuh Tempo</th>
-                <th style={cellStyle} width="80px" className="text-center">Overdue</th>
+                <th style={cellStyle} width="70px" className="text-center">Overdue</th>
                 <th style={cellStyle} className="text-center">Keterangan</th>
               </tr>
             </thead>
@@ -140,7 +140,7 @@ export default function KonfirmasiPiutangPrint() {
               {props.rincian.map((row, idx) => (
                 <tr key={idx}>
                   <td style={cellStyle} className="text-center">{idx + 1}</td>
-                  <td style={cellStyle}>{row.ParentTransaction}</td>
+                  <td style={cellStyle} className="text-center">{row.ParentTransaction}</td>
                   <td style={cellStyle} className="text-center">{row.TglTrnFaktur}</td>
                   <td style={cellStyle} className="text-end">{formatRupiah(row.nominal)}</td>
                   <td style={cellStyle} className="text-center">{row.TglJthTmp}</td>
