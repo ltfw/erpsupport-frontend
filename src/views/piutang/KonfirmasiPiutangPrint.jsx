@@ -29,6 +29,8 @@ export default function KonfirmasiPiutangPrint() {
         size: A4 portrait;
         margin: 0;
         padding: 0;
+        margin-top: 50px;
+        margin-bottom: 50px;
       }
       body { 
         -webkit-print-color-adjust: exact; 
@@ -77,81 +79,85 @@ export default function KonfirmasiPiutangPrint() {
 
   const PrintTemplate = forwardRef((props, ref) => (
     <div ref={ref}>
-      <img src="/img/accent.png" style={{ 
+      {/* <img src="/img/accent.png" style={{ 
         position:"fixed",
         top:"0",
         left:"0",
         width:"300px",
         opacity:"0.3",
         zIndex: "-1"
-      }}/>
-      <img src="/img/logo-sdl.png" style={{ 
-        position:"absolute",
-        top:"0",
+      }}/> */}
+      <img src="/img/logo-sdl.png" style={{
+        position: "absolute",
+        top: "0",
         // left:"0",
-        right:"10px",
-        marginRight:"50px",
-        marginTop:"30px",
-        width:"120px",
-      }}/>
-      
-      <div style={{ padding: "50px", fontSize:"12px" }}>
-        <h2 style={{ textAlign: "center", textDecoration: "underline", marginBottom:"3rem", marginTop:"1rem", zIndex:"1000" }}>
+        right: "10px",
+        marginRight: "50px",
+        marginTop: "30px",
+        width: "120px",
+      }} />
+
+      <div style={{ padding: "50px", fontSize: "12px" }}>
+        <h2 style={{ textAlign: "center", textDecoration: "underline", marginBottom: "3rem", marginTop: "1rem", zIndex: "1000" }}>
           KONFIRMASI PIUTANG
         </h2>
 
-        <p style={{ zIndex:"1000" }}>{props.Kota}, {props.tanggalSurat}</p>
-        <p style={{ zIndex:"1000" }}>
+        <p style={{ zIndex: "1000" }}>{props.Kota}, {props.tanggalSurat}</p>
+        <p style={{ zIndex: "1000" }}>
           Kepada Yang Terhormat,<br />
           {props.BusinessEntityName} {props.namaPenerima},<br />
           Di tempat,
         </p>
 
-        <p style={{ zIndex:"1000" }}>Dengan hormat,</p>
+        <p style={{ zIndex: "1000" }}>Dengan hormat,</p>
         <p style={{ textIndent: "30px", textAlign: "justify" }}>
-          Pertama-tama, kami mengucapkan terima kasih atas kerja sama yang telah terjalin dengan baik selama ini bersama 
-          PT Satoria Distribusi Lestari. Demi kenyamanan Bapak/Ibu dalam bertransaksi dengan PT Satoria Distribusi Lestari, 
+          Pertama-tama, kami mengucapkan terima kasih atas kerja sama yang telah terjalin dengan baik selama ini bersama
+          PT Satoria Distribusi Lestari. Demi kenyamanan Bapak/Ibu dalam bertransaksi dengan PT Satoria Distribusi Lestari,
           bersama ini kami sampaikan daftar piutang {props.BusinessEntityName} {props.namaPenerima} per tanggal {props.tanggalSurat}.
         </p>
         <p style={{ textIndent: "30px" }}>
-          Berdasarkan data kami, {props.BusinessEntityName} {props.namaPenerima} memiliki saldo hutang dagang sebesar <b>Rp {formatRupiah(props.saldoHutang)} </b> 
-           kepada PT Satoria Distribusi Lestari. Berikut adalah rinciannya :</p>
-        <table style={{
-          width: "100%", 
-          borderCollapse: "collapse",
-          border: "1px solid black",
-          fontSize:"12px"
-        }}>
-          <thead>
-            <tr>
-              <th style={cellStyle} className="text-center">No</th>
-              <th style={cellStyle}>No Faktur</th>
-              <th style={cellStyle} className="text-center">Tgl Faktur</th>
-              <th style={cellStyle} className="text-center">Nilai Piutang</th>
-              <th style={cellStyle} className="text-center">Jatuh Tempo</th>
-              <th style={cellStyle} className="text-center">Umur</th>
-            </tr>
-          </thead>
-          <tbody>
-            {props.rincian.map((row, idx) => (
-              <tr key={idx}>
-                <td style={cellStyle} className="text-center">{idx + 1}</td>
-                <td style={cellStyle}>{row.ParentTransaction}</td>
-                <td style={cellStyle} className="text-center">{row.TglTrnFaktur}</td>
-                <td style={cellStyle} className="text-end">{formatRupiah(row.nominal)}</td>
-                <td style={cellStyle} className="text-center">{row.TglJthTmp}</td>
-                <td style={cellStyle} className="text-center">{row.aging}</td>
+          Berdasarkan data kami, {props.BusinessEntityName} {props.namaPenerima} memiliki saldo hutang dagang sebesar <b>Rp {formatRupiah(props.saldoHutang)} </b>
+          kepada PT Satoria Distribusi Lestari. Berikut adalah rinciannya :</p>
+        <div style={{ display: "flex", justifyContent: "left" }}>
+          <table style={{
+            width: "100%",
+            borderCollapse: "collapse",
+            border: "1px solid black",
+            fontSize: "14px"
+          }}>
+            <thead>
+              <tr>
+                <th style={cellStyle} className="text-center">No</th>
+                <th style={cellStyle} width="130px" className="text-center">No Faktur</th>
+                <th style={cellStyle} width="100px" className="text-center">Tgl Faktur</th>
+                <th style={cellStyle} width="140px" className="text-center">Nilai Piutang</th>
+                <th style={cellStyle} width="100px" className="text-center">Jatuh Tempo</th>
+                <th style={cellStyle} width="80px" className="text-center">Overdue</th>
+                <th style={cellStyle} className="text-center">Keterangan</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {props.rincian.map((row, idx) => (
+                <tr key={idx}>
+                  <td style={cellStyle} className="text-center">{idx + 1}</td>
+                  <td style={cellStyle}>{row.ParentTransaction}</td>
+                  <td style={cellStyle} className="text-center">{row.TglTrnFaktur}</td>
+                  <td style={cellStyle} className="text-end">{formatRupiah(row.nominal)}</td>
+                  <td style={cellStyle} className="text-center">{row.TglJthTmp}</td>
+                  <td style={cellStyle} className="text-center">{row.aging > 0 ? row.aging : '-'}</td>
+                  <td style={cellStyle}></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-        <p className="mt-5" style={{ textIndent: "30px" }}>
-          Atas dasar hal tersebut, kami hendak melakukan konfirmasi kesesuaian data Saldo Piutang Dagang kami
-          dengan catatan pembukuan Bapak/Ibu.<br />
-        </p>
-          
         <div className="avoid-page-break">
+          <p className="mt-3" style={{ textIndent: "30px" }}>
+            Atas dasar hal tersebut, kami hendak melakukan konfirmasi kesesuaian data Saldo Piutang Dagang kami
+            dengan catatan pembukuan Bapak/Ibu.<br />
+          </p>
+
           <i>(Catatan : hal ini sifatnya hanya merupakan konfirmasi bukan penagihan)</i>
           <p>Atas perhatian dan kerja sama Bapak/Ibu, kami ucapkan banyak terima kasih.</p>
           <p className="text-end mb-5">Hormat Kami,</p>
@@ -160,14 +166,14 @@ export default function KonfirmasiPiutangPrint() {
 
         <div className="page-break" />
 
-        <p style={{ marginTop:"100px", zIndex:"1000" }}>
+        <p style={{ zIndex: "1000" }}>
           Kepada:<br />
           Internal Auditor<br />
           PT. Satoria Distribusi Lestari<br />
           Di Tempat
         </p>
 
-        <p style={{ zIndex:"1000" }}>
+        <p style={{ zIndex: "1000" }}>
           Bersama ini kami menyatakan kepada PT Satoria Distribusi Lestari per tanggal ___________
           bahwa kami mempunyai Saldo Hutang Dagang sebesar Rp. _________________________
         </p>
