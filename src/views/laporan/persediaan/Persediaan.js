@@ -84,21 +84,23 @@ const Persediaan = () => {
     },
   ]
 
-  const loadDataPersediaan = async (page, perPage, keyword = '', cabangIds = [], supplierIds = [], barangIds = [], endDate = null) => {
+  const loadDataPersediaan = async (page, perPage, cabangIds = [], supplierIds = [], barangIds = [], searchValue = '') => {
     setLoading(true)
     setPage(page)
-    const fetchData = await fetchPersediaan(page, perPage, keyword, cabangIds, supplierIds, barangIds, endDate)
+    const fetchData = await fetchPersediaan(page, perPage, cabangIds, supplierIds, barangIds, searchValue)
     setData(fetchData.data)
     setTotalRows(fetchData.total)
     setLoading(false)
   }
 
-  const fetchPersediaan = async (page, perPage, keyword = '', cabangIds = [], supplierIds = [], barangIds = [], endDate = null) => {
-    console.log('fetchPersediaan called with page:', page, 'keyword:', keyword, 'cabangIds:', cabangIds, 'supplierIds:',supplierIds, 'barangIds:', barangIds, 'endDate:', endDate)
+  const fetchPersediaan = async (page, perPage, cabangIds = [], supplierIds = [], barangIds = [], searchValue = '') => {
+    console.log('fetchPersediaan called with page:', page, 'cabangIds:', cabangIds, 'supplierIds:',supplierIds, 'barangIds:', barangIds, 'endDate:', endDate, 'search:', searchValue)
     const params = new URLSearchParams()
     params.append('page', page)
     params.append('per_page', perPage)
-    if (keyword) params.append('search', keyword)
+
+    if (searchValue) params.append('search', searchValue)
+      
     if (cabangIds.length > 0) {
       params.append('cabang', cabangIds.join(',')) // or whatever your API expects
     }
@@ -118,20 +120,21 @@ const Persediaan = () => {
   }
 
   const handlePageChange = (page) => {
-    loadDataPersediaan(page, perPage, search, selectedCabang, selectedSupplier, selectedBarang, endDate)
+    loadDataPersediaan(page, perPage, selectedCabang, selectedSupplier, selectedBarang, search)
   }
 
   const handlePerRowsChange = async (newPerPage, page) => {
     setPerPage(newPerPage)
-    loadDataPersediaan(page, newPerPage, search, selectedCabang, selectedSupplier, selectedBarang, endDate)
+    loadDataPersediaan(page, newPerPage, selectedCabang, selectedSupplier, selectedBarang, search)
   }
 
   useEffect(() => {
     setPerPage(perPage)
-    if (endDate) {
-      loadDataPersediaan(1, perPage, '', selectedCabang, selectedSupplier, selectedBarang, endDate)
+    if(endDate) {
+      loadDataPersediaan(1, perPage, selectedCabang, selectedSupplier, selectedBarang, search)
+      loadDataPersediaan(1, perPage,  selectedCabang, selectedSupplier, selectedBarang, search)
     }
-  }, [perPage, selectedCabang, selectedSupplier, selectedBarang, endDate])
+  }, [perPage, selectedCabang, selectedSupplier, selectedBarang, endDate, search])
 
   const exportToExcel = async () => {
     document.body.style.cursor = 'wait';
@@ -139,11 +142,10 @@ const Persediaan = () => {
       const response = await fetchPersediaan(
         1,
         1000000,
-        search,
         selectedCabang,
         selectedSupplier,
         selectedBarang,
-        endDate
+        search
       );
       const allData = response.data;
 
@@ -243,11 +245,11 @@ const Persediaan = () => {
       const response = await fetchPersediaan(
         1,
         1000000,
-        search,
         selectedCabang,
         selectedSupplier,
         selectedBarang,
-        endDate
+        endDate,
+        search
       );
 
       const allData = response.data;
@@ -376,11 +378,13 @@ const Persediaan = () => {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Search by name or code"
+                  placeholder="Search by Kode Gudang or Nama Gudang"
                   value={search}
                   onChange={(e) => {
-                    setSearch(e.target.value)
-                    fetchPersediaan(1, e.target.value) // reset to page 1 on search
+                    const newSearchValue = e.target.value
+                    setSearch(newSearchValue)
+                    setPage(1)
+                    loadDataPersediaan(1, perPage, selectedCabang, selectedSupplier, selectedBarang, newSearchValue)
                   }}
                 />
               </div>
