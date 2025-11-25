@@ -84,7 +84,7 @@ const PenyaluranMasuk = () => {
     },
     {
       name: 'Tanggal Keluar',
-      selector: (row) => row.TanggalKeluar,
+      selector: (row) => row.TanggalMasuk,
       sortable: true,
     },
     {
@@ -202,6 +202,8 @@ const PenyaluranMasuk = () => {
       // Set column widths only (DO NOT use headers here!)
       worksheet.columns = [
         { key: 'no', width: 6 },
+        { key: 'KodeCabang', width: 15 },
+        { key: 'NamaCabang', width: 15 },
         { key: 'IdProduk', width: 15 },
         { key: 'NamaProduk', width: 15 },
         { key: 'NomorIzinEdar', width: 15 },
@@ -209,7 +211,7 @@ const PenyaluranMasuk = () => {
         { key: 'BatchNumber', width: 15 },
         { key: 'Katalog', width: 15 },
         { key: 'JumlahPenyaluran', width: 15 },
-        { key: 'TanggalTransaksi', width: 15 },
+        { key: 'TanggalMasuk', width: 15 },
         { key: 'TanggalKadaluarsa', width: 15 },
         { key: 'parenttransaction', width: 15 },
         { key: 'KodeSumber', width: 15 },
@@ -229,7 +231,7 @@ const PenyaluranMasuk = () => {
 
       // Row 3: Write headers manually
       worksheet.addRow([
-        'No', 'KodeCabang', 'NamaCabang', 'IdProduk', 'NamaProduk', 'NomorIzinEdar', 'TipeUkuran', 'BatchNumber', 'Katalog', 'JumlahPenyaluran', 'TanggalKeluar', 'TanggalKadaluarsa', 'parenttransaction', 'KodeSumber', 'namalgn', 'IdPartner', 'NamaPartner'
+        'No', 'KodeCabang', 'NamaCabang', 'IdProduk', 'NamaProduk', 'NomorIzinEdar', 'TipeUkuran', 'BatchNumber', 'Katalog', 'JumlahPenyaluran', 'TanggalMasuk', 'TanggalKadaluarsa', 'parenttransaction', 'KodeSumber', 'namalgn', 'IdPartner', 'NamaPartner'
       ]);
 
       // Row 4+: Add data
@@ -293,7 +295,7 @@ const PenyaluranMasuk = () => {
 
       // Define columns
       const headers = [
-        'No', 'KodeCabang', 'NamaCabang', 'IdProduk', 'NamaProduk', 'NomorIzinEdar', 'TipeUkuran', 'BatchNumber', 'Katalog', 'JumlahPenyaluran', 'TanggalKeluar', 'TanggalKadaluarsa', 'parenttransaction', 'KodeSumber', 'namalgn', 'IdPartner', 'NamaPartner'
+        'No', 'KodeCabang', 'NamaCabang', 'IdProduk', 'NamaProduk', 'NomorIzinEdar', 'TipeUkuran', 'BatchNumber', 'Katalog', 'JumlahPenyaluran', 'TanggalMasuk', 'TanggalKadaluarsa', 'parenttransaction', 'KodeSumber', 'namalgn', 'IdPartner', 'NamaPartner'
       ];
 
       // Prepare table body
@@ -310,7 +312,7 @@ const PenyaluranMasuk = () => {
           row.BatchNumber,
           row.Katalog,
           parseFloat(row.JumlahPenyaluran || 0).toFixed(2),
-          row.TanggalKeluar,
+          row.TanggalMasuk,
           row.TanggalKadaluarsa,
           row.parenttransaction,
           row.KodeSumber,
