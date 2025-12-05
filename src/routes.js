@@ -13,6 +13,8 @@ const RayonCabang = React.lazy(() => import('./views/laporan/RayonCabang'))
 const DaftarBarang = React.lazy(() => import('./views/laporan/persediaan/DaftarBarang'))
 const KonfirmasiPiutang = React.lazy(() => import('./views/piutang/KonfirmasiPiutang'))
 const KonfirmasiPiutangPrint = React.lazy(() => import('./views/piutang/KonfirmasiPiutangPrint'))
+const KonfirmasiHutang = React.lazy(() => import('./views/hutang/KonfirmasiHutang'))
+const KonfirmasiHutangPrint = React.lazy(() => import('./views/hutang/KonfirmasiHutangPrint'))
 const ImportVA = React.lazy(() => import('./views/tools/ImportVA'))
 const OutstandingSJ = React.lazy(() => import('./views/laporan/penjualan/OutstandingSJ'))
 const OutstandingDT = React.lazy(() => import('./views/laporan/penjualan/OutstandingDT'))
@@ -215,6 +217,24 @@ const routes = [
     element: (
       <ProtectedRoute>
         <KonfirmasiPiutangPrint />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/hutang/konfirmasihutang',
+    name: 'Konfirmasi Hutang',
+    element: (
+      <ProtectedRoute>
+        <KonfirmasiHutang />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/hutang/konfirmasihutang/:startDate/:endDate/:selectedSupplier/print',
+    name: 'Cetak Konfirmasi Hutang',
+    element: (
+      <ProtectedRoute>
+        <KonfirmasiHutangPrint />
       </ProtectedRoute>
     ),
   },

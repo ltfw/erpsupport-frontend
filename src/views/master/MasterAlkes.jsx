@@ -51,14 +51,15 @@ const MasterAlkes = () => {
   const [totalPages, setTotalPages] = useState(1)
   const [modal, setModal] = useState(false)
   const [alkesData, setAlkesData] = useState({
-    kodeMAS: '',
-    namaProdukAlkesMAS: '',
-    kodeCabang: '',
-    namaCabang: '',
-    idProdukKemenkes: '',
-    nie: '',
-    namaProduk: '',
-    tipeUkuran: '',
+    id: null,
+    KodeMas: '',
+    NamaProdukKemenkes: '',
+    KodeCabang: '',
+    NamaCabang: '',
+    IdProdukKemenkes: '',
+    Nie: '',
+    NamaProduk: '',
+    TipeUkuran: '',
   })
   const [editing, setEditing] = useState(false)
 
@@ -69,10 +70,108 @@ const MasterAlkes = () => {
       try {
         await axios.delete(`${ENDPOINT_URL}master/alkes/${id}`);
         setAlkesList(alkesList.filter(item => item.id !== id));
+        // Refresh data
+        const params = new URLSearchParams()
+        params.append('page', page)
+        params.append('per_page', perPage)
+        if (search) params.append('search', search)
+        if (selectedCabang.length > 0) {
+          params.append('cabang', selectedCabang.join(','))
+        }
+        const response = await axios.get(
+          `${ENDPOINT_URL}master/alkes?${params.toString()}`,
+        )
+        setAlkesList(response.data.data)
+        setTotalPages(response.data.pagination.totalPages)
       } catch (error) {
         console.error("Error deleting alkes:", error);
       }
     }
+  };
+
+  const handleCreate = async () => {
+    try {
+      await axios.post(`${ENDPOINT_URL}master/alkes`, alkesData);
+      setModal(false);
+      setAlkesData({
+        id: null,
+        KodeMas: '',
+        NamaProdukKemenkes: '',
+        KodeCabang: '',
+        NamaCabang: '',
+        IdProdukKemenkes: '',
+        Nie: '',
+        NamaProduk: '',
+        TipeUkuran: '',
+      });
+      // Refresh data
+      const params = new URLSearchParams()
+      params.append('page', page)
+      params.append('per_page', perPage)
+      if (search) params.append('search', search)
+      if (selectedCabang.length > 0) {
+        params.append('cabang', selectedCabang.join(','))
+      }
+      const response = await axios.get(
+        `${ENDPOINT_URL}master/alkes?${params.toString()}`,
+      )
+      setAlkesList(response.data.data)
+      setTotalPages(response.data.pagination.totalPages)
+    } catch (error) {
+      console.error("Error creating alkes:", error);
+      alert("Failed to create alkes. Please try again.");
+    }
+  };
+
+  const handleUpdate = async () => {
+    try {
+      await axios.put(`${ENDPOINT_URL}master/alkes/${alkesData.id}`, alkesData);
+      setModal(false);
+      setEditing(false);
+      setAlkesData({
+        id: null,
+        KodeMas: '',
+        NamaProdukKemenkes: '',
+        KodeCabang: '',
+        NamaCabang: '',
+        IdProdukKemenkes: '',
+        Nie: '',
+        NamaProduk: '',
+        TipeUkuran: '',
+      });
+      // Refresh data
+      const params = new URLSearchParams()
+      params.append('page', page)
+      params.append('per_page', perPage)
+      if (search) params.append('search', search)
+      if (selectedCabang.length > 0) {
+        params.append('cabang', selectedCabang.join(','))
+      }
+      const response = await axios.get(
+        `${ENDPOINT_URL}master/alkes?${params.toString()}`,
+      )
+      setAlkesList(response.data.data)
+      setTotalPages(response.data.pagination.totalPages)
+    } catch (error) {
+      console.error("Error updating alkes:", error);
+      alert("Failed to update alkes. Please try again.");
+    }
+  };
+
+  const handleEdit = (item) => {
+    setAlkesData({
+      id: item.id,
+      KodeMas: item.KodeMas || '',
+      NamaProdukKemenkes: item.NamaProdukKemenkes || '',
+      KodeCabang: item.KodeCabang || '',
+      NamaCabang: item.NamaCabang || '',
+      IdProdukKemenkes: item.IdProdukKemenkes || '',
+      Nie: item.Nie || '',
+      NamaProduk: item.NamaProduk || '',
+      TipeUkuran: item.TipeUkuran || '',
+    });
+    setEditing(true);
+    setModal(true);
   };
 
   // Custom setPage function that saves to localStorage
@@ -102,31 +201,31 @@ const MasterAlkes = () => {
       } catch (error) {
         console.error('Error fetching alkes data:', error)
         // Set mock data for development if API fails
-        setAlkesList([
-          {
-            id: 1,
-            kodeMAS: 'MAS001',
-            namaProdukAlkesMAS: 'Alat Kesehatan MAS 1',
-            kodeCabang: 'CB001',
-            namaCabang: 'Cabang Jakarta',
-            idProdukKemenkes: 'KEM001',
-            nie: 'NIE001',
-            namaProduk: 'Alat Kesehatan 1',
-            tipeUkuran: 'Type A - Medium'
-          },
-          {
-            id: 2,
-            kodeMAS: 'MAS002',
-            namaProdukAlkesMAS: 'Alat Kesehatan MAS 2',
-            kodeCabang: 'CB002',
-            namaCabang: 'Cabang Surabaya',
-            idProdukKemenkes: 'KEM002',
-            nie: 'NIE002',
-            namaProduk: 'Alat Kesehatan 2',
-            tipeUkuran: 'Type B - Large'
-          }
-        ])
-        setTotalPages(1)
+        // setAlkesList([
+        //   {
+        //     id: 1,
+        //     KodeMas: 'MAS001',
+        //     NamaProdukKemenkes: 'Alat Kesehatan MAS 1',
+        //     KodeCabang: 'CB001',
+        //     NamaCabang: 'Cabang Jakarta',
+        //     IdProdukKemenkes: 'KEM001',
+        //     Nie: 'NIE001',
+        //     NamaProduk: 'Alat Kesehatan 1',
+        //     TipeUkuran: 'Type A - Medium'
+        //   },
+        //   {
+        //     id: 2,
+        //     KodeMas: 'MAS002',
+        //     NamaProdukKemenkes: 'Alat Kesehatan MAS 2',
+        //     KodeCabang: 'CB002',
+        //     NamaCabang: 'Cabang Surabaya',
+        //     IdProdukKemenkes: 'KEM002',
+        //     Nie: 'NIE002',
+        //     NamaProduk: 'Alat Kesehatan 2',
+        //     TipeUkuran: 'Type B - Large'
+        //   }
+        // ])
+        // setTotalPages(1)
       }
     }
     fetchData()
@@ -196,6 +295,7 @@ const MasterAlkes = () => {
                     <CTableHeaderCell scope="col">NIE</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Nama Produk</CTableHeaderCell>
                     <CTableHeaderCell scope="col">Tipe dan Ukuran</CTableHeaderCell>
+                    <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
                 <CTableBody>
@@ -204,14 +304,31 @@ const MasterAlkes = () => {
                       <CTableDataCell>
                         {idx + 1 + (page - 1) * perPage}
                       </CTableDataCell>
-                      <CTableDataCell>{item.kodeMAS}</CTableDataCell>
-                      <CTableDataCell>{item.namaProdukAlkesMAS}</CTableDataCell>
-                      <CTableDataCell>{item.kodeCabang}</CTableDataCell>
-                      <CTableDataCell>{item.namaCabang}</CTableDataCell>
-                      <CTableDataCell>{item.idProdukKemenkes}</CTableDataCell>
-                      <CTableDataCell>{item.nie}</CTableDataCell>
-                      <CTableDataCell>{item.namaProduk}</CTableDataCell>
-                      <CTableDataCell>{item.tipeUkuran}</CTableDataCell>
+                      <CTableDataCell>{item.KodeMas}</CTableDataCell>
+                      <CTableDataCell>{item.NamaProdukKemenkes}</CTableDataCell>
+                      <CTableDataCell>{item.KodeCabang}</CTableDataCell>
+                      <CTableDataCell>{item.NamaCabang}</CTableDataCell>
+                      <CTableDataCell>{item.IdProdukKemenkes}</CTableDataCell>
+                      <CTableDataCell>{item.Nie}</CTableDataCell>
+                      <CTableDataCell>{item.NamaProduk}</CTableDataCell>
+                      <CTableDataCell>{item.TipeUkuran}</CTableDataCell>
+                      <CTableDataCell>
+                        <CButton
+                          color="warning"
+                          size="sm"
+                          onClick={() => handleEdit(item)}
+                          className="me-2"
+                        >
+                          Edit
+                        </CButton>
+                        <CButton
+                          color="danger"
+                          size="sm"
+                          onClick={() => handleDelete(item.id)}
+                        >
+                          Delete
+                        </CButton>
+                      </CTableDataCell>
                     </CTableRow>
                   ))}
                 </CTableBody>
@@ -224,7 +341,17 @@ const MasterAlkes = () => {
             </div>
             <CButton color="success" onClick={() => {
               setEditing(false);
-              setAlkesData({kodeMAS: '', namaProdukAlkesMAS: '', kodeCabang: '', namaCabang: '', idProdukKemenkes: '', nie: '', namaProduk: '', tipeUkuran: ''});
+              setAlkesData({
+                id: null,
+                KodeMas: '',
+                NamaProdukKemenkes: '',
+                KodeCabang: '',
+                NamaCabang: '',
+                IdProdukKemenkes: '',
+                Nie: '',
+                NamaProduk: '',
+                TipeUkuran: '',
+              });
               setModal(true);
             }}>
               Add New
@@ -244,9 +371,9 @@ const MasterAlkes = () => {
               <CFormInput
                 label="Kode MAS"
                 placeholder="Enter Kode MAS"
-                value={alkesData.kodeMAS}
+                value={alkesData.KodeMas}
                 onChange={(e) =>
-                  setAlkesData({ ...alkesData, kodeMAS: e.target.value })
+                  setAlkesData({ ...alkesData, KodeMas: e.target.value })
                 }
               />
             </CCol>
@@ -254,9 +381,9 @@ const MasterAlkes = () => {
               <CFormInput
                 label="Nama Produk Alkes MAS"
                 placeholder="Enter Nama Produk Alkes MAS"
-                value={alkesData.namaProdukAlkesMAS}
+                value={alkesData.NamaProdukKemenkes}
                 onChange={(e) =>
-                  setAlkesData({ ...alkesData, namaProdukAlkesMAS: e.target.value })
+                  setAlkesData({ ...alkesData, NamaProdukKemenkes: e.target.value })
                 }
               />
             </CCol>
@@ -266,9 +393,9 @@ const MasterAlkes = () => {
               <CFormInput
                 label="Kode Cabang"
                 placeholder="Enter Kode Cabang"
-                value={alkesData.kodeCabang}
+                value={alkesData.KodeCabang}
                 onChange={(e) =>
-                  setAlkesData({ ...alkesData, kodeCabang: e.target.value })
+                  setAlkesData({ ...alkesData, KodeCabang: e.target.value })
                 }
               />
             </CCol>
@@ -276,9 +403,9 @@ const MasterAlkes = () => {
               <CFormInput
                 label="Nama Cabang"
                 placeholder="Enter Nama Cabang"
-                value={alkesData.namaCabang}
+                value={alkesData.NamaCabang}
                 onChange={(e) =>
-                  setAlkesData({ ...alkesData, namaCabang: e.target.value })
+                  setAlkesData({ ...alkesData, NamaCabang: e.target.value })
                 }
               />
             </CCol>
@@ -288,9 +415,9 @@ const MasterAlkes = () => {
               <CFormInput
                 label="ID Produk Kemenkes"
                 placeholder="Enter ID Produk Kemenkes"
-                value={alkesData.idProdukKemenkes}
+                value={alkesData.IdProdukKemenkes}
                 onChange={(e) =>
-                  setAlkesData({ ...alkesData, idProdukKemenkes: e.target.value })
+                  setAlkesData({ ...alkesData, IdProdukKemenkes: e.target.value })
                 }
               />
             </CCol>
@@ -298,8 +425,8 @@ const MasterAlkes = () => {
               <CFormInput
                 label="NIE"
                 placeholder="Enter NIE"
-                value={alkesData.nie}
-                onChange={(e) => setAlkesData({ ...alkesData, nie: e.target.value })}
+                value={alkesData.Nie}
+                onChange={(e) => setAlkesData({ ...alkesData, Nie: e.target.value })}
               />
             </CCol>
           </CRow>
@@ -308,9 +435,9 @@ const MasterAlkes = () => {
               <CFormInput
                 label="Nama Produk"
                 placeholder="Enter Nama Produk"
-                value={alkesData.namaProduk}
+                value={alkesData.NamaProduk}
                 onChange={(e) =>
-                  setAlkesData({ ...alkesData, namaProduk: e.target.value })
+                  setAlkesData({ ...alkesData, NamaProduk: e.target.value })
                 }
               />
             </CCol>
@@ -318,9 +445,9 @@ const MasterAlkes = () => {
               <CFormInput
                 label="Tipe dan Ukuran"
                 placeholder="Enter Tipe dan Ukuran"
-                value={alkesData.tipeUkuran}
+                value={alkesData.TipeUkuran}
                 onChange={(e) =>
-                  setAlkesData({ ...alkesData, tipeUkuran: e.target.value })
+                  setAlkesData({ ...alkesData, TipeUkuran: e.target.value })
                 }
               />
             </CCol>

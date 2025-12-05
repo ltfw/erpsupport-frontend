@@ -20,10 +20,11 @@ import {
   CCol,
 } from '@coreui/react'
 import axios from 'axios'
+import Pagination from '../../components/Pagination'
 
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 
-const SupplierSelector = ({ onSelect }) => {
+const SupplierSelector = ({ onSelect, mode = '', className = '' }) => {
   const [visible, setVisible] = useState(false)
   const [search, setSearch] = useState('')
   const [page, setPage] = useState(1)
@@ -33,11 +34,23 @@ const SupplierSelector = ({ onSelect }) => {
 
   const [selectedItems, setSelectedItems] = useState([])
 
+  const handlePageChange = (newPage) => {
+    setPage(newPage)
+    localStorage.setItem('supplierSelector_page', newPage.toString())
+  }
+
   useEffect(() => {
     const fetchData = async () => {
-      const response = await axios.get(
-        `${ENDPOINT_URL}suppliers?page=${page}&per_page=${perPage}&search=${encodeURIComponent(search)}`
-      )
+      let response = null;
+      if (mode === 'all') {
+        response = await axios.get(
+          `${ENDPOINT_URL}suppliers/all?page=${page}&per_page=${perPage}&search=${encodeURIComponent(search)}`
+        )
+      } else {
+        response = await axios.get(
+          `${ENDPOINT_URL}customers?page=${page}&per_page=${perPage}&search=${encodeURIComponent(search)}`
+        )
+      }
       console.log('response.data', response.data)
       setItemList(response.data.data)
       setTotalPages(response.data.pagination.totalPages)
@@ -76,7 +89,7 @@ const SupplierSelector = ({ onSelect }) => {
 
   return (
     <>
-      <CButton color='info' onClick={() => setVisible(true)}>
+      <CButton color='info' className={className} onClick={() => setVisible(true)}>
         {selectedItems.length > 0
           ? `${selectedItems.length} Supplier Dipilih`
           : 'Pilih Supplier'}
@@ -145,41 +158,7 @@ const SupplierSelector = ({ onSelect }) => {
 
           <div className="d-flex justify-content-between mt-3">
             <div>
-              <CPagination>
-                <CPaginationItem
-                  disabled={page === 1}
-                  onClick={() => setPage(1)}
-                >
-                  First
-                </CPaginationItem>
-                <CPaginationItem
-                  disabled={page === 1}
-                  onClick={() => setPage(page - 1)}
-                >
-                  Previous
-                </CPaginationItem>
-                {[...Array(totalPages)].map((_, index) => (
-                  <CPaginationItem
-                    key={index}
-                    active={page === index + 1}
-                    onClick={() => setPage(index + 1)}
-                  >
-                    {index + 1}
-                  </CPaginationItem>
-                ))}
-                <CPaginationItem
-                  disabled={page === totalPages}
-                  onClick={() => setPage(page + 1)}
-                >
-                  Next
-                </CPaginationItem>
-                <CPaginationItem
-                  disabled={page === totalPages}
-                  onClick={() => setPage(totalPages)}
-                >
-                  Last
-                </CPaginationItem>
-              </CPagination>
+              <Pagination page={page} totalPages={totalPages} setPage={handlePageChange} />
             </div>
 
             <div>

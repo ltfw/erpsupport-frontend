@@ -12,3 +12,15 @@ export const formatRupiah = (value) => {
         maximumFractionDigits: 2
     });
 };
+
+// return rupiah without decimal
+export const formatRupiahWithoutDecimal = (value) => {
+    const number = parseFloat(value);
+    if (isNaN(number)) {
+        return "0";
+    }
+    return number.toLocaleString('id-ID', {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0
+    });
+};
