@@ -21,6 +21,8 @@ const OutstandingDT = React.lazy(() => import('./views/laporan/penjualan/Outstan
 const PenyaluranMasuk = React.lazy(() => import('./views/laporan/alkes/PenyaluranMasuk'))
 const ReportFarmasi = React.lazy(() => import('./views/laporan/farmasi/ReportFarmasi'))
 const MasterAlkes = React.lazy(() => import('./views/master/MasterAlkes'))
+const CabangAlkes = React.lazy(() => import('./views/master/CabangAlkes'))
+
 // Dashboard
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
 const ChangePassword = React.lazy(() => import('./views/pages/ChangePassword'))
@@ -275,11 +277,20 @@ const routes = [
     ),
   },
   {
-    path: '/master/alkes',
+    path: '/master/alkes/',
     name: 'Master Alkes',
     element: (
       <ProtectedRoute>
         <MasterAlkes />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/master/cabangalkes/',
+    name: 'Cabang Alkes',
+    element: (
+      <ProtectedRoute>
+        <CabangAlkes />
       </ProtectedRoute>
     ),
   },

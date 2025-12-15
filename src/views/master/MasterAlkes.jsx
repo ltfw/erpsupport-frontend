@@ -166,9 +166,9 @@ const MasterAlkes = () => {
       KodeCabang: item.KodeCabang || '',
       NamaCabang: item.NamaCabang || '',
       IdProdukKemenkes: item.IdProdukKemenkes || '',
-      Nie: item.Nie || '',
-      NamaProduk: item.NamaProduk || '',
-      TipeUkuran: item.TipeUkuran || '',
+      Nie: item.Inventory.Nie || '',
+      NamaProduk: item.Inventory.NamaBarang || '',
+      TipeUkuran: item.Inventory.TipeUkuran || '',
     });
     setEditing(true);
     setModal(true);
@@ -250,7 +250,7 @@ const MasterAlkes = () => {
               </CRow>
               <CRow className="g-1 mb-3">
                 <CCol xs={1}>
-                  <CFormSelect 
+                  <CFormSelect
                     value={perPage}
                     onChange={(e) => {
                       const newPerPage = parseInt(e.target.value, 10)
@@ -309,9 +309,9 @@ const MasterAlkes = () => {
                       <CTableDataCell>{item.KodeCabang}</CTableDataCell>
                       <CTableDataCell>{item.NamaCabang}</CTableDataCell>
                       <CTableDataCell>{item.IdProdukKemenkes}</CTableDataCell>
-                      <CTableDataCell>{item.Nie}</CTableDataCell>
-                      <CTableDataCell>{item.NamaProduk}</CTableDataCell>
-                      <CTableDataCell>{item.TipeUkuran}</CTableDataCell>
+                      <CTableDataCell>{item.Inventory.Nie}</CTableDataCell>
+                      <CTableDataCell>{item.Inventory.NamaBarang}</CTableDataCell>
+                      <CTableDataCell>{item.Inventory.TipeUkuran}</CTableDataCell>
                       <CTableDataCell>
                         <CButton
                           color="warning"
@@ -334,28 +334,28 @@ const MasterAlkes = () => {
                 </CTableBody>
               </CTable>
 
-            <div className="d-flex justify-content-between mt-3">
-              <div>
-                <Pagination page={page} totalPages={totalPages} setPage={handlePageChange} />
+              <div className="d-flex justify-content-between mt-3">
+                <div>
+                  <Pagination page={page} totalPages={totalPages} setPage={handlePageChange} />
+                </div>
               </div>
-            </div>
-            <CButton color="success" onClick={() => {
-              setEditing(false);
-              setAlkesData({
-                id: null,
-                KodeMas: '',
-                NamaProdukKemenkes: '',
-                KodeCabang: '',
-                NamaCabang: '',
-                IdProdukKemenkes: '',
-                Nie: '',
-                NamaProduk: '',
-                TipeUkuran: '',
-              });
-              setModal(true);
-            }}>
-              Add New
-            </CButton>
+              <CButton color="success" onClick={() => {
+                setEditing(false);
+                setAlkesData({
+                  id: null,
+                  KodeMas: '',
+                  NamaProdukKemenkes: '',
+                  KodeCabang: '',
+                  NamaCabang: '',
+                  IdProdukKemenkes: '',
+                  Nie: '',
+                  NamaProduk: '',
+                  TipeUkuran: '',
+                });
+                setModal(true);
+              }}>
+                Add New
+              </CButton>
             </CCardBody>
           </CCard>
         </CCol>
@@ -367,7 +367,7 @@ const MasterAlkes = () => {
         </CModalHeader>
         <CModalBody>
           <CRow>
-            <CCol md={6}>
+            <CCol md={6} className="mb-3">
               <CFormInput
                 label="Kode MAS"
                 placeholder="Enter Kode MAS"
@@ -377,7 +377,7 @@ const MasterAlkes = () => {
                 }
               />
             </CCol>
-            <CCol md={6}>
+            <CCol md={6} className="mb-3">
               <CFormInput
                 label="Nama Produk Alkes MAS"
                 placeholder="Enter Nama Produk Alkes MAS"
@@ -389,7 +389,7 @@ const MasterAlkes = () => {
             </CCol>
           </CRow>
           <CRow>
-            <CCol md={6}>
+            <CCol md={6} className="mb-3">
               <CFormInput
                 label="Kode Cabang"
                 placeholder="Enter Kode Cabang"
@@ -399,7 +399,7 @@ const MasterAlkes = () => {
                 }
               />
             </CCol>
-            <CCol md={6}>
+            <CCol md={6} className="mb-3">
               <CFormInput
                 label="Nama Cabang"
                 placeholder="Enter Nama Cabang"
@@ -411,7 +411,7 @@ const MasterAlkes = () => {
             </CCol>
           </CRow>
           <CRow>
-            <CCol md={6}>
+            <CCol md={6} className="mb-3">
               <CFormInput
                 label="ID Produk Kemenkes"
                 placeholder="Enter ID Produk Kemenkes"
@@ -421,8 +421,9 @@ const MasterAlkes = () => {
                 }
               />
             </CCol>
-            <CCol md={6}>
+            <CCol md={6} className="mb-3">
               <CFormInput
+                disabled
                 label="NIE"
                 placeholder="Enter NIE"
                 value={alkesData.Nie}
@@ -431,8 +432,9 @@ const MasterAlkes = () => {
             </CCol>
           </CRow>
           <CRow>
-            <CCol md={6}>
+            <CCol md={6} className="mb-3">
               <CFormInput
+              disabled
                 label="Nama Produk"
                 placeholder="Enter Nama Produk"
                 value={alkesData.NamaProduk}
@@ -441,8 +443,9 @@ const MasterAlkes = () => {
                 }
               />
             </CCol>
-            <CCol md={6}>
+            <CCol md={6} className="mb-3">
               <CFormInput
+              disabled
                 label="Tipe dan Ukuran"
                 placeholder="Enter Tipe dan Ukuran"
                 value={alkesData.TipeUkuran}

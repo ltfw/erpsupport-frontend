@@ -155,10 +155,9 @@ export default function KonfirmasiPiutangPrint() {
         <div className="avoid-page-break">
           <p className="mt-3" style={{ textIndent: "30px" }}>
             Atas dasar hal tersebut, kami hendak melakukan konfirmasi kesesuaian data Saldo Piutang Dagang kami
-            dengan catatan pembukuan Bapak/Ibu.<br />
+            dengan catatan pembukuan Bapak/Ibu. Mohon konfirmasinya dengan mengisi formulir di halaman terakhir.<br />
           </p>
 
-          <i>(Catatan : hal ini sifatnya hanya merupakan konfirmasi bukan penagihan)</i>
           <p>Atas perhatian dan kerja sama Bapak/Ibu, kami ucapkan banyak terima kasih.</p>
           <p className="text-end mb-5">Hormat Kami,</p>
           <p className="text-end">Tim AR Control</p>

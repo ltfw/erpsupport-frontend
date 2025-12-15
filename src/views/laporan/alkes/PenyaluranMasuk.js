@@ -129,7 +129,7 @@ const PenyaluranMasuk = () => {
   }
 
   const fetchPenyaluranMasuk = async (page, perPage, keyword = '', cabangIds = [], supplierIds = [], barangIds = [], startDate = null, endDate = null) => {
-    console.log('fetchPenyaluranMasuk called with page:', page, 'keyword:', keyword, 'cabangIds:', cabangIds, 'supplierIds:',supplierIds, 'barangIds:', barangIds, 'startDate:', startDate, 'endDate:', endDate)
+    console.log('fetchPenyaluranMasuk called with page:', page, 'keyword:', keyword, 'cabangIds:', cabangIds, 'supplierIds:', supplierIds, 'barangIds:', barangIds, 'startDate:', startDate, 'endDate:', endDate)
     const params = new URLSearchParams()
     params.append('page', page)
     params.append('per_page', perPage)
@@ -165,6 +165,10 @@ const PenyaluranMasuk = () => {
   }
 
   useEffect(() => {
+    setSelectedCabang(['00'])
+  }, [])
+
+  useEffect(() => {
     setPerPage(perPage)
     if (startDate && endDate) {
       loadDataPenyaluranMasuk(1, perPage, '', selectedCabang, selectedSupplier, selectedBarang, startDate, endDate)
@@ -191,7 +195,7 @@ const PenyaluranMasuk = () => {
 
       // Row 2: Title
       worksheet.mergeCells('A2:Q2');
-      worksheet.getCell('A2').value = 'Laporan PenyaluranMasuk';
+      worksheet.getCell('A2').value = 'Laporan Penyaluran Masuk';
       worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' };
       worksheet.getCell('A2').font = { size: 16, bold: true };
       worksheet.mergeCells('A3:Q3');
@@ -267,7 +271,7 @@ const PenyaluranMasuk = () => {
 
       // Generate and save
       const buffer = await workbook.xlsx.writeBuffer();
-      saveAs(new Blob([buffer]), 'PenyaluranMasuk dari ' + formatDateToDDMMYYYY(startDate) + ' sampai ' + formatDateToDDMMYYYY(endDate) + '.xlsx');
+      saveAs(new Blob([buffer]), 'Penyaluran Masuk dari ' + formatDateToDDMMYYYY(startDate) + ' sampai ' + formatDateToDDMMYYYY(endDate) + '.xlsx');
     } catch (error) {
       alert('Gagal mengunduh data!');
       console.error('Error exporting to Excel:', error);
@@ -377,7 +381,7 @@ const PenyaluranMasuk = () => {
       <CRow>
         <CCol xs>
           <CCard className="mb-4">
-            <CCardHeader>Data PenyaluranMasuk
+            <CCardHeader>Data Penyaluran Masuk
               <CDropdown className='float-end'>
                 <CDropdownToggle color="warning" size='sm' >Export</CDropdownToggle>
                 <CDropdownMenu>
@@ -391,6 +395,7 @@ const PenyaluranMasuk = () => {
                 <CRow>
                   <CCol xs={12} sm={2} className='d-grid'>
                     <CabangSelector
+                      selectedItems={selectedCabang}
                       onSelect={(items) => {
                         console.log('Selected items:', items)
                         setSelectedCabang(items)
@@ -432,7 +437,7 @@ const PenyaluranMasuk = () => {
 
               <DataTable
                 dense
-                title="Data PenyaluranMasuk"
+                title="Data Penyaluran Masuk"
                 columns={column}
                 data={data}
                 progressPending={loading}
