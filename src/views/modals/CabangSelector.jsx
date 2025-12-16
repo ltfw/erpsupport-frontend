@@ -24,7 +24,7 @@ import { useAuth } from '../../contexts/AuthContext'
 
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 
-const CabangSelector = ({ onSelect,selectedItems:initialSelectedItems = [] }) => {
+const CabangSelector = ({ onSelect, selectedItems: initialSelectedItems = [] }) => {
   const { user } = useAuth()
   const [visible, setVisible] = useState(false)
   const [search, setSearch] = useState('')
@@ -34,10 +34,6 @@ const CabangSelector = ({ onSelect,selectedItems:initialSelectedItems = [] }) =>
   const [totalPages, setTotalPages] = useState(1)
 
   const [selectedItems, setSelectedItems] = useState(initialSelectedItems)
-
-  useEffect(() => {
-    setSelectedItems(initialSelectedItems)
-  }, [initialSelectedItems])
 
   useEffect(() => {
     const fetchData = async () => {

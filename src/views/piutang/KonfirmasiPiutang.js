@@ -1,84 +1,136 @@
-import React, { useState, useEffect, usenav } from 'react'
-import { useNavigate } from 'react-router-dom'
+import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   CButton,
-  CModal,
-  CModalHeader,
-  CModalTitle,
-  CModalBody,
-  CFormInput,
-  CFormCheck,
+  CRow,
+  CCol,
+  CCard,
+  CCardHeader,
+  CCardBody,
   CTable,
   CTableHead,
   CTableRow,
   CTableHeaderCell,
   CTableBody,
   CTableDataCell,
-  CPagination,
-  CPaginationItem,
-  CRow,
   CFormSelect,
-  CCol,
-  CCard,
-  CCardHeader,
-  CCardBody,
-} from '@coreui/react'
-import axios from 'axios'
-import CabangSelector from '../modals/CabangSelector'
-import CIcon from '@coreui/icons-react'
-import { cilDescription } from '@coreui/icons'
-import Pagination from '../../components/Pagination'
-import { formatRupiah } from '../../utils/Number'
+  CFormInput,
+} from '@coreui/react';
+import axios from 'axios';
+import CabangSelector from '../modals/CabangSelector';
+import CIcon from '@coreui/icons-react';
+import { cilDescription } from '@coreui/icons';
+import Pagination from '../../components/Pagination';
+import { formatRupiah } from '../../utils/Number';
 
-const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
+const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL;
 
 const KonfirmasiPiutang = () => {
-  // Load search value from localStorage on component mount
+  // Persisted filter states
   const [search, setSearch] = useState(() => {
-    const savedSearch = localStorage.getItem('konfirmasiPiutang_search')
-    return savedSearch || ''
-  })
-  // Load pagination values from localStorage on component mount
+    const saved = localStorage.getItem('konfirmasiPiutang_search');
+    return saved || '';
+  });
+
   const [page, setPage] = useState(() => {
-    const savedPage = localStorage.getItem('konfirmasiPiutang_page')
-    return savedPage ? parseInt(savedPage, 10) : 1
-  })
+    const saved = localStorage.getItem('konfirmasiPiutang_page');
+    return saved ? parseInt(saved, 10) : 1;
+  });
+
   const [perPage, setPerPage] = useState(() => {
-    const savedPerPage = localStorage.getItem('konfirmasiPiutang_perPage')
-    return savedPerPage ? parseInt(savedPerPage, 10) : 10
-  })
-  const [selectedCabang, setSelectedCabang] = useState([]);
-  const [customerList, setCustomerList] = useState([])
-  const [totalPages, setTotalPages] = useState(1)
+    const saved = localStorage.getItem('konfirmasiPiutang_perPage');
+    return saved ? parseInt(saved, 10) : 10;
+  });
 
-  const navigate = useNavigate()
+  const [selectedCabang, setSelectedCabang] = useState(() => {
+    const saved = localStorage.getItem('konfirmasiPiutang_cabang');
+    return saved ? JSON.parse(saved) : [];
+  });
 
-  // Custom setPage function that saves to localStorage
-  const handlePageChange = (newPage) => {
-    setPage(newPage)
-    localStorage.setItem('konfirmasiPiutang_page', newPage.toString())
-  }
+  const [customerList, setCustomerList] = useState([]);
+  const [totalPages, setTotalPages] = useState(1);
 
-  // Fetch Customer data
-  useEffect(() => {
-    const fetchData = async () => {
-      const params = new URLSearchParams()
-      params.append('page', page)
-      params.append('per_page', perPage)
-      if (search) params.append('search', search)
-      if (selectedCabang.length > 0) {
-        params.append('cabang', selectedCabang.join(','))
+  const navigate = useNavigate();
+
+  // Stable callback for cabang selection
+  const handleCabangSelect = useCallback((items) => {
+    setSelectedCabang((prev) => {
+      if (JSON.stringify(prev) === JSON.stringify(items)) {
+        return prev; // prevent re-render loop
       }
 
-      const response = await axios.get(
-        `${ENDPOINT_URL}piutang/konfirmasipiutang?${params.toString()}`,
-      )
-      console.log('response.data', response.data)
-      setCustomerList(response.data.data)
-      setTotalPages(response.data.pagination.totalPages)
-    }
-    fetchData()
-  }, [search, page, perPage, selectedCabang])
+      localStorage.setItem('konfirmasiPiutang_cabang', JSON.stringify(items));
+      localStorage.setItem('konfirmasiPiutang_page', '1');
+      setPage(1);
+
+      return items;
+    });
+  }, []);
+
+  const handlePageChange = useCallback((newPage) => {
+    setPage(newPage);
+    localStorage.setItem('konfirmasiPiutang_page', newPage.toString());
+  }, []);
+
+  const handleSearchChange = useCallback((e) => {
+    const value = e.target.value;
+    setSearch(value);
+    localStorage.setItem('konfirmasiPiutang_search', value);
+    setPage(1);
+    localStorage.setItem('konfirmasiPiutang_page', '1');
+  }, []);
+
+  const handlePerPageChange = useCallback((e) => {
+    const newPerPage = parseInt(e.target.value, 10);
+    setPerPage(newPerPage);
+    localStorage.setItem('konfirmasiPiutang_perPage', newPerPage.toString());
+    setPage(1);
+    localStorage.setItem('konfirmasiPiutang_page', '1');
+  }, []);
+
+  // Fetch data whenever page, perPage, search, or selectedCabang changes
+  // We use a ref to track previous values and avoid unnecessary fetches
+  useEffect(() => {
+    let mounted = true;
+
+    const fetchData = async () => {
+      const params = new URLSearchParams();
+      params.append('page', page);
+      params.append('per_page', perPage);
+      if (search.trim()) params.append('search', search.trim());
+      if (selectedCabang.length > 0) {
+        // Adjust this line based on your backend expectation
+        // If backend expects cabang IDs as strings/numbers:
+        const cabangValues = selectedCabang.map(item =>
+          typeof item === 'object' ? item.id || item.value || item : item
+        );
+        params.append('cabang', cabangValues.join(','));
+      }
+
+      try {
+        const response = await axios.get(
+          `${ENDPOINT_URL}piutang/konfirmasipiutang?${params.toString()}`
+        );
+
+        if (mounted) {
+          setCustomerList(response.data.data || []);
+          setTotalPages(response.data.pagination?.totalPages || 1);
+        }
+      } catch (error) {
+        console.error('Error fetching data:', error);
+        if (mounted) {
+          setCustomerList([]);
+          setTotalPages(1);
+        }
+      }
+    };
+
+    fetchData();
+
+    return () => {
+      mounted = false;
+    };
+  }, [page, perPage, search, selectedCabang]); 
 
   return (
     <>
@@ -87,29 +139,15 @@ const KonfirmasiPiutang = () => {
           <CCard className="mb-4">
             <CCardHeader>Data Customers</CCardHeader>
             <CCardBody>
-              <CRow className='g-1 mb-3'>
-                <CCol xs={12} sm={2} className='d-grid'>
-                  <CabangSelector
-                    onSelect={(items) => {
-                      console.log('Selected items:', items)
-                      setSelectedCabang(items)
-                    }}
-                  />
+              <CRow className="g-1 mb-3">
+                <CCol xs={12} sm={2} className="d-grid">
+                  <CabangSelector onSelect={handleCabangSelect} />
                 </CCol>
               </CRow>
+
               <CRow className="g-1 mb-3">
                 <CCol xs={1}>
-                  <CFormSelect 
-                    value={perPage}
-                    onChange={(e) => {
-                      const newPerPage = parseInt(e.target.value, 10)
-                      setPage(1)
-                      setPerPage(newPerPage)
-                      // Save pagination values to localStorage
-                      localStorage.setItem('konfirmasiPiutang_perPage', newPerPage.toString())
-                      localStorage.setItem('konfirmasiPiutang_page', '1')
-                    }}
-                  >
+                  <CFormSelect value={perPage} onChange={handlePerPageChange}>
                     <option value="10">10</option>
                     <option value="20">20</option>
                     <option value="50">50</option>
@@ -121,13 +159,7 @@ const KonfirmasiPiutang = () => {
                     type="text"
                     placeholder="Search Customer..."
                     value={search}
-                    onChange={(e) => {
-                      const newSearchValue = e.target.value
-                      setSearch(newSearchValue)
-                      setPage(1)
-                      // Save search value to localStorage
-                      localStorage.setItem('konfirmasiPiutang_search', newSearchValue)
-                    }}
+                    onChange={handleSearchChange}
                   />
                 </CCol>
               </CRow>
@@ -156,12 +188,16 @@ const KonfirmasiPiutang = () => {
                       <CTableDataCell>{item.NamaLgn}</CTableDataCell>
                       <CTableDataCell>{item.BusinessEntityName}</CTableDataCell>
                       <CTableDataCell>{item.NamaSales}</CTableDataCell>
-                      <CTableDataCell className='text-end'>{formatRupiah(item.nominal)}</CTableDataCell>
-                      <CTableDataCell className='text-center'>
+                      <CTableDataCell className="text-end">
+                        {formatRupiah(item.nominal)}
+                      </CTableDataCell>
+                      <CTableDataCell className="text-center">
                         <CButton
                           color="primary"
                           size="sm"
-                          onClick={() => navigate(`/piutang/konfirmasipiutang/${item.CustomerId}/print`)}
+                          onClick={() =>
+                            navigate(`/piutang/konfirmasipiutang/${item.CustomerId}/print`)
+                          }
                         >
                           <CIcon icon={cilDescription} />
                         </CButton>
@@ -173,16 +209,19 @@ const KonfirmasiPiutang = () => {
 
               <div className="d-flex justify-content-between mt-3">
                 <div>
-                  <Pagination page={page} totalPages={totalPages} setPage={handlePageChange} />
+                  <Pagination
+                    page={page}
+                    totalPages={totalPages}
+                    setPage={handlePageChange}
+                  />
                 </div>
               </div>
             </CCardBody>
           </CCard>
         </CCol>
       </CRow>
-
     </>
-  )
-}
+  );
+};
 
-export default KonfirmasiPiutang
+export default KonfirmasiPiutang;

@@ -63,6 +63,7 @@ export default function KonfirmasiPiutangPrint() {
       axios.get(`${ENDPOINT_URL}piutang/konfirmasipiutang/detail/${customerId}`)
     ]).then(([headerRes, detailRes]) => {
       console.log('headerRes: ', headerRes);
+      console.log('detailRes: ', detailRes);
 
       setDataHeader(headerRes.data[0]);
       setDataDetail(detailRes.data);
@@ -130,7 +131,7 @@ export default function KonfirmasiPiutangPrint() {
                 <th style={cellStyle} className="text-center">No</th>
                 <th style={cellStyle} width="130px" className="text-center">No Faktur</th>
                 <th style={cellStyle} width="100px" className="text-center">Tgl Faktur</th>
-                <th style={cellStyle} width="115px" className="text-center">Nilai Piutang</th>
+                <th style={cellStyle} width="115px" className="text-center">Nilai Piutang Outstanding</th>
                 <th style={cellStyle} width="100px" className="text-center">Jatuh Tempo</th>
                 <th style={cellStyle} width="70px" className="text-center">Overdue</th>
                 <th style={cellStyle} className="text-center">Keterangan</th>
@@ -145,7 +146,16 @@ export default function KonfirmasiPiutangPrint() {
                   <td style={cellStyle} className="text-end">{formatRupiah(row.nominal)}</td>
                   <td style={cellStyle} className="text-center">{row.TglJthTmp}</td>
                   <td style={cellStyle} className="text-center">{row.aging > 0 ? row.aging : '-'}</td>
-                  <td style={cellStyle}></td>
+                  <td style={cellStyle}>
+                    {props.rincian[idx].dataDetail.map((r,i) => (
+                      r.Nama && (
+                        <div className="d-flex justify-content-between">
+                          <span key={i}>{r.Nama} :</span>
+                          <span className="text-end">{formatRupiah(r.JumlahTrn)}</span>
+                        </div>
+                      )
+                    ))}
+                  </td>
                 </tr>
               ))}
             </tbody>
