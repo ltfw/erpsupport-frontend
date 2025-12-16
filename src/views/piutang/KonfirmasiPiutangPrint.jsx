@@ -131,7 +131,7 @@ export default function KonfirmasiPiutangPrint() {
                 <th style={cellStyle} className="text-center">No</th>
                 <th style={cellStyle} width="130px" className="text-center">No Faktur</th>
                 <th style={cellStyle} width="100px" className="text-center">Tgl Faktur</th>
-                <th style={cellStyle} width="115px" className="text-center">Nilai Piutang Outstanding</th>
+                <th style={cellStyle} width="115px" className="text-center">Piutang Outstanding</th>
                 <th style={cellStyle} width="100px" className="text-center">Jatuh Tempo</th>
                 <th style={cellStyle} width="70px" className="text-center">Overdue</th>
                 <th style={cellStyle} className="text-center">Keterangan</th>
