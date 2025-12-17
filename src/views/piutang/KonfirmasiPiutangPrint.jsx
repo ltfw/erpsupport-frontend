@@ -124,7 +124,7 @@ export default function KonfirmasiPiutangPrint() {
             width: "100%",
             borderCollapse: "collapse",
             border: "1px solid black",
-            fontSize: "12px"
+            fontSize: "11px"
           }}>
             <thead>
               <tr>

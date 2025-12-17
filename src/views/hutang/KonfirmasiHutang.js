@@ -261,7 +261,7 @@ const KonfirmasiHutang = () => {
                     <CTableHeaderCell>No Faktur Supplier</CTableHeaderCell>
                     <CTableHeaderCell>Tanggal Transaksi</CTableHeaderCell>
                     <CTableHeaderCell>Jatuh Tempo</CTableHeaderCell>
-                    <CTableHeaderCell>Umur Hutang</CTableHeaderCell>
+                    <CTableHeaderCell>Overdue</CTableHeaderCell>
                     <CTableHeaderCell className="text-end">Nominal</CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
