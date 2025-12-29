@@ -1,164 +1,99 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
 import {
-  CButton,
-  CModal,
-  CModalHeader,
-  CModalTitle,
-  CModalBody,
-  CFormInput,
-  CFormCheck,
-  CTable,
-  CTableHead,
-  CTableRow,
-  CTableHeaderCell,
-  CTableBody,
-  CTableDataCell,
-  CPagination,
-  CPaginationItem,
-  CRow,
-  CFormSelect,
-  CCol,
-  CCard,
-  CCardHeader,
-  CCardBody,
+  CButton, CModal, CModalHeader, CModalTitle, CModalBody,
+  CFormInput, CTable, CTableHead, CTableRow, CTableHeaderCell,
+  CTableBody, CTableDataCell, CRow, CFormSelect, CCol,
+  CCard, CCardHeader, CCardBody,
 } from '@coreui/react'
 import axios from 'axios'
 import CabangSelector from '../modals/CabangSelector'
 import CIcon from '@coreui/icons-react'
-import { cilDescription } from '@coreui/icons'
+import { cilPlus } from '@coreui/icons'
 import Pagination from '../../components/Pagination'
 
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
+const INITIAL_ALKES_STATE = {
+  id: null, KodeMas: '', NamaProdukKemenkes: '', KodeCabang: '',
+  NamaCabang: '', IdProdukKemenkes: '', Nie: '', NamaProduk: '', TipeUkuran: '',
+}
 
 const MasterAlkes = () => {
-  // Load search value from localStorage on component mount
-  const [search, setSearch] = useState(() => {
-    const savedSearch = localStorage.getItem('masterAlkes_search')
-    return savedSearch || ''
-  })
-  // Load pagination values from localStorage on component mount
-  const [page, setPage] = useState(() => {
-    const savedPage = localStorage.getItem('masterAlkes_page')
-    return savedPage ? parseInt(savedPage, 10) : 1
-  })
-  const [perPage, setPerPage] = useState(() => {
-    const savedPerPage = localStorage.getItem('masterAlkes_perPage')
-    return savedPerPage ? parseInt(savedPerPage, 10) : 10
-  })
+  // --- State ---
+  const [search, setSearch] = useState(() => localStorage.getItem('masterAlkes_search') || '')
+  const [page, setPage] = useState(() => parseInt(localStorage.getItem('masterAlkes_page'), 10) || 1)
+  const [perPage, setPerPage] = useState(() => parseInt(localStorage.getItem('masterAlkes_perPage'), 10) || 10)
   const [selectedCabang, setSelectedCabang] = useState([])
   const [alkesList, setAlkesList] = useState([])
   const [totalPages, setTotalPages] = useState(1)
   const [modal, setModal] = useState(false)
-  const [alkesData, setAlkesData] = useState({
-    id: null,
-    KodeMas: '',
-    NamaProdukKemenkes: '',
-    KodeCabang: '',
-    NamaCabang: '',
-    IdProdukKemenkes: '',
-    Nie: '',
-    NamaProduk: '',
-    TipeUkuran: '',
-  })
   const [editing, setEditing] = useState(false)
+  const [alkesData, setAlkesData] = useState(INITIAL_ALKES_STATE)
 
-  const navigate = useNavigate()
+  // --- Memoized Values ---
+  const queryParams = useMemo(() => {
+    const params = new URLSearchParams()
+    params.append('page', page)
+    params.append('per_page', perPage)
+    if (search) params.append('search', search)
+    if (selectedCabang.length > 0) params.append('cabang', selectedCabang.join(','))
+    return params.toString()
+  }, [page, perPage, search, selectedCabang])
 
-  const handleDelete = async (id) => {
-    if (window.confirm("Are you sure you want to delete this item?")) {
-      try {
-        await axios.delete(`${ENDPOINT_URL}master/alkes/${id}`);
-        setAlkesList(alkesList.filter(item => item.id !== id));
-        // Refresh data
-        const params = new URLSearchParams()
-        params.append('page', page)
-        params.append('per_page', perPage)
-        if (search) params.append('search', search)
-        if (selectedCabang.length > 0) {
-          params.append('cabang', selectedCabang.join(','))
-        }
-        const response = await axios.get(
-          `${ENDPOINT_URL}master/alkes?${params.toString()}`,
-        )
-        setAlkesList(response.data.data)
-        setTotalPages(response.data.pagination.totalPages)
-      } catch (error) {
-        console.error("Error deleting alkes:", error);
-      }
-    }
-  };
-
-  const handleCreate = async () => {
+  // --- Callbacks ---
+  const fetchData = useCallback(async () => {
     try {
-      await axios.post(`${ENDPOINT_URL}master/alkes`, alkesData);
-      setModal(false);
-      setAlkesData({
-        id: null,
-        KodeMas: '',
-        NamaProdukKemenkes: '',
-        KodeCabang: '',
-        NamaCabang: '',
-        IdProdukKemenkes: '',
-        Nie: '',
-        NamaProduk: '',
-        TipeUkuran: '',
-      });
-      // Refresh data
-      const params = new URLSearchParams()
-      params.append('page', page)
-      params.append('per_page', perPage)
-      if (search) params.append('search', search)
-      if (selectedCabang.length > 0) {
-        params.append('cabang', selectedCabang.join(','))
-      }
-      const response = await axios.get(
-        `${ENDPOINT_URL}master/alkes?${params.toString()}`,
-      )
+      const response = await axios.get(`${ENDPOINT_URL}master/alkes?${queryParams}`)
       setAlkesList(response.data.data)
       setTotalPages(response.data.pagination.totalPages)
     } catch (error) {
-      console.error("Error creating alkes:", error);
-      alert("Failed to create alkes. Please try again.");
+      console.error('Error fetching alkes data:', error)
     }
-  };
+  }, [queryParams])
 
-  const handleUpdate = async () => {
+  useEffect(() => {
+    fetchData()
+  }, [fetchData])
+
+  const handlePageChange = useCallback((newPage) => {
+    setPage(newPage)
+    localStorage.setItem('masterAlkes_page', newPage.toString())
+  }, [])
+
+  const handleSearchChange = useCallback((e) => {
+    const val = e.target.value
+    setSearch(val)
+    setPage(1)
+    localStorage.setItem('masterAlkes_search', val)
+    localStorage.setItem('masterAlkes_page', '1')
+  }, [])
+
+  const handleCreateOrUpdate = useCallback(async () => {
     try {
-      await axios.put(`${ENDPOINT_URL}master/alkes/${alkesData.id}`, alkesData);
-      setModal(false);
-      setEditing(false);
-      setAlkesData({
-        id: null,
-        KodeMas: '',
-        NamaProdukKemenkes: '',
-        KodeCabang: '',
-        NamaCabang: '',
-        IdProdukKemenkes: '',
-        Nie: '',
-        NamaProduk: '',
-        TipeUkuran: '',
-      });
-      // Refresh data
-      const params = new URLSearchParams()
-      params.append('page', page)
-      params.append('per_page', perPage)
-      if (search) params.append('search', search)
-      if (selectedCabang.length > 0) {
-        params.append('cabang', selectedCabang.join(','))
-      }
-      const response = await axios.get(
-        `${ENDPOINT_URL}master/alkes?${params.toString()}`,
-      )
-      setAlkesList(response.data.data)
-      setTotalPages(response.data.pagination.totalPages)
+      const url = `${ENDPOINT_URL}master/alkes${editing ? `/${alkesData.id}` : ''}`
+      const method = editing ? 'put' : 'post'
+      
+      await axios[method](url, alkesData)
+      setModal(false)
+      setAlkesData(INITIAL_ALKES_STATE)
+      fetchData() // Refresh list
     } catch (error) {
-      console.error("Error updating alkes:", error);
-      alert("Failed to update alkes. Please try again.");
+      console.error(`Error ${editing ? 'updating' : 'creating'} alkes:`, error)
+      alert("Action failed. Please try again.")
     }
-  };
+  }, [editing, alkesData, fetchData])
 
-  const handleEdit = (item) => {
+  const handleDelete = useCallback(async (id) => {
+    if (!window.confirm("Are you sure?")) return
+    try {
+      await axios.delete(`${ENDPOINT_URL}master/alkes/${id}`)
+      fetchData()
+    } catch (error) {
+      console.error("Error deleting alkes:", error)
+    }
+  }, [fetchData])
+
+  const handleEditOpen = useCallback((item) => {
     setAlkesData({
       id: item.id,
       KodeMas: item.KodeMas || '',
@@ -166,99 +101,48 @@ const MasterAlkes = () => {
       KodeCabang: item.KodeCabang || '',
       NamaCabang: item.NamaCabang || '',
       IdProdukKemenkes: item.IdProdukKemenkes || '',
-      Nie: item.Inventory.Nie || '',
-      NamaProduk: item.Inventory.NamaBarang || '',
-      TipeUkuran: item.Inventory.TipeUkuran || '',
-    });
-    setEditing(true);
-    setModal(true);
-  };
+      Nie: item.Inventory?.Nie || '',
+      NamaProduk: item.Inventory?.NamaBarang || '',
+      TipeUkuran: item.Inventory?.TipeUkuran || '',
+    })
+    setEditing(true)
+    setModal(true)
+  }, [])
 
-  // Custom setPage function that saves to localStorage
-  const handlePageChange = (newPage) => {
-    setPage(newPage)
-    localStorage.setItem('masterAlkes_page', newPage.toString())
-  }
-
-  // Fetch Alkes data
-  useEffect(() => {
-    const fetchData = async () => {
-      const params = new URLSearchParams()
-      params.append('page', page)
-      params.append('per_page', perPage)
-      if (search) params.append('search', search)
-      if (selectedCabang.length > 0) {
-        params.append('cabang', selectedCabang.join(','))
-      }
-
-      try {
-        const response = await axios.get(
-          `${ENDPOINT_URL}master/alkes?${params.toString()}`,
-        )
-        console.log('response.data', response.data)
-        setAlkesList(response.data.data)
-        setTotalPages(response.data.pagination.totalPages)
-      } catch (error) {
-        console.error('Error fetching alkes data:', error)
-        // Set mock data for development if API fails
-        // setAlkesList([
-        //   {
-        //     id: 1,
-        //     KodeMas: 'MAS001',
-        //     NamaProdukKemenkes: 'Alat Kesehatan MAS 1',
-        //     KodeCabang: 'CB001',
-        //     NamaCabang: 'Cabang Jakarta',
-        //     IdProdukKemenkes: 'KEM001',
-        //     Nie: 'NIE001',
-        //     NamaProduk: 'Alat Kesehatan 1',
-        //     TipeUkuran: 'Type A - Medium'
-        //   },
-        //   {
-        //     id: 2,
-        //     KodeMas: 'MAS002',
-        //     NamaProdukKemenkes: 'Alat Kesehatan MAS 2',
-        //     KodeCabang: 'CB002',
-        //     NamaCabang: 'Cabang Surabaya',
-        //     IdProdukKemenkes: 'KEM002',
-        //     Nie: 'NIE002',
-        //     NamaProduk: 'Alat Kesehatan 2',
-        //     TipeUkuran: 'Type B - Large'
-        //   }
-        // ])
-        // setTotalPages(1)
-      }
-    }
-    fetchData()
-  }, [search, page, perPage, selectedCabang])
+  const handleAddNewOpen = useCallback(() => {
+    setEditing(false)
+    setAlkesData(INITIAL_ALKES_STATE)
+    setModal(true)
+  }, [])
 
   return (
     <>
       <CRow>
         <CCol xs>
           <CCard className="mb-4">
-            <CCardHeader>Master Data Alkes</CCardHeader>
+            <CCardHeader>
+              Master Data Alkes
+              <CButton className='float-end' color="primary" onClick={handleAddNewOpen}>
+                <CIcon icon={cilPlus} className='me-2' />Add New
+              </CButton>
+            </CCardHeader>
             <CCardBody>
+              {/* Filter Controls */}
               <CRow className='g-1 mb-3'>
                 <CCol xs={12} sm={2} className='d-grid'>
-                  <CabangSelector
-                    onSelect={(items) => {
-                      console.log('Selected items:', items)
-                      setSelectedCabang(items)
-                    }}
-                  />
+                  <CabangSelector onSelect={setSelectedCabang} />
                 </CCol>
               </CRow>
+              
               <CRow className="g-1 mb-3">
                 <CCol xs={1}>
                   <CFormSelect
                     value={perPage}
                     onChange={(e) => {
-                      const newPerPage = parseInt(e.target.value, 10)
+                      const val = parseInt(e.target.value, 10)
+                      setPerPage(val)
                       setPage(1)
-                      setPerPage(newPerPage)
-                      // Save pagination values to localStorage
-                      localStorage.setItem('masterAlkes_perPage', newPerPage.toString())
-                      localStorage.setItem('masterAlkes_page', '1')
+                      localStorage.setItem('masterAlkes_perPage', val.toString())
                     }}
                   >
                     <option value="10">10</option>
@@ -269,198 +153,90 @@ const MasterAlkes = () => {
                 </CCol>
                 <CCol xs={11}>
                   <CFormInput
-                    type="text"
                     placeholder="Search Alkes..."
                     value={search}
-                    onChange={(e) => {
-                      const newSearchValue = e.target.value
-                      setSearch(newSearchValue)
-                      setPage(1)
-                      // Save search value to localStorage
-                      localStorage.setItem('masterAlkes_search', newSearchValue)
-                    }}
+                    onChange={handleSearchChange}
                   />
                 </CCol>
               </CRow>
 
-              <CTable hover striped bordered>
+              {/* Table Section */}
+              <CTable hover striped bordered responsive>
                 <CTableHead>
                   <CTableRow>
-                    <CTableHeaderCell scope="col">No</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Kode MAS</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Nama Produk Alkes MAS</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Kode Cabang</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Nama Cabang</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">ID PRODUK KEMENKES</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">NIE</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Nama Produk</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Tipe dan Ukuran</CTableHeaderCell>
-                    <CTableHeaderCell scope="col">Actions</CTableHeaderCell>
+                    <CTableHeaderCell>No</CTableHeaderCell>
+                    <CTableHeaderCell>Kode MAS</CTableHeaderCell>
+                    <CTableHeaderCell>Nama Produk Alkes MAS</CTableHeaderCell>
+                    <CTableHeaderCell>Kode Cabang</CTableHeaderCell>
+                    <CTableHeaderCell>Nama Cabang</CTableHeaderCell>
+                    <CTableHeaderCell>ID KEMENKES</CTableHeaderCell>
+                    <CTableHeaderCell>NIE</CTableHeaderCell>
+                    <CTableHeaderCell>Nama Produk</CTableHeaderCell>
+                    <CTableHeaderCell>Tipe & Ukuran</CTableHeaderCell>
+                    <CTableHeaderCell>Actions</CTableHeaderCell>
                   </CTableRow>
                 </CTableHead>
                 <CTableBody>
                   {alkesList.map((item, idx) => (
                     <CTableRow key={item.id}>
-                      <CTableDataCell>
-                        {idx + 1 + (page - 1) * perPage}
-                      </CTableDataCell>
+                      <CTableDataCell>{idx + 1 + (page - 1) * perPage}</CTableDataCell>
                       <CTableDataCell>{item.KodeMas}</CTableDataCell>
                       <CTableDataCell>{item.NamaProdukKemenkes}</CTableDataCell>
                       <CTableDataCell>{item.KodeCabang}</CTableDataCell>
                       <CTableDataCell>{item.NamaCabang}</CTableDataCell>
                       <CTableDataCell>{item.IdProdukKemenkes}</CTableDataCell>
-                      <CTableDataCell>{item.Inventory.Nie}</CTableDataCell>
-                      <CTableDataCell>{item.Inventory.NamaBarang}</CTableDataCell>
-                      <CTableDataCell>{item.Inventory.TipeUkuran}</CTableDataCell>
+                      <CTableDataCell>{item.Inventory?.Nie}</CTableDataCell>
+                      <CTableDataCell>{item.Inventory?.NamaBarang}</CTableDataCell>
+                      <CTableDataCell>{item.Inventory?.TipeUkuran}</CTableDataCell>
                       <CTableDataCell>
-                        <CButton
-                          color="warning"
-                          size="sm"
-                          onClick={() => handleEdit(item)}
-                          className="me-2"
-                        >
-                          Edit
-                        </CButton>
-                        <CButton
-                          color="danger"
-                          size="sm"
-                          onClick={() => handleDelete(item.id)}
-                        >
-                          Delete
-                        </CButton>
+                        <CButton color="warning" size="sm" onClick={() => handleEditOpen(item)} className="me-2">Edit</CButton>
+                        <CButton color="danger" size="sm" onClick={() => handleDelete(item.id)}>Delete</CButton>
                       </CTableDataCell>
                     </CTableRow>
                   ))}
                 </CTableBody>
               </CTable>
 
-              <div className="d-flex justify-content-between mt-3">
-                <div>
-                  <Pagination page={page} totalPages={totalPages} setPage={handlePageChange} />
-                </div>
-              </div>
-              <CButton color="success" onClick={() => {
-                setEditing(false);
-                setAlkesData({
-                  id: null,
-                  KodeMas: '',
-                  NamaProdukKemenkes: '',
-                  KodeCabang: '',
-                  NamaCabang: '',
-                  IdProdukKemenkes: '',
-                  Nie: '',
-                  NamaProduk: '',
-                  TipeUkuran: '',
-                });
-                setModal(true);
-              }}>
-                Add New
-              </CButton>
+              <Pagination page={page} totalPages={totalPages} setPage={handlePageChange} />
             </CCardBody>
           </CCard>
         </CCol>
       </CRow>
 
+      {/* Shared Modal for Create/Update */}
       <CModal visible={modal} onClose={() => setModal(false)} size="lg">
         <CModalHeader onClose={() => setModal(false)}>
           <CModalTitle>{editing ? 'Edit Alkes' : 'Add New Alkes'}</CModalTitle>
         </CModalHeader>
         <CModalBody>
-          <CRow>
-            <CCol md={6} className="mb-3">
-              <CFormInput
-                label="Kode MAS"
-                placeholder="Enter Kode MAS"
-                value={alkesData.KodeMas}
-                onChange={(e) =>
-                  setAlkesData({ ...alkesData, KodeMas: e.target.value })
-                }
-              />
-            </CCol>
-            <CCol md={6} className="mb-3">
-              <CFormInput
-                label="Nama Produk Alkes MAS"
-                placeholder="Enter Nama Produk Alkes MAS"
-                value={alkesData.NamaProdukKemenkes}
-                onChange={(e) =>
-                  setAlkesData({ ...alkesData, NamaProdukKemenkes: e.target.value })
-                }
-              />
-            </CCol>
-          </CRow>
-          <CRow>
-            <CCol md={6} className="mb-3">
-              <CFormInput
-                label="Kode Cabang"
-                placeholder="Enter Kode Cabang"
-                value={alkesData.KodeCabang}
-                onChange={(e) =>
-                  setAlkesData({ ...alkesData, KodeCabang: e.target.value })
-                }
-              />
-            </CCol>
-            <CCol md={6} className="mb-3">
-              <CFormInput
-                label="Nama Cabang"
-                placeholder="Enter Nama Cabang"
-                value={alkesData.NamaCabang}
-                onChange={(e) =>
-                  setAlkesData({ ...alkesData, NamaCabang: e.target.value })
-                }
-              />
-            </CCol>
-          </CRow>
-          <CRow>
-            <CCol md={6} className="mb-3">
-              <CFormInput
-                label="ID Produk Kemenkes"
-                placeholder="Enter ID Produk Kemenkes"
-                value={alkesData.IdProdukKemenkes}
-                onChange={(e) =>
-                  setAlkesData({ ...alkesData, IdProdukKemenkes: e.target.value })
-                }
-              />
-            </CCol>
-            <CCol md={6} className="mb-3">
-              <CFormInput
-                disabled
-                label="NIE"
-                placeholder="Enter NIE"
-                value={alkesData.Nie}
-                onChange={(e) => setAlkesData({ ...alkesData, Nie: e.target.value })}
-              />
-            </CCol>
-          </CRow>
-          <CRow>
-            <CCol md={6} className="mb-3">
-              <CFormInput
-              disabled
-                label="Nama Produk"
-                placeholder="Enter Nama Produk"
-                value={alkesData.NamaProduk}
-                onChange={(e) =>
-                  setAlkesData({ ...alkesData, NamaProduk: e.target.value })
-                }
-              />
-            </CCol>
-            <CCol md={6} className="mb-3">
-              <CFormInput
-              disabled
-                label="Tipe dan Ukuran"
-                placeholder="Enter Tipe dan Ukuran"
-                value={alkesData.TipeUkuran}
-                onChange={(e) =>
-                  setAlkesData({ ...alkesData, TipeUkuran: e.target.value })
-                }
-              />
-            </CCol>
+          <CRow className="g-3">
+            {[
+              { label: 'Kode MAS', key: 'KodeMas' },
+              { label: 'Nama Produk Alkes MAS', key: 'NamaProdukKemenkes' },
+              { label: 'Kode Cabang', key: 'KodeCabang' },
+              { label: 'Nama Cabang', key: 'NamaCabang' },
+              { label: 'ID Produk Kemenkes', key: 'IdProdukKemenkes' },
+              { label: 'NIE', key: 'Nie', disabled: true },
+              { label: 'Nama Produk', key: 'NamaProduk', disabled: true },
+              { label: 'Tipe dan Ukuran', key: 'TipeUkuran', disabled: true },
+            ].map((field) => (
+              <CCol md={6} key={field.key}>
+                <CFormInput
+                  label={field.label}
+                  disabled={field.disabled}
+                  value={alkesData[field.key]}
+                  onChange={(e) => setAlkesData({ ...alkesData, [field.key]: e.target.value })}
+                />
+              </CCol>
+            ))}
           </CRow>
         </CModalBody>
-        <CModalHeader>
-          <CButton color="primary" onClick={editing ? handleUpdate : handleCreate}>
+        <div className="p-3 text-end">
+          <CButton color="secondary" className="me-2" onClick={() => setModal(false)}>Cancel</CButton>
+          <CButton color="primary" onClick={handleCreateOrUpdate}>
             {editing ? 'Update' : 'Create'}
           </CButton>
-        </CModalHeader>
+        </div>
       </CModal>
     </>
   )

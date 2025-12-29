@@ -48,8 +48,21 @@ const KonfirmasiHutang = () => {
   const [hutangList, setHutangList] = useState([])
   const [totalPages, setTotalPages] = useState(1)
   const [loading, setLoading] = useState(false)
-  const [startDate, setStartDate] = useState(localStorage.getItem('konfirmasiHutang_startDate') || '')
-  const [endDate, setEndDate] = useState(localStorage.getItem('konfirmasiHutang_endDate') || '')
+  const [endDate, setEndDate] = useState(
+    () => {
+    // 1. Check localStorage first
+    const savedDate = localStorage.getItem('konfirmasiHutang_endDate');
+
+    // 2. If savedDate exists, use it; otherwise, use Jan 1st
+    if (savedDate) {
+      return savedDate;
+    } else {
+      const defaultDate = `${new Date().getFullYear()}-12-01`;
+      // Optional: Save the default to localStorage immediately
+      localStorage.setItem('konfirmasiHutang_endDate', defaultDate);
+      return defaultDate;
+    }
+  })
   const [selectorKey, setSelectorKey] = useState(0)
 
   const navigate = useNavigate()
@@ -62,13 +75,13 @@ const KonfirmasiHutang = () => {
 
     if (search.trim()) params.append('search', search.trim())
     if (selectedSupplier.length > 0) params.append('vendor', selectedSupplier.join(','))
-    if (startDate && endDate) {
-      params.append('start_date', startDate)
+    
+    if (endDate) {
       params.append('end_date', endDate)
     }
 
     return params.toString()
-  }, [page, perPage, search, selectedSupplier, startDate, endDate])
+  }, [page, perPage, search, selectedSupplier, endDate])
 
   // Debounced fetch to prevent too many requests
   const fetchData = useCallback(async () => {
@@ -92,18 +105,6 @@ const KonfirmasiHutang = () => {
   useEffect(() => {
     fetchData()
   }, [fetchData])
-
-  // Handlers
-  const handleStartDateChange = (value) => {
-    const val = value || ''
-    setStartDate(val)
-    if (val) {
-      localStorage.setItem('konfirmasiHutang_startDate', val)
-    } else {
-      localStorage.removeItem('konfirmasiHutang_startDate')
-    }
-    setPage(1)
-  }
 
   const handleEndDateChange = (value) => {
     const val = value || ''
@@ -139,25 +140,23 @@ const KonfirmasiHutang = () => {
   const handleClearFilter = () => {
     setSelectedSupplier([])
     setSearch('')
-    setStartDate('')
     setEndDate('')
     setPage(1)
     setSelectorKey(prev => prev + 1)
 
     localStorage.removeItem('konfirmasiHutang_search')
-    localStorage.removeItem('konfirmasiHutang_startDate')
     localStorage.removeItem('konfirmasiHutang_endDate')
     localStorage.removeItem('konfirmasiHutang_selectedSupplier')
     localStorage.setItem('konfirmasiHutang_page', '1')
   }
 
   const handlePrint = () => {
-    if (!startDate || !endDate) {
+    if (!endDate) {
       alert('Pilih tanggal mulai dan akhir terlebih dahulu untuk cetak!')
       return
     }
     const supplierParam = selectedSupplier.length > 0 ? selectedSupplier.join(',') : 'all'
-    navigate(`/hutang/konfirmasihutang/${startDate}/${endDate}/${supplierParam}/print`)
+    navigate(`/hutang/konfirmasihutang/${endDate}/${supplierParam}/print`)
   }
 
   const getRowKey = (item, index) => {
@@ -200,14 +199,14 @@ const KonfirmasiHutang = () => {
                   }}
                 />
               </CCol>
-              <CCol xs={12} md={2}>
+              {/* <CCol xs={12} md={2}>
                 <DatePicker
                   label="Tgl Mulai"
                   value={startDate}
                   onChange={handleStartDateChange}
                   placeholder="Pilih tanggal mulai"
                 />
-              </CCol>
+              </CCol> */}
               <CCol xs={12} md={2}>
                 <DatePicker
                   label="Tgl Akhir"
@@ -224,7 +223,7 @@ const KonfirmasiHutang = () => {
               </CCol>
               <CCol xs={12} md={2}>
                 <CButton color="secondary" variant="outline" className="w-100" onClick={handleClearFilter}>
-                  Clear Filter
+                  Refresh
                 </CButton>
               </CCol>
             </CRow>

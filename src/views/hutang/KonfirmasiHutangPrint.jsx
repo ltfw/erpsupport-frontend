@@ -67,7 +67,7 @@ const groupByNama = (rows) => {
 }
 
 const KonfirmasiHutangPrint = () => {
-  const { startDate, endDate, selectedSupplier } = useParams()
+  const { endDate, selectedSupplier } = useParams()
   const navigate = useNavigate()
   const componentRef = useRef()
 
@@ -89,7 +89,6 @@ const KonfirmasiHutangPrint = () => {
 
   useEffect(() => {
     const params = new URLSearchParams()
-    if (startDate) params.append('start_date', startDate)
     if (endDate) params.append('end_date', endDate)
     if (selectedSupplier && selectedSupplier !== 'all') params.append('vendor', selectedSupplier)
     params.append('page', '1')
@@ -105,7 +104,7 @@ const KonfirmasiHutangPrint = () => {
         console.error(err)
         setIsLoading(false)
       })
-  }, [startDate, endDate, selectedSupplier])
+  }, [endDate, selectedSupplier])
 
   useEffect(() => {
     if (!isLoading && rows.length > 0) {
