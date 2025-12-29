@@ -8,6 +8,7 @@ const ProtectedRoute = React.lazy(() => import('./components/ProtectedRoute'))
 const Penjualan = React.lazy(() => import('./views/laporan/penjualan/Penjualan'))
 const Persediaan = React.lazy(() => import('./views/laporan/persediaan/Persediaan'))
 const ImportPajak = React.lazy(() => import('./views/tools/ImportPajak'))
+const OpnameFaktur = React.lazy(() => import('./views/tools/OpnameFaktur'))
 const Rekualifikasi = React.lazy(() => import('./views/customer/Rekualifikasi'))
 const RayonCabang = React.lazy(() => import('./views/laporan/RayonCabang'))
 const DaftarBarang = React.lazy(() => import('./views/laporan/persediaan/DaftarBarang'))
@@ -151,6 +152,15 @@ const routes = [
     ),
   },
   {
+    path: '/tools/opnamefaktur',
+    name: 'Opname Faktur',
+    element: (
+      <ProtectedRoute>
+        <OpnameFaktur />
+      </ProtectedRoute>
+    ),
+  },
+  {
     path: '/tools/importva',
     name: 'Import VA',
     element: (
@@ -232,7 +242,7 @@ const routes = [
     ),
   },
   {
-    path: '/hutang/konfirmasihutang/:startDate/:endDate/:selectedSupplier/print',
+    path: '/hutang/konfirmasihutang/:endDate/:selectedSupplier/print',
     name: 'Cetak Konfirmasi Hutang',
     element: (
       <ProtectedRoute>
