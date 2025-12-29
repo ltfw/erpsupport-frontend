@@ -48,7 +48,7 @@ const SupplierSelector = ({ onSelect, mode = '', className = '' }) => {
         )
       } else {
         response = await axios.get(
-          `${ENDPOINT_URL}customers?page=${page}&per_page=${perPage}&search=${encodeURIComponent(search)}`
+          `${ENDPOINT_URL}suppliers?page=${page}&per_page=${perPage}&search=${encodeURIComponent(search)}`
         )
       }
       console.log('response.data', response.data)
