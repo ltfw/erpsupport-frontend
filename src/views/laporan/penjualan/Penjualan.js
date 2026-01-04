@@ -1,13 +1,22 @@
 import { useEffect, useState } from 'react'
 import DatePicker from '../../base/datepicker/DatePicker'
 import { formatDateToDDMMYYYY, getCurrentDateTimeFormatted } from '../../../utils/Date'
-import pdfMake from 'pdfmake/build/pdfmake';
-import 'pdfmake/build/vfs_fonts';
+import pdfMake from 'pdfmake/build/pdfmake'
+import 'pdfmake/build/vfs_fonts'
 
 // pdfMake.vfs = pdfFonts.pdfMake.vfs;
 
-
-import { CCard, CCardBody, CCardHeader, CCol, CDropdown, CDropdownItem, CDropdownMenu, CDropdownToggle, CRow } from '@coreui/react'
+import {
+  CCard,
+  CCardBody,
+  CCardHeader,
+  CCol,
+  CDropdown,
+  CDropdownItem,
+  CDropdownMenu,
+  CDropdownToggle,
+  CRow,
+} from '@coreui/react'
 import { useNavigate } from 'react-router-dom'
 
 import ExcelJS from 'exceljs'
@@ -39,10 +48,10 @@ const Penjualan = () => {
   const [search, setSearch] = useState('')
 
   const [selectedBarang, setSelectedBarang] = useState([])
-  const [selectedCabang, setSelectedCabang] = useState([]);
-  const [selectedSupplier, setSelectedSupplier] = useState([]);
-  const [startDate, setStartDate] = useState(getFirstDayOfMonthFormatted());
-  const [endDate, setEndDate] = useState(getCurrentDateFormatted());
+  const [selectedCabang, setSelectedCabang] = useState([])
+  const [selectedSupplier, setSelectedSupplier] = useState([])
+  const [startDate, setStartDate] = useState(getFirstDayOfMonthFormatted())
+  const [endDate, setEndDate] = useState(getCurrentDateFormatted())
 
   const column = [
     {
@@ -279,19 +288,59 @@ const Penjualan = () => {
       sortable: true,
       wrap: true,
     },
-  ];
+  ]
 
-  const loadDataSales = async (page, perPage, keyword = '', cabangIds = [], supplierIds = [], barangIds = [], startDate = null, endDate = null) => {
+  const loadDataSales = async (
+    page,
+    perPage,
+    keyword = '',
+    cabangIds = [],
+    supplierIds = [],
+    barangIds = [],
+    startDate = null,
+    endDate = null,
+  ) => {
     setLoading(true)
     setPage(page)
-    const fetchData = await fetchSales(page, perPage, keyword, cabangIds, supplierIds, barangIds, startDate, endDate)
+    const fetchData = await fetchSales(
+      page,
+      perPage,
+      keyword,
+      cabangIds,
+      supplierIds,
+      barangIds,
+      startDate,
+      endDate,
+    )
     setData(fetchData.data)
     setTotalRows(fetchData.total)
     setLoading(false)
   }
 
-  const fetchSales = async (page, perPage, keyword = '', cabangIds = [], supplierIds = [], barangIds = [], startDate = null, endDate = null) => {
-    console.log('fetchSales called with page:', page, 'keyword:', keyword, 'cabangIds:', cabangIds, 'barangIds:', barangIds, 'startDate:', startDate, 'endDate:', endDate)
+  const fetchSales = async (
+    page,
+    perPage,
+    keyword = '',
+    cabangIds = [],
+    supplierIds = [],
+    barangIds = [],
+    startDate = null,
+    endDate = null,
+  ) => {
+    console.log(
+      'fetchSales called with page:',
+      page,
+      'keyword:',
+      keyword,
+      'cabangIds:',
+      cabangIds,
+      'barangIds:',
+      barangIds,
+      'startDate:',
+      startDate,
+      'endDate:',
+      endDate,
+    )
     const params = new URLSearchParams()
     params.append('page', page)
     params.append('per_page', perPage)
@@ -318,23 +367,50 @@ const Penjualan = () => {
   }
 
   const handlePageChange = (page) => {
-    loadDataSales(page, perPage, search, selectedCabang, selectedSupplier, selectedBarang, startDate, endDate)
+    loadDataSales(
+      page,
+      perPage,
+      search,
+      selectedCabang,
+      selectedSupplier,
+      selectedBarang,
+      startDate,
+      endDate,
+    )
   }
 
   const handlePerRowsChange = async (newPerPage, page) => {
     setPerPage(newPerPage)
-    loadDataSales(page, newPerPage, search, selectedCabang, selectedSupplier, selectedBarang, startDate, endDate)
+    loadDataSales(
+      page,
+      newPerPage,
+      search,
+      selectedCabang,
+      selectedSupplier,
+      selectedBarang,
+      startDate,
+      endDate,
+    )
   }
 
   useEffect(() => {
     setPerPage(perPage)
     if (startDate && endDate) {
-      loadDataSales(1, perPage, '', selectedCabang, selectedSupplier, selectedBarang, startDate, endDate)
+      loadDataSales(
+        1,
+        perPage,
+        '',
+        selectedCabang,
+        selectedSupplier,
+        selectedBarang,
+        startDate,
+        endDate,
+      )
     }
   }, [perPage, selectedCabang, selectedSupplier, selectedBarang, startDate, endDate])
 
   const exportToExcel = async () => {
-    document.body.style.cursor = 'wait';
+    document.body.style.cursor = 'wait'
     try {
       const response = await fetchSales(
         1,
@@ -344,22 +420,23 @@ const Penjualan = () => {
         selectedSupplier,
         selectedBarang,
         startDate,
-        endDate
-      );
-      const allData = response.data;
+        endDate,
+      )
+      const allData = response.data
 
-      const workbook = new ExcelJS.Workbook();
-      const worksheet = workbook.addWorksheet('Sales');
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Sales')
 
       // Row 2: Title
-      worksheet.mergeCells('A2:AM2');
-      worksheet.getCell('A2').value = 'Laporan Penjualan PT Satoria Distribusi Lestari';
-      worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' };
-      worksheet.getCell('A2').font = { size: 16, bold: true };
-      worksheet.mergeCells('A3:AM3');
-      worksheet.getCell('A3').value = 'Periode ' + formatDateToDDMMYYYY(startDate) + ' s.d. ' + formatDateToDDMMYYYY(endDate);
-      worksheet.getCell('A3').alignment = { horizontal: 'center', vertical: 'middle' };
-      worksheet.getCell('A3').font = { size: 16, bold: true };
+      worksheet.mergeCells('A2:AM2')
+      worksheet.getCell('A2').value = 'Laporan Penjualan PT Satoria Distribusi Lestari'
+      worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' }
+      worksheet.getCell('A2').font = { size: 16, bold: true }
+      worksheet.mergeCells('A3:AM3')
+      worksheet.getCell('A3').value =
+        'Periode ' + formatDateToDDMMYYYY(startDate) + ' s.d. ' + formatDateToDDMMYYYY(endDate)
+      worksheet.getCell('A3').alignment = { horizontal: 'center', vertical: 'middle' }
+      worksheet.getCell('A3').font = { size: 16, bold: true }
 
       // Export info
       worksheet.mergeCells('A4:AM4')
@@ -410,39 +487,77 @@ const Penjualan = () => {
         { key: 'PoLanggan', width: 15 },
         { key: 'PromotionCode', width: 15 },
         { key: 'PromotionName', width: 15 },
-      ];
+      ]
 
-      const numberFormatThousandTwoDecimal = '#,##0.00'; // Format: 1,000.00
-      const numberFormatThousand = '#,##0'; // Format: 1,000
+      const numberFormatThousandTwoDecimal = '#,##0.00' // Format: 1,000.00
+      const numberFormatThousand = '#,##0' // Format: 1,000
 
       // Format specific columns by key
-      const columnsToFormatDecimal = ['ValueHNA', 'ValueNett', 'TotalValueDisc', 'ValueDiscDist', 'ValueDiscPrinc',
+      const columnsToFormatDecimal = [
+        'ValueHNA',
+        'ValueNett',
+        'TotalValueDisc',
+        'ValueDiscDist',
+        'ValueDiscPrinc',
         'TotalDiscPsn',
         'DiscDistPsn',
-        'DiscPrincPsn'
-      ];
+        'DiscPrincPsn',
+      ]
 
       columnsToFormatDecimal.forEach((key) => {
-        const column = worksheet.getColumn(key);
-        column.numFmt = numberFormatThousandTwoDecimal;
-      });
+        const column = worksheet.getColumn(key)
+        column.numFmt = numberFormatThousandTwoDecimal
+      })
 
-      const columnsToFormat = ['Hna1', 'Qty'];
+      const columnsToFormat = ['Hna1', 'Qty']
 
       columnsToFormat.forEach((key) => {
-        const column = worksheet.getColumn(key);
-        column.numFmt = numberFormatThousand;
-      });
+        const column = worksheet.getColumn(key)
+        column.numFmt = numberFormatThousand
+      })
 
       // Row 3: Write headers manually
       worksheet.addRow([
-        'No', 'Cabang', 'Kepala Cabang', 'Area', 'Salesman', 'Supervisor', 'Rayon', 'Tgl Faktur',
-        'No Faktur', 'Group Customer', 'Badan Usaha', 'Kode Customer', 'Nama Customer', 'Alamat',
-        'Kode Item', 'Nama Item', 'Supplier', 'Nama Business Centre', 'HNA', 'Qty', 'Satuan',
-        'Value HNA', 'Value Nett', 'Total Value Disc', 'Value Disc Distributor', 'Value Disc Principle',
-        'Total Disc %', 'Disc Dist %', 'Disc Princ %', 'Batch Number', 'Tgl Expired', 'Province',
-        'Regency', 'District', 'Village', 'Tipe Jual', 'NoSP', 'Kode Promosi', 'Surat Keluar/No. DPL/F'
-      ]);
+        'No',
+        'Cabang',
+        'Kepala Cabang',
+        'Area',
+        'Salesman',
+        'Supervisor',
+        'Rayon',
+        'Tgl Faktur',
+        'No Faktur',
+        'Group Customer',
+        'Badan Usaha',
+        'Kode Customer',
+        'Nama Customer',
+        'Alamat',
+        'Kode Item',
+        'Nama Item',
+        'Supplier',
+        'Nama Business Centre',
+        'HNA',
+        'Qty',
+        'Satuan',
+        'Value HNA',
+        'Value Nett',
+        'Total Value Disc',
+        'Value Disc Distributor',
+        'Value Disc Principle',
+        'Total Disc %',
+        'Disc Dist %',
+        'Disc Princ %',
+        'Batch Number',
+        'Tgl Expired',
+        'Province',
+        'Regency',
+        'District',
+        'Village',
+        'Tipe Jual',
+        'NoSP',
+        'Kode Promosi',
+        'Surat Keluar/No. DPL/F',
+      ])
 
       // Row 4+: Add data
       allData.forEach((row, idx) => {
@@ -455,58 +570,59 @@ const Penjualan = () => {
           TotalValueDisc: Math.round(parseFloat(row.TotalValueDisc || 0) * 100) / 100,
           ValueDiscDist: Math.round(parseFloat(row.ValueDiscDist || 0) * 100) / 100,
           ValueDiscPrinc: Math.round(parseFloat(row.ValueDiscPrinc || 0) * 100) / 100,
-        };
+        }
 
         worksheet.addRow({
           no: idx + 1,
           ...cleanRow,
-        });
-      });
+        })
+      })
 
       // Calculate total rows added (header is row 4, so data starts from row 5)
-      const totalRowNumber = worksheet.lastRow.number + 1;
+      const totalRowNumber = worksheet.lastRow.number + 1
 
       // Add total label
-      worksheet.mergeCells(`A${totalRowNumber}:S${totalRowNumber}`);
-      worksheet.getCell(`A${totalRowNumber}`).value = 'TOTAL';
-      worksheet.getCell(`A${totalRowNumber}`).alignment = { horizontal: 'center', vertical: 'middle' };
-      worksheet.getCell(`A${totalRowNumber}`).font = { bold: true };
+      worksheet.mergeCells(`A${totalRowNumber}:S${totalRowNumber}`)
+      worksheet.getCell(`A${totalRowNumber}`).value = 'TOTAL'
+      worksheet.getCell(`A${totalRowNumber}`).alignment = {
+        horizontal: 'center',
+        vertical: 'middle',
+      }
+      worksheet.getCell(`A${totalRowNumber}`).font = { bold: true }
 
       // Add formula-based totals
-      worksheet.getCell(`T${totalRowNumber}`).value = { formula: `SUM(T7:T${totalRowNumber - 1})` }; // Qty
-      worksheet.getCell(`V${totalRowNumber}`).value = { formula: `SUM(V7:V${totalRowNumber - 1})` }; // ValueHNA
-      worksheet.getCell(`W${totalRowNumber}`).value = { formula: `SUM(W7:W${totalRowNumber - 1})` }; // ValueNett
-      worksheet.getCell(`X${totalRowNumber}`).value = { formula: `SUM(X7:X${totalRowNumber - 1})` }; // TotalValueDisc
-      worksheet.getCell(`Y${totalRowNumber}`).value = { formula: `SUM(Y7:Y${totalRowNumber - 1})` }; // ValueDiscDist
-      worksheet.getCell(`Z${totalRowNumber}`).value = { formula: `SUM(Z7:Z${totalRowNumber - 1})` }; // ValueDiscPrinc
+      worksheet.getCell(`T${totalRowNumber}`).value = { formula: `SUM(T7:T${totalRowNumber - 1})` } // Qty
+      worksheet.getCell(`V${totalRowNumber}`).value = { formula: `SUM(V7:V${totalRowNumber - 1})` } // ValueHNA
+      worksheet.getCell(`W${totalRowNumber}`).value = { formula: `SUM(W7:W${totalRowNumber - 1})` } // ValueNett
+      worksheet.getCell(`X${totalRowNumber}`).value = { formula: `SUM(X7:X${totalRowNumber - 1})` } // TotalValueDisc
+      worksheet.getCell(`Y${totalRowNumber}`).value = { formula: `SUM(Y7:Y${totalRowNumber - 1})` } // ValueDiscDist
+      worksheet.getCell(`Z${totalRowNumber}`).value = { formula: `SUM(Z7:Z${totalRowNumber - 1})` } // ValueDiscPrinc
 
       // Optional: bold all total row
-      worksheet.getRow(totalRowNumber).font = { bold: true };
-
+      worksheet.getRow(totalRowNumber).font = { bold: true }
 
       // Optional: Freeze title and header
-      worksheet.views = [{ state: 'frozen', ySplit: 6 }];
+      worksheet.views = [{ state: 'frozen', ySplit: 6 }]
 
       worksheet.autoFilter = {
         from: 'A6',
         to: 'AM6',
-      };
-
+      }
 
       // Generate and save
-      const buffer = await workbook.xlsx.writeBuffer();
-      saveAs(new Blob([buffer]), 'Laporan Penjualan SDL ' + startDate + ' - ' + endDate + '.xlsx');
+      const buffer = await workbook.xlsx.writeBuffer()
+      saveAs(new Blob([buffer]), 'Laporan Penjualan SDL ' + startDate + ' - ' + endDate + '.xlsx')
     } catch (error) {
-      alert('Gagal mengunduh data!');
-      console.error('Error exporting to Excel:', error);
+      alert('Gagal mengunduh data!')
+      console.error('Error exporting to Excel:', error)
     } finally {
-      document.body.style.cursor = 'default';
+      document.body.style.cursor = 'default'
     }
   }
 
   const exportToPDF = async () => {
     try {
-      document.body.style.cursor = 'wait';
+      document.body.style.cursor = 'wait'
 
       const response = await fetchSales(
         1,
@@ -516,129 +632,170 @@ const Penjualan = () => {
         selectedSupplier,
         selectedBarang,
         startDate,
-        endDate
-      );
+        endDate,
+      )
 
-      const allData = response.data;
+      const allData = response.data
 
       // Define columns
       const headers = [
-        'No', 'Cabang', 'Kepala Cabang', 'Area', 'Salesman', 'Supervisor', 'Rayon', 'Tgl Faktur',
-        'No Faktur', 'Group Customer', 'Badan Usaha', 'Kode Customer', 'Nama Customer', 'Alamat',
-        'Kode Item', 'Nama Item', 'Supplier', 'Nama Business Centre', 'HNA', 'Qty', 'Satuan',
-        'Value HNA', 'Value Nett', 'Total Value Disc', 'Value Disc Distributor', 'Value Disc Principle',
-        'Total Disc %', 'Disc Dist %', 'Disc Princ %', 'Batch Number', 'Tgl Expired', 'Province',
-        'Regency', 'District', 'Village', 'Tipe Jual', 'NoSP', 'Kode Promosi', 'Surat Keluar/No. DPL/F'
-      ];
+        'No',
+        'Cabang',
+        'Kepala Cabang',
+        'Area',
+        'Salesman',
+        'Supervisor',
+        'Rayon',
+        'Tgl Faktur',
+        'No Faktur',
+        'Group Customer',
+        'Badan Usaha',
+        'Kode Customer',
+        'Nama Customer',
+        'Alamat',
+        'Kode Item',
+        'Nama Item',
+        'Supplier',
+        'Nama Business Centre',
+        'HNA',
+        'Qty',
+        'Satuan',
+        'Value HNA',
+        'Value Nett',
+        'Total Value Disc',
+        'Value Disc Distributor',
+        'Value Disc Principle',
+        'Total Disc %',
+        'Disc Dist %',
+        'Disc Princ %',
+        'Batch Number',
+        'Tgl Expired',
+        'Province',
+        'Regency',
+        'District',
+        'Village',
+        'Tipe Jual',
+        'NoSP',
+        'Kode Promosi',
+        'Surat Keluar/No. DPL/F',
+      ]
 
       // Define which columns to right-align
       const rightAlignHeaders = [
-        'HNA', 'Qty', 'Value HNA', 'Value Nett', 'Total Value Disc',
-        'Value Disc Distributor', 'Value Disc Principle', 'Total Disc %',
-        'Disc Dist %', 'Disc Princ %'
-      ];
+        'HNA',
+        'Qty',
+        'Value HNA',
+        'Value Nett',
+        'Total Value Disc',
+        'Value Disc Distributor',
+        'Value Disc Principle',
+        'Total Disc %',
+        'Disc Dist %',
+        'Disc Princ %',
+      ]
 
-      const rightAlignIndices = rightAlignHeaders.map(h => headers.indexOf(h));
+      const rightAlignIndices = rightAlignHeaders.map((h) => headers.indexOf(h))
 
       // Prepare table body and apply alignment
       const body = [
         // Header Row with Alignment
         headers.map((header, idx) => ({
           text: header,
-          alignment: rightAlignIndices.includes(idx) ? 'right' : 'left'
+          alignment: rightAlignIndices.includes(idx) ? 'right' : 'left',
         })),
         // Data Rows with Alignment
-        ...allData.map((row, idx) => [
-          idx + 1,
-          row.NamaDept,
-          row.KepalaCabang,
-          row.KodeWil,
-          row.NamaSales,
-          row.NamaSpv,
-          row.RayonName,
-          row.TglFaktur,
-          row.NoBukti,
-          row.CustomerGroupName,
-          row.BusinessEntityName,
-          row.KodeLgn,
-          row.NamaLgn,
-          row.Alamat1,
-          row.KodeItem,
-          row.NamaBarang,
-          row.NamaSupplier,
-          row.BusinessCentreName,
-          formatThousand(parseFloat(row.Hna || 0).toFixed(2)),
-          formatThousand(parseFloat(row.Qty || 0).toFixed(2)),
-          row.SatuanNs,
-          formatThousand(parseFloat(row.ValueHNA || 0).toFixed(2)),
-          formatThousand(parseFloat(row.ValueNett || 0).toFixed(2)),
-          formatThousand(parseFloat(row.TotalValueDisc || 0).toFixed(2)),
-          formatThousand(parseFloat(row.ValueDiscDist || 0).toFixed(2)),
-          formatThousand(parseFloat(row.ValueDiscPrinc || 0).toFixed(2)),
-          formatThousand(parseFloat(row.TotalDiscPsn || 0).toFixed(2)),
-          formatThousand(parseFloat(row.DiscDistPsn || 0).toFixed(2)),
-          formatThousand(parseFloat(row.DiscPrincPsn || 0).toFixed(2)),
-          row.BatchNumber,
-          row.TglExpired,
-          row.Province,
-          row.Regency,
-          row.District,
-          row.Village,
-          row.TipeJual,
-          row.PoLanggan,
-          row.PromotionCode,
-          row.PromotionName
-        ].map((cell, cellIdx) => ({
-          text: cell,
-          alignment: rightAlignIndices.includes(cellIdx) ? 'right' : 'left'
-        })))
-      ];
+        ...allData.map((row, idx) =>
+          [
+            idx + 1,
+            row.NamaDept,
+            row.KepalaCabang,
+            row.KodeWil,
+            row.NamaSales,
+            row.NamaSpv,
+            row.RayonName,
+            row.TglFaktur,
+            row.NoBukti,
+            row.CustomerGroupName,
+            row.BusinessEntityName,
+            row.KodeLgn,
+            row.NamaLgn,
+            row.Alamat1,
+            row.KodeItem,
+            row.NamaBarang,
+            row.NamaSupplier,
+            row.BusinessCentreName,
+            formatThousand(parseFloat(row.Hna || 0).toFixed(2)),
+            formatThousand(parseFloat(row.Qty || 0).toFixed(2)),
+            row.SatuanNs,
+            formatThousand(parseFloat(row.ValueHNA || 0).toFixed(2)),
+            formatThousand(parseFloat(row.ValueNett || 0).toFixed(2)),
+            formatThousand(parseFloat(row.TotalValueDisc || 0).toFixed(2)),
+            formatThousand(parseFloat(row.ValueDiscDist || 0).toFixed(2)),
+            formatThousand(parseFloat(row.ValueDiscPrinc || 0).toFixed(2)),
+            formatThousand(parseFloat(row.TotalDiscPsn || 0).toFixed(2)),
+            formatThousand(parseFloat(row.DiscDistPsn || 0).toFixed(2)),
+            formatThousand(parseFloat(row.DiscPrincPsn || 0).toFixed(2)),
+            row.BatchNumber,
+            row.TglExpired,
+            row.Province,
+            row.Regency,
+            row.District,
+            row.Village,
+            row.TipeJual,
+            row.PoLanggan,
+            row.PromotionCode,
+            row.PromotionName,
+          ].map((cell, cellIdx) => ({
+            text: cell,
+            alignment: rightAlignIndices.includes(cellIdx) ? 'right' : 'left',
+          })),
+        ),
+      ]
 
       // Calculate and add total row
-      const totalRowData = {};
+      const totalRowData = {}
       const totalColumnsMap = {
-        'HNA': 'Hna',
-        'Qty': 'Qty',
+        HNA: 'Hna',
+        Qty: 'Qty',
         'Value HNA': 'ValueHNA',
         'Value Nett': 'ValueNett',
         'Total Value Disc': 'TotalValueDisc',
         'Value Disc Distributor': 'ValueDiscDist',
         'Value Disc Principle': 'ValueDiscPrinc',
-      };
+      }
 
-      Object.keys(totalColumnsMap).forEach(header => {
-        const dataKey = totalColumnsMap[header];
-        totalRowData[header] = allData.reduce((sum, row) => sum + parseFloat(row[dataKey] || 0), 0);
-      });
+      Object.keys(totalColumnsMap).forEach((header) => {
+        const dataKey = totalColumnsMap[header]
+        totalRowData[header] = allData.reduce((sum, row) => sum + parseFloat(row[dataKey] || 0), 0)
+      })
 
       const totalRow = headers.map((header, idx) => {
         if (idx === 17) {
-          return { text: 'Total', bold: true };
+          return { text: 'Total', bold: true }
         }
         if (totalColumnsMap[header]) {
           return {
             text: formatThousand(totalRowData[header].toFixed(2)),
             alignment: 'right',
-            bold: true
-          };
+            bold: true,
+          }
         }
-        return ''; // Empty cell for other columns
-      });
-      body.push(totalRow);
-
+        return '' // Empty cell for other columns
+      })
+      body.push(totalRow)
 
       const docDefinition = {
         content: [
           {
             text: 'Laporan Penjualan PT Satoria Distribusi Lestari',
             style: 'header',
-            alignment: 'center'
+            alignment: 'center',
           },
           {
             text: `Periode ${formatDateToDDMMYYYY(startDate)} s.d. ${formatDateToDDMMYYYY(endDate)}`,
             style: 'subheader',
             alignment: 'center',
-            margin: [0, 0, 0, 10]
+            margin: [0, 0, 0, 10],
           },
           {
             text: `Printed at ${getCurrentDateTimeFormatted()} by ${userData?.UserName || '-'}`,
@@ -646,42 +803,44 @@ const Penjualan = () => {
             alignment: 'right',
             margin: [0, 0, 0, 10],
             italics: true,
-            fontSize: 8
+            fontSize: 8,
           },
           {
             style: 'tableExample',
             table: {
               headerRows: 1, // This makes the header repeat on new pages
               widths: Array(headers.length).fill('auto'),
-              body: body
+              body: body,
             },
-            layout: 'lightHorizontalLines'
-          }
+            layout: 'lightHorizontalLines',
+          },
         ],
         styles: {
           header: {
             fontSize: 16,
             bold: true,
-            margin: [0, 0, 0, 4]
+            margin: [0, 0, 0, 4],
           },
           subheader: {
             fontSize: 12,
-            margin: [0, 0, 0, 10]
+            margin: [0, 0, 0, 10],
           },
           tableExample: {
-            fontSize: 8
-          }
+            fontSize: 8,
+          },
         },
         pageOrientation: 'landscape',
         pageSize: 'A0',
-      };
+      }
 
-      pdfMake.createPdf(docDefinition).download('Laporan Penjualan SDL ' + startDate + ' - ' + endDate + '.pdf');
+      pdfMake
+        .createPdf(docDefinition)
+        .download('Laporan Penjualan SDL ' + startDate + ' - ' + endDate + '.pdf')
     } catch (error) {
-      alert('Gagal mengunduh PDF!');
-      console.error('Error exporting to PDF:', error);
+      alert('Gagal mengunduh PDF!')
+      console.error('Error exporting to PDF:', error)
     } finally {
-      document.body.style.cursor = 'default';
+      document.body.style.cursor = 'default'
     }
   }
 
@@ -696,19 +855,28 @@ const Penjualan = () => {
       <CRow>
         <CCol xs>
           <CCard className="mb-4">
-            <CCardHeader>Data Sales
-              <CDropdown className='float-end'>
-                <CDropdownToggle color="warning" size='sm' >Export</CDropdownToggle>
+            <CCardHeader>
+              Data Sales
+              <CDropdown className="float-end">
+                <CDropdownToggle color="warning" size="sm">
+                  Export
+                </CDropdownToggle>
                 <CDropdownMenu>
-                  <CDropdownItem onClick={exportToExcel}><CIcon icon={cilSpreadsheet} className="me-2" />Excel</CDropdownItem>
-                  <CDropdownItem onClick={exportToPDF}><CIcon icon={cilPrint} className="me-2" />Pdf</CDropdownItem>
+                  <CDropdownItem onClick={exportToExcel}>
+                    <CIcon icon={cilSpreadsheet} className="me-2" />
+                    Excel
+                  </CDropdownItem>
+                  <CDropdownItem onClick={exportToPDF}>
+                    <CIcon icon={cilPrint} className="me-2" />
+                    Pdf
+                  </CDropdownItem>
                 </CDropdownMenu>
               </CDropdown>
             </CCardHeader>
             <CCardBody>
               <div className="mb-3">
                 <CRow>
-                  <CCol xs={12} sm={2} className='d-grid'>
+                  <CCol xs={12} sm={2} className="d-grid">
                     <CabangSelector
                       onSelect={(items) => {
                         console.log('Selected items:', items)
@@ -716,17 +884,21 @@ const Penjualan = () => {
                       }}
                     />
                   </CCol>
-                  <CCol xs={12} sm={2} className='d-grid'>
-                    <SupplierSelector onSelect={(items) => {
-                      console.log('Selected items:', items)
-                      setSelectedSupplier(items)
-                    }} />
+                  <CCol xs={12} sm={2} className="d-grid">
+                    <SupplierSelector
+                      onSelect={(items) => {
+                        console.log('Selected items:', items)
+                        setSelectedSupplier(items)
+                      }}
+                    />
                   </CCol>
-                  <CCol xs={12} sm={2} className='d-grid'>
-                    <BarangSelector onSelect={(items) => {
-                      console.log('Selected items:', items)
-                      setSelectedBarang(items)
-                    }} />
+                  <CCol xs={12} sm={2} className="d-grid">
+                    <BarangSelector
+                      onSelect={(items) => {
+                        console.log('Selected items:', items)
+                        setSelectedBarang(items)
+                      }}
+                    />
                   </CCol>
                   <CCol xs={12} sm={2}>
                     <DatePicker onChange={setStartDate} value={startDate} />
@@ -744,7 +916,16 @@ const Penjualan = () => {
                   value={search}
                   onChange={(e) => {
                     setSearch(e.target.value)
-                    loadDataSales(1, perPage, e.target.value, selectedCabang, selectedSupplier, selectedBarang, startDate, endDate) // Ensure it loads page 1
+                    loadDataSales(
+                      1,
+                      perPage,
+                      e.target.value,
+                      selectedCabang,
+                      selectedSupplier,
+                      selectedBarang,
+                      startDate,
+                      endDate,
+                    ) // Ensure it loads page 1
                   }}
                 />
               </div>

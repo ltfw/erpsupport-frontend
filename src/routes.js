@@ -23,6 +23,7 @@ const PenyaluranMasuk = React.lazy(() => import('./views/laporan/alkes/Penyalura
 const ReportFarmasi = React.lazy(() => import('./views/laporan/farmasi/ReportFarmasi'))
 const MasterAlkes = React.lazy(() => import('./views/master/MasterAlkes'))
 const CabangAlkes = React.lazy(() => import('./views/master/CabangAlkes'))
+const DPL = React.lazy(() => import('./views/laporan/penjualan/DPL'))
 
 // Dashboard
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
@@ -304,8 +305,17 @@ const routes = [
       </ProtectedRoute>
     ),
   },
+  {
+    path: '/report/dpl/',
+    name: 'DPL',
+    element: (
+      <ProtectedRoute>
+        <DPL />
+      </ProtectedRoute>
+    ),
+  },
   // Theme
-  
+
   { path: '/theme/colors', name: 'Colors', element: Colors },
   { path: '/theme/typography', name: 'Typography', element: Typography },
   { path: '/base', name: 'Base', element: Cards, exact: true },
