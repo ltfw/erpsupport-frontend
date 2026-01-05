@@ -49,9 +49,6 @@ const OpnameFaktur = () => {
     const workbook = XLSX.read(data)
 
     const worksheet = workbook.Sheets[workbook.SheetNames[0]]
-    // Headers start from row 4 (1-indexed), so use header: 4
-    console.log('worksheet:', worksheet)
-    
     const jsonData = XLSX.utils.sheet_to_json(worksheet, { 
       defval: '',
       header: 4 // 1-indexed, row 4 contains headers, data starts from row 5
