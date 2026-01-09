@@ -163,7 +163,13 @@ const Penjualan = () => {
       wrap: true,
     },
     {
-      name: 'HNA',
+      name: 'HNA Base Price',
+      selector: (row) => row.BasePrice,
+      sortable: true,
+      wrap: true,
+    },
+    {
+      name: 'HNA Jual',
       selector: (row) => row.Hna,
       sortable: true,
       wrap: true,
@@ -466,7 +472,8 @@ const Penjualan = () => {
         { key: 'NamaBarang', width: 18 },
         { key: 'NamaSupplier', width: 15 },
         { key: 'BusinessCentreName', width: 20 },
-        { key: 'Hna1', width: 10 },
+        { key: 'BasePrice', width: 10 },
+        { key: 'Hna', width: 10 },
         { key: 'Qty', width: 8 },
         { key: 'SatuanNs', width: 10 },
         { key: 'ValueHNA', width: 15 },
@@ -509,7 +516,7 @@ const Penjualan = () => {
         column.numFmt = numberFormatThousandTwoDecimal
       })
 
-      const columnsToFormat = ['Hna1', 'Qty']
+      const columnsToFormat = ['Hna', 'Qty']
 
       columnsToFormat.forEach((key) => {
         const column = worksheet.getColumn(key)
@@ -536,7 +543,8 @@ const Penjualan = () => {
         'Nama Item',
         'Supplier',
         'Nama Business Centre',
-        'HNA',
+        'HNA Base Price',
+        'HNA Jual',
         'Qty',
         'Satuan',
         'Value HNA',
@@ -563,7 +571,7 @@ const Penjualan = () => {
       allData.forEach((row, idx) => {
         const cleanRow = {
           ...row,
-          Hna1: Math.round(parseFloat(row.Hna || 0) * 100) / 100,
+          Hna: Math.round(parseFloat(row.Hna || 0) * 100) / 100,
           Qty: Math.round(parseFloat(row.Qty || 0) * 100) / 100,
           ValueHNA: Math.round(parseFloat(row.ValueHNA || 0) * 100) / 100,
           ValueNett: Math.round(parseFloat(row.ValueNett || 0) * 100) / 100,
@@ -657,7 +665,8 @@ const Penjualan = () => {
         'Nama Item',
         'Supplier',
         'Nama Business Centre',
-        'HNA',
+        'HNA Base Price',
+        'HNA Jual',
         'Qty',
         'Satuan',
         'Value HNA',
@@ -682,7 +691,8 @@ const Penjualan = () => {
 
       // Define which columns to right-align
       const rightAlignHeaders = [
-        'HNA',
+        'HNA Base Price',
+        'HNA Jual',
         'Qty',
         'Value HNA',
         'Value Nett',
@@ -755,7 +765,8 @@ const Penjualan = () => {
       // Calculate and add total row
       const totalRowData = {}
       const totalColumnsMap = {
-        HNA: 'Hna',
+        'HNA Base Price': 'BasePrice',
+        'HNA Jual': 'Hna',
         Qty: 'Qty',
         'Value HNA': 'ValueHNA',
         'Value Nett': 'ValueNett',
