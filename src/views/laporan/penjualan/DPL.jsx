@@ -70,7 +70,6 @@ const DPL = () => {
     { name: 'PromotionName', selector: (row) => row.PromotionName, sortable: true, wrap: true },
     { name: 'StartDate', selector: (row) => row.StartDate, sortable: true, wrap: true },
     { name: 'EndDate', selector: (row) => row.EndDate, sortable: true, wrap: true },
-    { name: 'PromotionOutlet', selector: (row) => row.PromotionOutlet, sortable: true, wrap: true },
     { name: 'kodelgn', selector: (row) => row.kodelgn, sortable: true, wrap: true },
     {
       name: 'BusinessEntityName',
@@ -246,7 +245,6 @@ const DPL = () => {
         { key: 'PromotionName', width: 15 },
         { key: 'StartDate', width: 12 },
         { key: 'EndDate', width: 12 },
-        { key: 'PromotionOutlet', width: 15 },
         { key: 'kodelgn', width: 10 },
         { key: 'BusinessEntityName', width: 18 },
         { key: 'namalgn', width: 12 },
@@ -274,7 +272,6 @@ const DPL = () => {
         'PromotionName',
         'StartDate',
         'EndDate',
-        'PromotionOutlet',
         'kodelgn',
         'BusinessEntityName',
         'namalgn',
