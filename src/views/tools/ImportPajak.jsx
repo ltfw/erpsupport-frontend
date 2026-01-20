@@ -11,6 +11,7 @@ import {
   CFormCheck,
   CFormInput,
   CFormLabel,
+  CFormSelect,
   CRow,
   CTable,
   CTableBody,
@@ -26,6 +27,7 @@ const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 const ImportPajak = () => {
   const [excelFile, setExcelFile] = useState(null)
   const [parsedData, setParsedData] = useState([])
+  const [selectedGeneration, setSelectedGeneration] = useState('2026')
   const fileInputRef = useRef();
 
   // Props for radio buttons
@@ -78,6 +80,7 @@ const ImportPajak = () => {
       await axios.post(`${ENDPOINT_URL}others/importcoretax`, {
         data: parsedData,
         tipe: selectedRadio,
+        generation: selectedGeneration,
       });
       toast.success('Data imported successfully')
       setExcelFile(null)
@@ -124,6 +127,16 @@ const ImportPajak = () => {
                       onChange={() => setSelectedRadio(option.value)}
                     />
                   ))}
+                </CCol>
+                <CCol xs="auto">
+                  <CFormSelect
+                    value={selectedGeneration}
+                    onChange={(e) => setSelectedGeneration(e.target.value)}
+                    options={[
+                      { label: 'Data 2025', value: '2025' },
+                      { label: 'Data 2026', value: '2026' },
+                    ]}
+                  />
                 </CCol>
                 <CCol xs="auto">
                   <CButton color="primary" onClick={handleParseExcel}>

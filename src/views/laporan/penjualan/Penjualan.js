@@ -187,7 +187,13 @@ const Penjualan = () => {
       wrap: true,
     },
     {
-      name: 'Value HNA',
+      name: 'Value Base Price',
+      selector: (row) => row.ValueBasePrice,
+      sortable: true,
+      wrap: true,
+    },
+    {
+      name: 'Value HNA Jual',
       selector: (row) => row.ValueHNA,
       sortable: true,
       wrap: true,
@@ -434,23 +440,23 @@ const Penjualan = () => {
       const worksheet = workbook.addWorksheet('Sales')
 
       // Row 2: Title
-      worksheet.mergeCells('A2:AM2')
+      worksheet.mergeCells('A2:AO2')
       worksheet.getCell('A2').value = 'Laporan Penjualan PT Satoria Distribusi Lestari'
       worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' }
       worksheet.getCell('A2').font = { size: 16, bold: true }
-      worksheet.mergeCells('A3:AM3')
+      worksheet.mergeCells('A3:AO3')
       worksheet.getCell('A3').value =
         'Periode ' + formatDateToDDMMYYYY(startDate) + ' s.d. ' + formatDateToDDMMYYYY(endDate)
       worksheet.getCell('A3').alignment = { horizontal: 'center', vertical: 'middle' }
       worksheet.getCell('A3').font = { size: 16, bold: true }
 
       // Export info
-      worksheet.mergeCells('A4:AM4')
+      worksheet.mergeCells('A4:AO4')
       worksheet.getCell('A4').value =
         `Exported at ${getCurrentDateTimeFormatted()} by ${userData?.UserName || '-'}`
       worksheet.getCell('A4').alignment = { horizontal: 'right', vertical: 'middle' }
       worksheet.getCell('A4').font = { italic: true, size: 10 }
-      worksheet.mergeCells('A5:AM5')
+      worksheet.mergeCells('A5:AO5')
 
       // Set column widths only (DO NOT use headers here!)
       worksheet.columns = [
@@ -476,6 +482,7 @@ const Penjualan = () => {
         { key: 'Hna', width: 10 },
         { key: 'Qty', width: 8 },
         { key: 'SatuanNs', width: 10 },
+        { key: 'ValueBasePrice', width: 15 },
         { key: 'ValueHNA', width: 15 },
         { key: 'ValueNett', width: 15 },
         { key: 'TotalValueDisc', width: 18 },
@@ -501,6 +508,7 @@ const Penjualan = () => {
 
       // Format specific columns by key
       const columnsToFormatDecimal = [
+        'ValueBasePrice',
         'ValueHNA',
         'ValueNett',
         'TotalValueDisc',
@@ -516,7 +524,7 @@ const Penjualan = () => {
         column.numFmt = numberFormatThousandTwoDecimal
       })
 
-      const columnsToFormat = ['Hna', 'Qty']
+      const columnsToFormat = ['Hna', 'Qty', 'BasePrice']
 
       columnsToFormat.forEach((key) => {
         const column = worksheet.getColumn(key)
@@ -547,7 +555,8 @@ const Penjualan = () => {
         'HNA Jual',
         'Qty',
         'Satuan',
-        'Value HNA',
+        'Value Base Price',
+        'Value HNA Jual',
         'Value Nett',
         'Total Value Disc',
         'Value Disc Distributor',
@@ -571,8 +580,10 @@ const Penjualan = () => {
       allData.forEach((row, idx) => {
         const cleanRow = {
           ...row,
+          BasePrice: Math.round(parseFloat(row.BasePrice || 0) * 100) / 100,
           Hna: Math.round(parseFloat(row.Hna || 0) * 100) / 100,
           Qty: Math.round(parseFloat(row.Qty || 0) * 100) / 100,
+          ValueBasePrice: Math.round(parseFloat(row.ValueBasePrice || 0) * 100) / 100,
           ValueHNA: Math.round(parseFloat(row.ValueHNA || 0) * 100) / 100,
           ValueNett: Math.round(parseFloat(row.ValueNett || 0) * 100) / 100,
           TotalValueDisc: Math.round(parseFloat(row.TotalValueDisc || 0) * 100) / 100,
@@ -590,7 +601,7 @@ const Penjualan = () => {
       const totalRowNumber = worksheet.lastRow.number + 1
 
       // Add total label
-      worksheet.mergeCells(`A${totalRowNumber}:S${totalRowNumber}`)
+      worksheet.mergeCells(`A${totalRowNumber}:R${totalRowNumber}`)
       worksheet.getCell(`A${totalRowNumber}`).value = 'TOTAL'
       worksheet.getCell(`A${totalRowNumber}`).alignment = {
         horizontal: 'center',
@@ -599,12 +610,13 @@ const Penjualan = () => {
       worksheet.getCell(`A${totalRowNumber}`).font = { bold: true }
 
       // Add formula-based totals
-      worksheet.getCell(`T${totalRowNumber}`).value = { formula: `SUM(T7:T${totalRowNumber - 1})` } // Qty
-      worksheet.getCell(`V${totalRowNumber}`).value = { formula: `SUM(V7:V${totalRowNumber - 1})` } // ValueHNA
-      worksheet.getCell(`W${totalRowNumber}`).value = { formula: `SUM(W7:W${totalRowNumber - 1})` } // ValueNett
-      worksheet.getCell(`X${totalRowNumber}`).value = { formula: `SUM(X7:X${totalRowNumber - 1})` } // TotalValueDisc
-      worksheet.getCell(`Y${totalRowNumber}`).value = { formula: `SUM(Y7:Y${totalRowNumber - 1})` } // ValueDiscDist
-      worksheet.getCell(`Z${totalRowNumber}`).value = { formula: `SUM(Z7:Z${totalRowNumber - 1})` } // ValueDiscPrinc
+      worksheet.getCell(`U${totalRowNumber}`).value = { formula: `SUM(U7:U${totalRowNumber - 1})` } // Qty
+      worksheet.getCell(`W${totalRowNumber}`).value = { formula: `SUM(W7:W${totalRowNumber - 1})` } // ValueBasePrice
+      worksheet.getCell(`X${totalRowNumber}`).value = { formula: `SUM(X7:X${totalRowNumber - 1})` } // ValueHNAJual
+      worksheet.getCell(`Y${totalRowNumber}`).value = { formula: `SUM(Y7:Y${totalRowNumber - 1})` } // ValueNett
+      worksheet.getCell(`Z${totalRowNumber}`).value = { formula: `SUM(Z7:Z${totalRowNumber - 1})` } // TotalValueDisc
+      worksheet.getCell(`AA${totalRowNumber}`).value = { formula: `SUM(AA7:AA${totalRowNumber - 1})` } // ValueDiscDistributor
+      worksheet.getCell(`AB${totalRowNumber}`).value = { formula: `SUM(AB7:AB${totalRowNumber - 1})` } // ValueDiscPrinciple
 
       // Optional: bold all total row
       worksheet.getRow(totalRowNumber).font = { bold: true }
@@ -614,7 +626,7 @@ const Penjualan = () => {
 
       worksheet.autoFilter = {
         from: 'A6',
-        to: 'AM6',
+        to: 'AO6',
       }
 
       // Generate and save
@@ -669,7 +681,8 @@ const Penjualan = () => {
         'HNA Jual',
         'Qty',
         'Satuan',
-        'Value HNA',
+        'Value Base Price',
+        'Value HNA Jual',
         'Value Nett',
         'Total Value Disc',
         'Value Disc Distributor',
@@ -694,7 +707,8 @@ const Penjualan = () => {
         'HNA Base Price',
         'HNA Jual',
         'Qty',
-        'Value HNA',
+        'Value Base Price',
+        'Value HNA Jual',
         'Value Nett',
         'Total Value Disc',
         'Value Disc Distributor',
