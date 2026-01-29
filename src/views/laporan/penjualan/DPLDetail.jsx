@@ -47,8 +47,8 @@ const DPL = () => {
 
   const [selectedCabang, setSelectedCabang] = useState([])
   const [discountFilter, setDiscountFilter] = useState('All')
-  const [startDate, setStartDate] = useState(`${new Date().getFullYear()}-01-01`)
-  const [endDate, setEndDate] = useState(`${new Date().getFullYear()}-12-31`)
+  const [startDate, setStartDate] = useState(getCurrentDateFormatted())
+  const [endDate, setEndDate] = useState(getCurrentDateFormatted())
 
   const userData = JSON.parse(localStorage.getItem('user'))
 
@@ -60,11 +60,68 @@ const DPL = () => {
       width: '5%',
     },
     { name: 'NamaDept', selector: (row) => row.NamaDept, sortable: true, wrap: true },
+    {
+      name: 'PromotionCategory',
+      selector: (row) => row.PromotionCategory,
+      sortable: true,
+      wrap: true,
+    },
+    { name: 'PromotionCode', selector: (row) => row.PromotionCode, sortable: true, wrap: true },
     { name: 'PromotionName', selector: (row) => row.PromotionName, sortable: true, wrap: true },
     { name: 'StartDate', selector: (row) => row.StartDate, sortable: true, wrap: true },
     { name: 'EndDate', selector: (row) => row.EndDate, sortable: true, wrap: true },
-    { name: 'KodeLgn', selector: (row) => row.KodeLgn, sortable: true, wrap: true },
-    { name: 'NamaLgn', selector: (row) => row.NamaLgn, sortable: true, wrap: true },
+    { name: 'kodelgn', selector: (row) => row.kodelgn, sortable: true, wrap: true },
+    {
+      name: 'BusinessEntityName',
+      selector: (row) => row.BusinessEntityName,
+      sortable: true,
+      wrap: true,
+    },
+    { name: 'namalgn', selector: (row) => row.namalgn, sortable: true, wrap: true },
+    { name: 'KodeItem', selector: (row) => row.KodeItem, sortable: true, wrap: true },
+    { name: 'NamaBarang', selector: (row) => row.NamaBarang, sortable: true, wrap: true },
+    {
+      name: 'DiscountPrincipleType',
+      selector: (row) => row.DiscountPrincipleType,
+      sortable: true,
+      wrap: true,
+    },
+    {
+      name: 'DiscountPrinciple',
+      selector: (row) => row.DiscountPrinciple,
+      sortable: true,
+      wrap: true,
+      right: true,
+      format: (row) => formatThousand(row.DiscountPrinciple),
+    },
+    {
+      name: 'DiscountDistributorType',
+      selector: (row) => row.DiscountDistributorType,
+      sortable: true,
+      wrap: true,
+    },
+    {
+      name: 'DiscountDistributor',
+      selector: (row) => row.DiscountDistributor,
+      sortable: true,
+      wrap: true,
+      right: true,
+      format: (row) => formatThousand(row.DiscountDistributor),
+    },
+    {
+      name: 'SupportDiscountType',
+      selector: (row) => row.SupportDiscountType,
+      sortable: true,
+      wrap: true,
+    },
+    {
+      name: 'SupportDiscount',
+      selector: (row) => row.SupportDiscount,
+      sortable: true,
+      wrap: true,
+      right: true,
+      format: (row) => formatThousand(row.SupportDiscount),
+    },
   ]
 
   // ---- API call ----
@@ -83,6 +140,8 @@ const DPL = () => {
       params.append('per_page', perPage)
       if (keyword) params.append('search', keyword)
       if (cabangIds.length > 0) params.append('cabang', cabangIds.join(','))
+      if (discountStatus && discountStatus !== 'All')
+        params.append('discount_status', discountStatus)
       if (startDate) params.append('start_date', startDate)
       if (endDate) params.append('end_date', endDate)
 
@@ -136,6 +195,11 @@ const DPL = () => {
     setPage(1)
   }
 
+  const handleDiscountFilterChange = (e) => {
+    setDiscountFilter(e.target.value)
+    setPage(1)
+  }
+
   const exportToExcel = async () => {
     document.body.style.cursor = 'wait'
     try {
@@ -176,22 +240,49 @@ const DPL = () => {
       worksheet.columns = [
         { key: 'no', width: 6 },
         { key: 'NamaDept', width: 12 },
+        { key: 'PromotionCategory', width: 15 },
+        { key: 'PromotionCode', width: 12 },
         { key: 'PromotionName', width: 15 },
         { key: 'StartDate', width: 12 },
         { key: 'EndDate', width: 12 },
-        { key: 'KodeLgn', width: 10 },
-        { key: 'NamaLgn', width: 12 },
+        { key: 'kodelgn', width: 10 },
+        { key: 'BusinessEntityName', width: 18 },
+        { key: 'namalgn', width: 12 },
+        { key: 'KodeItem', width: 12 },
+        { key: 'NamaBarang', width: 15 },
+        { key: 'DiscountPrincipleType', width: 15 },
+        { key: 'DiscountPrinciple', width: 12 },
+        { key: 'DiscountDistributorType', width: 15 },
+        { key: 'DiscountDistributor', width: 12 },
+        { key: 'SupportDiscountType', width: 15 },
+        { key: 'SupportDiscount', width: 12 },
       ]
+
+      // Set number format for numeric columns
+      worksheet.getColumn('DiscountPrinciple').numFmt = '#,##0.00'
+      worksheet.getColumn('DiscountDistributor').numFmt = '#,##0.00'
+      worksheet.getColumn('SupportDiscount').numFmt = '#,##0.00'
 
       // Row 5: Write headers manually
       worksheet.addRow([
         'No',
         'NamaDept',
+        'PromotionCategory',
+        'PromotionCode',
         'PromotionName',
         'StartDate',
         'EndDate',
-        'KodeLgn',
-        'NamaLgn',
+        'kodelgn',
+        'BusinessEntityName',
+        'namalgn',
+        'KodeItem',
+        'NamaBarang',
+        'DiscountPrincipleType',
+        'DiscountPrinciple',
+        'DiscountDistributorType',
+        'DiscountDistributor',
+        'SupportDiscountType',
+        'SupportDiscount',
       ])
 
       // Row 6+: Add data
@@ -199,15 +290,38 @@ const DPL = () => {
         worksheet.addRow({
           no: idx + 1,
           ...row,
+          DiscountPrinciple: parseFloat(row.DiscountPrinciple || 0),
+          DiscountDistributor: parseFloat(row.DiscountDistributor || 0),
+          SupportDiscount: parseFloat(row.SupportDiscount || 0),
         })
       })
+
+      // Calculate total rows added
+      const totalRowNumber = worksheet.lastRow.number + 1
+
+      // Add total label
+      worksheet.mergeCells(`A${totalRowNumber}:N${totalRowNumber}`)
+      worksheet.getCell(`A${totalRowNumber}`).value = 'TOTAL'
+      worksheet.getCell(`A${totalRowNumber}`).alignment = {
+        horizontal: 'center',
+        vertical: 'middle',
+      }
+      worksheet.getCell(`A${totalRowNumber}`).font = { bold: true }
+
+      // Add formula-based totals
+      worksheet.getCell(`O${totalRowNumber}`).value = { formula: `SUM(O7:O${totalRowNumber - 1})` }
+      worksheet.getCell(`Q${totalRowNumber}`).value = { formula: `SUM(Q7:Q${totalRowNumber - 1})` }
+      worksheet.getCell(`S${totalRowNumber}`).value = { formula: `SUM(S7:S${totalRowNumber - 1})` }
+
+      // Bold total row
+      worksheet.getRow(totalRowNumber).font = { bold: true }
 
       // Freeze title and header
       worksheet.views = [{ state: 'frozen', ySplit: 6 }]
 
       worksheet.autoFilter = {
         from: 'A6',
-        to: 'F6',
+        to: 'S6',
       }
 
       // Generate and save
@@ -248,11 +362,15 @@ const DPL = () => {
       const headers = [
         { text: 'No', bold: true, fillColor: '#f2f2f2', alignment: 'center', margin: [0, 5, 0, 5] },
         { text: 'NamaDept', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
+        { text: 'PromotionCode', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
         { text: 'PromotionName', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
         { text: 'StartDate', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
         { text: 'EndDate', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
-        { text: 'KodeLgn', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
-        { text: 'NamaLgn', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
+        { text: 'KodeItem', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
+        { text: 'NamaBarang', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
+        { text: 'DiscountPrinciple', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
+        { text: 'DiscountDistributor', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
+        { text: 'SupportDiscount', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
       ]
 
       // Prepare table body
@@ -274,12 +392,56 @@ const DPL = () => {
         ...allData.map((row, idx) => [
           { text: idx + 1, alignment: 'center', margin: [0, 5, 0, 5] },
           { text: row.NamaDept ?? '', margin: [0, 5, 0, 5] },
+          { text: row.PromotionCode ?? '', margin: [0, 5, 0, 5] },
           { text: row.PromotionName ?? '', margin: [0, 5, 0, 5] },
           { text: row.StartDate ?? '', margin: [0, 5, 0, 5] },
           { text: row.EndDate ?? '', margin: [0, 5, 0, 5] },
-          { text: row.KodeLgn ?? '', margin: [0, 5, 0, 5] },
-          { text: row.NamaLgn ?? '', margin: [0, 5, 0, 5] },
+          { text: row.KodeItem ?? '', margin: [0, 5, 0, 5] },
+          { text: row.NamaBarang ?? '', margin: [0, 5, 0, 5] },
+          {
+            text: formatThousand(row.DiscountPrinciple) ?? '',
+            alignment: 'right',
+            margin: [0, 5, 0, 5],
+          },
+          {
+            text: formatThousand(row.DiscountDistributor) ?? '',
+            alignment: 'right',
+            margin: [0, 5, 0, 5],
+          },
+          {
+            text: formatThousand(row.SupportDiscount) ?? '',
+            alignment: 'right',
+            margin: [0, 5, 0, 5],
+          },
         ]),
+        [
+          {
+            text: 'GRAND TOTAL',
+            colSpan: 8,
+            alignment: 'center',
+            bold: true,
+            margin: [0, 5, 0, 5],
+          },
+          ...Array(8).fill({}),
+          {
+            text: formatThousand(grandTotalDiscountPrinciple),
+            alignment: 'right',
+            bold: true,
+            margin: [0, 5, 0, 5],
+          },
+          {
+            text: formatThousand(grandTotalDiscountDistributor),
+            alignment: 'right',
+            bold: true,
+            margin: [0, 5, 0, 5],
+          },
+          {
+            text: formatThousand(grandTotalSupportDiscount),
+            alignment: 'right',
+            bold: true,
+            margin: [0, 5, 0, 5],
+          },
+        ],
       ]
 
       const docDefinition = {
@@ -410,6 +572,18 @@ const DPL = () => {
               <CRow>
                 <CCol xs={12} sm={2} className="d-grid">
                   <CabangSelector onSelect={setSelectedCabang} />
+                </CCol>
+                <CCol xs={12} sm={2}>
+                  <CFormSelect
+                    value={discountFilter}
+                    onChange={handleDiscountFilterChange}
+                    options={[
+                      { label: 'Pilih Beban Diskon', value: '', disabled: true },
+                      { label: 'All', value: 'All' },
+                      { label: 'Diskon On', value: 'On' },
+                      { label: 'Diskon Off', value: 'Off' },
+                    ]}
+                  />
                 </CCol>
                 <CCol xs={12} sm={2}>
                   <DatePicker onChange={setStartDate} value={startDate} />
