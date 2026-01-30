@@ -154,23 +154,23 @@ const DPL = () => {
       const worksheet = workbook.addWorksheet('DPL')
 
       // Row 2: Title
-      worksheet.mergeCells('A2:S2')
+      worksheet.mergeCells('A2:G2')
       worksheet.getCell('A2').value = 'Laporan DPL'
       worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' }
       worksheet.getCell('A2').font = { size: 16, bold: true }
-      worksheet.mergeCells('A3:S3')
+      worksheet.mergeCells('A3:G3')
       worksheet.getCell('A3').value =
         'Periode ' + formatDateToDDMMYYYY(startDate) + ' s/d ' + formatDateToDDMMYYYY(endDate)
       worksheet.getCell('A3').alignment = { horizontal: 'center', vertical: 'middle' }
       worksheet.getCell('A3').font = { size: 16, bold: true }
 
       // Row 4: Export info
-      worksheet.mergeCells('A4:S4')
+      worksheet.mergeCells('A4:G4')
       worksheet.getCell('A4').value =
         `Exported at ${getCurrentDateTimeFormatted()} by ${userData?.UserName || '-'}`
       worksheet.getCell('A4').alignment = { horizontal: 'right', vertical: 'middle' }
       worksheet.getCell('A4').font = { italic: true, size: 10 }
-      worksheet.mergeCells('A5:S5')
+      worksheet.mergeCells('A5:G5')
 
       // Set column widths
       worksheet.columns = [
@@ -207,7 +207,7 @@ const DPL = () => {
 
       worksheet.autoFilter = {
         from: 'A6',
-        to: 'F6',
+        to: 'G6',
       }
 
       // Generate and save
