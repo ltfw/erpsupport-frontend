@@ -163,6 +163,12 @@ const Penjualan = () => {
       wrap: true,
     },
     {
+      name: 'HNA Base Satuan Terkecil',
+      selector: (row) => row.BasePriceSatuanTerkecil,
+      sortable: true,
+      wrap: true,
+    },
+    {
       name: 'HNA Base Price',
       selector: (row) => row.BasePrice,
       sortable: true,
@@ -177,6 +183,12 @@ const Penjualan = () => {
     {
       name: 'Qty',
       selector: (row) => row.Qty,
+      sortable: true,
+      wrap: true,
+    },
+    {
+      name: 'Qty Satuan Terkecil',
+      selector: (row) => row.QtySatuanTerkecil,
       sortable: true,
       wrap: true,
     },
@@ -478,9 +490,11 @@ const Penjualan = () => {
         { key: 'NamaBarang', width: 18 },
         { key: 'NamaSupplier', width: 15 },
         { key: 'BusinessCentreName', width: 20 },
+        { key: 'BasePriceSatuanTerkecil', width: 18},
         { key: 'BasePrice', width: 10 },
         { key: 'Hna', width: 10 },
         { key: 'Qty', width: 8 },
+        { key: 'QtySatuanTerkecil', width: 8 },
         { key: 'SatuanNs', width: 10 },
         { key: 'ValueBasePrice', width: 15 },
         { key: 'ValueHNA', width: 15 },
