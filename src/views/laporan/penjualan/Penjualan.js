@@ -452,23 +452,23 @@ const Penjualan = () => {
       const worksheet = workbook.addWorksheet('Sales')
 
       // Row 2: Title
-      worksheet.mergeCells('A2:AO2')
+      worksheet.mergeCells('A2:AQ2')
       worksheet.getCell('A2').value = 'Laporan Penjualan PT Satoria Distribusi Lestari'
       worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' }
       worksheet.getCell('A2').font = { size: 16, bold: true }
-      worksheet.mergeCells('A3:AO3')
+      worksheet.mergeCells('A3:AQ3')
       worksheet.getCell('A3').value =
         'Periode ' + formatDateToDDMMYYYY(startDate) + ' s.d. ' + formatDateToDDMMYYYY(endDate)
       worksheet.getCell('A3').alignment = { horizontal: 'center', vertical: 'middle' }
       worksheet.getCell('A3').font = { size: 16, bold: true }
 
       // Export info
-      worksheet.mergeCells('A4:AO4')
+      worksheet.mergeCells('A4:AQ4')
       worksheet.getCell('A4').value =
         `Exported at ${getCurrentDateTimeFormatted()} by ${userData?.UserName || '-'}`
       worksheet.getCell('A4').alignment = { horizontal: 'right', vertical: 'middle' }
       worksheet.getCell('A4').font = { italic: true, size: 10 }
-      worksheet.mergeCells('A5:AO5')
+      worksheet.mergeCells('A5:AQ5')
 
       // Set column widths only (DO NOT use headers here!)
       worksheet.columns = [
@@ -538,7 +538,7 @@ const Penjualan = () => {
         column.numFmt = numberFormatThousandTwoDecimal
       })
 
-      const columnsToFormat = ['Hna', 'Qty', 'BasePrice']
+      const columnsToFormat = ['Hna', 'Qty', 'BasePrice','BasePriceSatuanTerkecil']
 
       columnsToFormat.forEach((key) => {
         const column = worksheet.getColumn(key)
@@ -565,9 +565,11 @@ const Penjualan = () => {
         'Nama Item',
         'Supplier',
         'Nama Business Centre',
+        'HNA Base Satuan Terkecil',
         'HNA Base Price',
         'HNA Jual',
         'Qty',
+        'Qty Satuan Terkecil',
         'Satuan',
         'Value Base Price',
         'Value HNA Jual',
@@ -595,8 +597,10 @@ const Penjualan = () => {
         const cleanRow = {
           ...row,
           BasePrice: Math.round(parseFloat(row.BasePrice || 0) * 100) / 100,
+          BasePriceSatuanTerkecil: Math.round(parseFloat(row.BasePriceSatuanTerkecil || 0) * 100) / 100,
           Hna: Math.round(parseFloat(row.Hna || 0) * 100) / 100,
           Qty: Math.round(parseFloat(row.Qty || 0) * 100) / 100,
+          QtySatuanTerkecil: Math.round(parseFloat(row.QtySatuanTerkecil || 0) * 100) / 100,
           ValueBasePrice: Math.round(parseFloat(row.ValueBasePrice || 0) * 100) / 100,
           ValueHNA: Math.round(parseFloat(row.ValueHNA || 0) * 100) / 100,
           ValueNett: Math.round(parseFloat(row.ValueNett || 0) * 100) / 100,
@@ -624,13 +628,17 @@ const Penjualan = () => {
       worksheet.getCell(`A${totalRowNumber}`).font = { bold: true }
 
       // Add formula-based totals
-      worksheet.getCell(`U${totalRowNumber}`).value = { formula: `SUM(U7:U${totalRowNumber - 1})` } // Qty
-      worksheet.getCell(`W${totalRowNumber}`).value = { formula: `SUM(W7:W${totalRowNumber - 1})` } // ValueBasePrice
-      worksheet.getCell(`X${totalRowNumber}`).value = { formula: `SUM(X7:X${totalRowNumber - 1})` } // ValueHNAJual
-      worksheet.getCell(`Y${totalRowNumber}`).value = { formula: `SUM(Y7:Y${totalRowNumber - 1})` } // ValueNett
-      worksheet.getCell(`Z${totalRowNumber}`).value = { formula: `SUM(Z7:Z${totalRowNumber - 1})` } // TotalValueDisc
+      worksheet.getCell(`S${totalRowNumber}`).value = { formula: `SUM(S7:S${totalRowNumber - 1})` } // HNA Base Satuan Terkecil
+      worksheet.getCell(`T${totalRowNumber}`).value = { formula: `SUM(TT7:T${totalRowNumber - 1})` } // HNA Base Price
+      worksheet.getCell(`U${totalRowNumber}`).value = { formula: `SUM(U7:U${totalRowNumber - 1})` } // HNA Jual
+      worksheet.getCell(`V${totalRowNumber}`).value = { formula: `SUM(V7:V${totalRowNumber - 1})` } // Qty 
+      worksheet.getCell(`W${totalRowNumber}`).value = { formula: `SUM(W7:W${totalRowNumber - 1})` } // Qty Satuan Terkecil
+      worksheet.getCell(`Y${totalRowNumber}`).value = { formula: `SUM(Y7:Y${totalRowNumber - 1})` } // ValueBase Price
+      worksheet.getCell(`Z${totalRowNumber}`).value = { formula: `SUM(Z7:Z${totalRowNumber - 1})` } // Value HNA Jual
       worksheet.getCell(`AA${totalRowNumber}`).value = { formula: `SUM(AA7:AA${totalRowNumber - 1})` } // ValueDiscDistributor
       worksheet.getCell(`AB${totalRowNumber}`).value = { formula: `SUM(AB7:AB${totalRowNumber - 1})` } // ValueDiscPrinciple
+      worksheet.getCell(`AC${totalRowNumber}`).value = { formula: `SUM(AC7:AC${totalRowNumber - 1})` } // ValueDiscDistributor
+      worksheet.getCell(`AD${totalRowNumber}`).value = { formula: `SUM(AD7:AD${totalRowNumber - 1})` } // ValueDiscPrinciple
 
       // Optional: bold all total row
       worksheet.getRow(totalRowNumber).font = { bold: true }
@@ -640,7 +648,7 @@ const Penjualan = () => {
 
       worksheet.autoFilter = {
         from: 'A6',
-        to: 'AO6',
+        to: 'AQ6',
       }
 
       // Generate and save
