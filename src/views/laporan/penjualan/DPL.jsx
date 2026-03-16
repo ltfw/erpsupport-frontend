@@ -91,10 +91,10 @@ const DPL = () => {
       if (endDate) params.append('end_date', endDate)
 
       const response = await axios.get(`${ENDPOINT_URL}sales/dpl?${params.toString()}`)
-      return { 
-        data: response.data.data, 
-        customerData: response.data.customerData, 
-        total: response.data.pagination.total 
+      return {
+        data: response.data.data,
+        customerData: response.data.customerData,
+        total: response.data.pagination.total
       }
     },
     [],
@@ -160,7 +160,7 @@ const DPL = () => {
       const customerData = response.customerData
 
       const workbook = new ExcelJS.Workbook()
-      
+
       // --- SHEET 1: ITEMS ---
       const worksheet = workbook.addWorksheet('DPL Items')
 
@@ -228,7 +228,7 @@ const DPL = () => {
         from: 'A6',
         to: 'K6',
       }
-      
+
       // --- SHEET 2: CUSTOMERS ---
       const wsCustomers = workbook.addWorksheet('DPL Customers')
 
