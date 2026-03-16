@@ -63,8 +63,12 @@ const DPL = () => {
     { name: 'PromotionName', selector: (row) => row.PromotionName, sortable: true, wrap: true },
     { name: 'StartDate', selector: (row) => row.StartDate, sortable: true, wrap: true },
     { name: 'EndDate', selector: (row) => row.EndDate, sortable: true, wrap: true },
-    { name: 'KodeLgn', selector: (row) => row.KodeLgn, sortable: true, wrap: true },
-    { name: 'NamaLgn', selector: (row) => row.NamaLgn, sortable: true, wrap: true },
+    { name: 'KodeItem', selector: (row) => row.KodeItem, sortable: true, wrap: true },
+    { name: 'NamaItem', selector: (row) => row.NamaItem, sortable: true, wrap: true },
+    { name: 'HNA', selector: (row) => formatThousand(row.hna), sortable: true },
+    { name: 'Disc Principle', selector: (row) => formatThousand(row.discountprincipal), sortable: true },
+    { name: 'Disc Distributor', selector: (row) => formatThousand(row.discountdistributor), sortable: true },
+    { name: 'Support Disc', selector: (row) => formatThousand(row.supportdiscount), sortable: true },
   ]
 
   // ---- API call ----
@@ -87,7 +91,11 @@ const DPL = () => {
       if (endDate) params.append('end_date', endDate)
 
       const response = await axios.get(`${ENDPOINT_URL}sales/dpl?${params.toString()}`)
-      return { data: response.data.data, total: response.data.pagination.total }
+      return { 
+        data: response.data.data, 
+        customerData: response.data.customerData, 
+        total: response.data.pagination.total 
+      }
     },
     [],
   )
@@ -149,28 +157,31 @@ const DPL = () => {
         endDate,
       )
       const allData = response.data
+      const customerData = response.customerData
 
       const workbook = new ExcelJS.Workbook()
-      const worksheet = workbook.addWorksheet('DPL')
+      
+      // --- SHEET 1: ITEMS ---
+      const worksheet = workbook.addWorksheet('DPL Items')
 
       // Row 2: Title
-      worksheet.mergeCells('A2:S2')
-      worksheet.getCell('A2').value = 'Laporan DPL'
+      worksheet.mergeCells('A2:I2')
+      worksheet.getCell('A2').value = 'Laporan DPL - Items'
       worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' }
       worksheet.getCell('A2').font = { size: 16, bold: true }
-      worksheet.mergeCells('A3:S3')
+      worksheet.mergeCells('A3:I3')
       worksheet.getCell('A3').value =
         'Periode ' + formatDateToDDMMYYYY(startDate) + ' s/d ' + formatDateToDDMMYYYY(endDate)
       worksheet.getCell('A3').alignment = { horizontal: 'center', vertical: 'middle' }
       worksheet.getCell('A3').font = { size: 16, bold: true }
 
       // Row 4: Export info
-      worksheet.mergeCells('A4:S4')
+      worksheet.mergeCells('A4:I4')
       worksheet.getCell('A4').value =
         `Exported at ${getCurrentDateTimeFormatted()} by ${userData?.UserName || '-'}`
       worksheet.getCell('A4').alignment = { horizontal: 'right', vertical: 'middle' }
       worksheet.getCell('A4').font = { italic: true, size: 10 }
-      worksheet.mergeCells('A5:S5')
+      worksheet.mergeCells('A5:I5')
 
       // Set column widths
       worksheet.columns = [
@@ -179,8 +190,12 @@ const DPL = () => {
         { key: 'PromotionName', width: 15 },
         { key: 'StartDate', width: 12 },
         { key: 'EndDate', width: 12 },
-        { key: 'KodeLgn', width: 10 },
-        { key: 'NamaLgn', width: 12 },
+        { key: 'KodeItem', width: 15 },
+        { key: 'NamaItem', width: 25 },
+        { key: 'hna', width: 12, style: { numFmt: '#,##0.00' } },
+        { key: 'discountprincipal', width: 12, style: { numFmt: '#,##0.00' } },
+        { key: 'discountdistributor', width: 12, style: { numFmt: '#,##0.00' } },
+        { key: 'supportdiscount', width: 12, style: { numFmt: '#,##0.00' } },
       ]
 
       // Row 5: Write headers manually
@@ -190,8 +205,12 @@ const DPL = () => {
         'PromotionName',
         'StartDate',
         'EndDate',
-        'KodeLgn',
-        'NamaLgn',
+        'KodeItem',
+        'NamaItem',
+        'HNA',
+        'Disc Principle',
+        'Disc Distributor',
+        'Support Disc',
       ])
 
       // Row 6+: Add data
@@ -207,18 +226,68 @@ const DPL = () => {
 
       worksheet.autoFilter = {
         from: 'A6',
-        to: 'F6',
+        to: 'K6',
       }
+      
+      // --- SHEET 2: CUSTOMERS ---
+      const wsCustomers = workbook.addWorksheet('DPL Customers')
+
+      wsCustomers.mergeCells('A2:G2')
+      wsCustomers.getCell('A2').value = 'Laporan DPL - Customers'
+      wsCustomers.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' }
+      wsCustomers.getCell('A2').font = { size: 16, bold: true }
+      wsCustomers.mergeCells('A3:G3')
+      wsCustomers.getCell('A3').value =
+        'Periode ' + formatDateToDDMMYYYY(startDate) + ' s/d ' + formatDateToDDMMYYYY(endDate)
+      wsCustomers.getCell('A3').alignment = { horizontal: 'center', vertical: 'middle' }
+      wsCustomers.getCell('A3').font = { size: 16, bold: true }
+
+      wsCustomers.mergeCells('A4:G4')
+      wsCustomers.getCell('A4').value =
+        `Exported at ${getCurrentDateTimeFormatted()} by ${userData?.UserName || '-'}`
+      wsCustomers.getCell('A4').alignment = { horizontal: 'right', vertical: 'middle' }
+      wsCustomers.getCell('A4').font = { italic: true, size: 10 }
+      wsCustomers.mergeCells('A5:G5')
+
+      wsCustomers.columns = [
+        { key: 'no', width: 6 },
+        { key: 'NamaDept', width: 12 },
+        { key: 'PromotionName', width: 25 },
+        { key: 'StartDate', width: 12 },
+        { key: 'EndDate', width: 12 },
+        { key: 'KodeLgn', width: 15 },
+        { key: 'NamaLgn', width: 25 },
+      ]
+
+      wsCustomers.addRow([
+        'No',
+        'NamaDept',
+        'PromotionName',
+        'StartDate',
+        'EndDate',
+        'KodeLgn',
+        'NamaLgn',
+      ])
+
+      customerData.forEach((row, idx) => {
+        wsCustomers.addRow({
+          no: idx + 1,
+          ...row,
+        })
+      })
+
+      wsCustomers.views = [{ state: 'frozen', ySplit: 6 }]
+      wsCustomers.autoFilter = { from: 'A6', to: 'G6' }
 
       // Generate and save
       const buffer = await workbook.xlsx.writeBuffer()
       saveAs(
         new Blob([buffer]),
         'Laporan DPL ' +
-          formatDateToDDMMYYYY(startDate) +
-          ' s.d ' +
-          formatDateToDDMMYYYY(endDate) +
-          '.xlsx',
+        formatDateToDDMMYYYY(startDate) +
+        ' s.d ' +
+        formatDateToDDMMYYYY(endDate) +
+        '.xlsx',
       )
     } catch (error) {
       alert('Gagal mengunduh data!')
@@ -251,21 +320,25 @@ const DPL = () => {
         { text: 'PromotionName', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
         { text: 'StartDate', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
         { text: 'EndDate', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
-        { text: 'KodeLgn', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
-        { text: 'NamaLgn', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
+        { text: 'KodeItem', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
+        { text: 'NamaItem', bold: true, fillColor: '#f2f2f2', margin: [0, 5, 0, 5] },
+        { text: 'HNA', bold: true, fillColor: '#f2f2f2', alignment: 'right', margin: [0, 5, 0, 5] },
+        { text: 'Disc Principle', bold: true, fillColor: '#f2f2f2', alignment: 'right', margin: [0, 5, 0, 5] },
+        { text: 'Disc Distributor', bold: true, fillColor: '#f2f2f2', alignment: 'right', margin: [0, 5, 0, 5] },
+        { text: 'Support Disc', bold: true, fillColor: '#f2f2f2', alignment: 'right', margin: [0, 5, 0, 5] },
       ]
 
       // Prepare table body
       const grandTotalDiscountPrinciple = allData.reduce(
-        (sum, row) => sum + (parseFloat(row.DiscountPrinciple) || 0),
+        (sum, row) => sum + (parseFloat(row.discountprincipal) || 0),
         0,
       )
       const grandTotalDiscountDistributor = allData.reduce(
-        (sum, row) => sum + (parseFloat(row.DiscountDistributor) || 0),
+        (sum, row) => sum + (parseFloat(row.discountdistributor) || 0),
         0,
       )
       const grandTotalSupportDiscount = allData.reduce(
-        (sum, row) => sum + (parseFloat(row.SupportDiscount) || 0),
+        (sum, row) => sum + (parseFloat(row.supportdiscount) || 0),
         0,
       )
 
@@ -277,8 +350,12 @@ const DPL = () => {
           { text: row.PromotionName ?? '', margin: [0, 5, 0, 5] },
           { text: row.StartDate ?? '', margin: [0, 5, 0, 5] },
           { text: row.EndDate ?? '', margin: [0, 5, 0, 5] },
-          { text: row.KodeLgn ?? '', margin: [0, 5, 0, 5] },
-          { text: row.NamaLgn ?? '', margin: [0, 5, 0, 5] },
+          { text: row.KodeItem ?? '', margin: [0, 5, 0, 5] },
+          { text: row.NamaItem ?? '', margin: [0, 5, 0, 5] },
+          { text: formatThousand(row.hna), alignment: 'right', margin: [0, 5, 0, 5] },
+          { text: formatThousand(row.discountprincipal), alignment: 'right', margin: [0, 5, 0, 5] },
+          { text: formatThousand(row.discountdistributor), alignment: 'right', margin: [0, 5, 0, 5] },
+          { text: formatThousand(row.supportdiscount), alignment: 'right', margin: [0, 5, 0, 5] },
         ]),
       ]
 
@@ -370,10 +447,10 @@ const DPL = () => {
         .createPdf(docDefinition)
         .download(
           'Laporan DPL ' +
-            formatDateToDDMMYYYY(startDate) +
-            ' s.d ' +
-            formatDateToDDMMYYYY(endDate) +
-            '.pdf',
+          formatDateToDDMMYYYY(startDate) +
+          ' s.d ' +
+          formatDateToDDMMYYYY(endDate) +
+          '.pdf',
         )
     } catch (error) {
       alert('Gagal mengunduh PDF!')
