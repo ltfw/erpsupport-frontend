@@ -629,9 +629,9 @@ const Penjualan = () => {
 
       // Add formula-based totals
       worksheet.getCell(`S${totalRowNumber}`).value = { formula: `SUM(S7:S${totalRowNumber - 1})` } // HNA Base Satuan Terkecil
-      worksheet.getCell(`T${totalRowNumber}`).value = { formula: `SUM(TT7:T${totalRowNumber - 1})` } // HNA Base Price
+      worksheet.getCell(`T${totalRowNumber}`).value = { formula: `SUM(T7:T${totalRowNumber - 1})` } // HNA Base Price
       worksheet.getCell(`U${totalRowNumber}`).value = { formula: `SUM(U7:U${totalRowNumber - 1})` } // HNA Jual
-      worksheet.getCell(`V${totalRowNumber}`).value = { formula: `SUM(V7:V${totalRowNumber - 1})` } // Qty 
+      worksheet.getCell(`V${totalRowNumber}`).value = { formula: `SUM(V7:V${totalRowNumber - 1})` } // Qty
       worksheet.getCell(`W${totalRowNumber}`).value = { formula: `SUM(W7:W${totalRowNumber - 1})` } // Qty Satuan Terkecil
       worksheet.getCell(`Y${totalRowNumber}`).value = { formula: `SUM(Y7:Y${totalRowNumber - 1})` } // ValueBase Price
       worksheet.getCell(`Z${totalRowNumber}`).value = { formula: `SUM(Z7:Z${totalRowNumber - 1})` } // Value HNA Jual
