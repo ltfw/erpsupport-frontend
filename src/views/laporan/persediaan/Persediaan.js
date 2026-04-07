@@ -100,7 +100,7 @@ const Persediaan = () => {
     params.append('per_page', perPage)
 
     if (searchValue) params.append('search', searchValue)
-      
+
     if (cabangIds.length > 0) {
       params.append('cabang', cabangIds.join(',')) // or whatever your API expects
     }
