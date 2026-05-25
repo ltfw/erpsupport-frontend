@@ -68,6 +68,10 @@ const PNL = () => {
     {
       name: `Year ${currentYear}`,
       selector: (row) => row.TahunIni,
+      cell: (row) => {
+        if (row.TahunIni && row.TahunIni.toString().startsWith('(')) return row.TahunIni;
+        return parseFloat(row.TahunIni).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      },
       sortable: true,
       width: '15%',
       right: true,
@@ -75,6 +79,10 @@ const PNL = () => {
     {
       name: `Year ${previousYear}`,
       selector: (row) => row.TahunLalu,
+      cell: (row) => {
+        if (row.TahunLalu && row.TahunLalu.toString().startsWith('(')) return row.TahunLalu;
+        return parseFloat(row.TahunLalu).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      },
       sortable: true,
       width: '15%',
       right: true,
