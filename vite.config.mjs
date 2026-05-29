@@ -49,10 +49,14 @@ export default defineConfig(() => {
     },
     server: {
       host: '0.0.0.0',
-      allowedHosts: ['localhost', '0c4bd92a549f.ngrok-free.app'],
+      allowedHosts: ['localhost'],
       port: 3000,
       proxy: {
-        // https://vitejs.dev/config/server-options.html
+        '/api': {
+          target: 'http://localhost:5000',
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/api/, ''),
+        },
       },
     },
   };
