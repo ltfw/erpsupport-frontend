@@ -48,9 +48,20 @@ const UmurPiutang = () => {
     { name: 'Badan Usaha', selector: (row) => row.BusinessEntityName, sortable: true, wrap: true },
     { name: 'No Faktur', selector: (row) => row.NoFaktur, sortable: true, wrap: true },
     { name: 'Tgl Faktur', selector: (row) => row.TglFaktur, sortable: true, wrap: true },
+    { name: 'Tgl Jtp Asli', selector: (row) => row.TglJtpFakturAsli, sortable: true, wrap: true },
     { name: 'Tgl Jtp Internal', selector: (row) => row.TglJtpFakturInternal, sortable: true, wrap: true },
+    { name: 'Aging AR Asli', selector: (row) => row.AgingARAsli, sortable: true, wrap: true },
+    { name: 'Aging AR Internal', selector: (row) => row.AgingARInternal, sortable: true, wrap: true },
+    { name: 'Total Faktur', selector: (row) => row.TotalFaktur, sortable: true, wrap: true },
+    { name: 'Total Bayar', selector: (row) => row.TotalBayar, sortable: true, wrap: true },
     { name: 'Outstanding AR', selector: (row) => row.OutstandingAR, sortable: true },
+    { name: 'Overdue Asli', selector: (row) => row.OverDueAsli, sortable: true },
     { name: 'Overdue Internal', selector: (row) => row.OverDueInternal, sortable: true },
+    { name: '0-30', selector: (row) => row['0-30'], sortable: true },
+    { name: '31-60', selector: (row) => row['31-60'], sortable: true },
+    { name: '61-90', selector: (row) => row['61-90'], sortable: true },
+    { name: '91-120', selector: (row) => row['91-120'], sortable: true },
+    { name: '>120', selector: (row) => row['>120'], sortable: true },
     { name: 'Salesman', selector: (row) => row.NamaSales, sortable: true, wrap: true },
     { name: 'Rayon', selector: (row) => row.RayonCode, sortable: true, wrap: true },
   ]
@@ -104,12 +115,38 @@ const UmurPiutang = () => {
         { header: 'Tgl Faktur', key: 'TglFaktur', width: 15 },
         { header: 'Tgl Jtp Asli', key: 'TglJtpFakturAsli', width: 18 },
         { header: 'Tgl Jtp Internal', key: 'TglJtpFakturInternal', width: 18 },
+        { header: 'Aging AR Asli', key: 'AgingARAsli', width: 18 },
+        { header: 'Aging AR Internal', key: 'AgingARInternal', width: 18 },
+        { header: 'Total Faktur', key: 'TotalFaktur', width: 18 },
+        { header: 'Total Bayar', key: 'TotalBayar', width: 18 },
         { header: 'Outstanding AR', key: 'OutstandingAR', width: 18 },
         { header: 'Overdue Asli', key: 'OverDueAsli', width: 18 },
         { header: 'Overdue Internal', key: 'OverDueInternal', width: 18 },
+        { header: '0-30', key: '0-30', width: 18 },
+        { header: '31-60', key: '31-60', width: 18 },
+        { header: '61-90', key: '61-90', width: 18 },
+        { header: '91-120', key: '91-120', width: 18 },
+        { header: '>120', key: '>120', width: 18 },
         { header: 'Salesman', key: 'NamaSales', width: 20 },
         { header: 'Rayon', key: 'RayonCode', width: 12 },
       ]
+
+      const numberFormatThousandTwoDecimal = '#,##0.00' // Format: 1,000.00
+      const columnsToFormatDecimal = [
+        '0-30',
+        '31-60',
+        '61-90',
+        '91-120',
+        '>120',
+        'OutstandingAR',
+        'TotalFaktur',
+        'TotalBayar',
+      ]
+
+      columnsToFormatDecimal.forEach((key) => {
+        const column = worksheet.getColumn(key)
+        column.numFmt = numberFormatThousandTwoDecimal
+      })
 
       allData.forEach((row, index) => {
         worksheet.addRow({ no: index + 1, ...row })
