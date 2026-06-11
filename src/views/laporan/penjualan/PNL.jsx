@@ -20,6 +20,7 @@ import axios from 'axios'
 import CIcon from '@coreui/icons-react'
 import { cilPrint, cilSpreadsheet } from '@coreui/icons'
 import { getCurrentDateTimeFormatted } from '../../../utils/Date'
+import CabangSelector from '../../modals/CabangSelector'
 
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 
@@ -41,6 +42,7 @@ const PNL = () => {
   const [currentMonth, setCurrentMonth] = useState(new Date().getMonth() + 1)
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
   const [previousYear, setPreviousYear] = useState(new Date().getFullYear() - 1)
+  const [selectedCabangs, setSelectedCabangs] = useState([])
 
   const userData = JSON.parse(localStorage.getItem('user'))
 
@@ -97,13 +99,16 @@ const PNL = () => {
   ]
 
   // ---- API call ----
-  const fetchPNL = useCallback(async (page, perPage, month, yearNow, yearPrev) => {
+  const fetchPNL = useCallback(async (page, perPage, month, yearNow, yearPrev, cabangs = []) => {
     const params = new URLSearchParams()
     params.append('page', page)
     params.append('per_page', perPage)
     params.append('bulan', month)
     params.append('tahun_now', yearNow)
     params.append('tahun_prev', yearPrev)
+    if (cabangs && cabangs.length > 0) {
+      params.append('cabang', cabangs.join(','))
+    }
 
     const response = await axios.get(`${ENDPOINT_URL}pnl/report?${params.toString()}`)
     return {
@@ -113,11 +118,11 @@ const PNL = () => {
   }, [])
 
   const loadDataPNL = useCallback(
-    async (page, perPage, month, yearNow, yearPrev) => {
+    async (page, perPage, month, yearNow, yearPrev, cabangs = []) => {
       setLoading(true)
       setPage(page)
       try {
-        const fetchData = await fetchPNL(page, perPage, month, yearNow, yearPrev)
+        const fetchData = await fetchPNL(page, perPage, month, yearNow, yearPrev, cabangs)
         setData(fetchData.data)
         setTotalRows(fetchData.total)
       } catch (error) {
@@ -133,8 +138,8 @@ const PNL = () => {
 
   // ---- Load once on mount + when filters change ----
   useEffect(() => {
-    loadDataPNL(page, perPage, currentMonth, currentYear, previousYear)
-  }, [page, perPage, currentMonth, currentYear, previousYear, loadDataPNL])
+    loadDataPNL(page, perPage, currentMonth, currentYear, previousYear, selectedCabangs)
+  }, [page, perPage, currentMonth, currentYear, previousYear, selectedCabangs, loadDataPNL])
 
   // ---- Handlers ----
   const handlePageChange = (newPage) => {
@@ -192,7 +197,7 @@ const PNL = () => {
   const exportToExcel = async () => {
     document.body.style.cursor = 'wait'
     try {
-      const response = await fetchPNL(1, -1, currentMonth, currentYear, previousYear)
+      const response = await fetchPNL(1, -1, currentMonth, currentYear, previousYear, selectedCabangs)
       const allData = response.data
 
       const workbook = new ExcelJS.Workbook()
@@ -274,7 +279,7 @@ const PNL = () => {
     try {
       document.body.style.cursor = 'wait'
 
-      const response = await fetchPNL(1, -1, currentMonth, currentYear, previousYear)
+      const response = await fetchPNL(1, -1, currentMonth, currentYear, previousYear, selectedCabangs)
       const allData = response.data
 
       // Define columns
@@ -438,6 +443,19 @@ const PNL = () => {
           <CCardBody>
             <div className="mb-3">
               <CRow>
+                <CCol xs={12} sm={2}>
+                  <label className="form-label">Cabang</label>
+                  <div>
+                    <CabangSelector
+                      fullWidth
+                      onSelect={(items) => {
+                        setSelectedCabangs(items)
+                        setPage(1)
+                      }}
+                      selectedItems={selectedCabangs}
+                    />
+                  </div>
+                </CCol>
                 <CCol xs={12} sm={3}>
                   <label className="form-label">Month</label>
                   <CFormSelect value={currentMonth} onChange={handleMonthChange}>

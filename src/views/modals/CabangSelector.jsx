@@ -24,7 +24,7 @@ import { useAuth } from '../../contexts/AuthContext'
 
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 
-const CabangSelector = ({ onSelect, selectedItems: initialSelectedItems = [] }) => {
+const CabangSelector = ({ onSelect, selectedItems: initialSelectedItems = [], fullWidth = false }) => {
   const { user } = useAuth()
   const [visible, setVisible] = useState(false)
   const [search, setSearch] = useState('')
@@ -82,7 +82,7 @@ const CabangSelector = ({ onSelect, selectedItems: initialSelectedItems = [] }) 
 
   return (
     <>
-      <CButton color='info' onClick={() => setVisible(true)}>
+      <CButton color='info' onClick={() => setVisible(true)} style={{ width: fullWidth ? '100%' : undefined }}>
         {selectedItems.length > 0
           ? `${selectedItems.length} Cabang Dipilih`
           : 'Pilih Cabang'}
