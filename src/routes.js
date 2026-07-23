@@ -21,7 +21,8 @@ const ImportVA = React.lazy(() => import('./views/tools/ImportVA'))
 const OutstandingSJ = React.lazy(() => import('./views/laporan/penjualan/OutstandingSJ'))
 const OutstandingDT = React.lazy(() => import('./views/laporan/penjualan/OutstandingDT'))
 const PenyaluranMasuk = React.lazy(() => import('./views/laporan/alkes/PenyaluranMasuk'))
-const ReportFarmasi = React.lazy(() => import('./views/laporan/farmasi/ReportFarmasi'))
+const ReportFarmasi = React.lazy(() => import('./views/laporan/farmasi/ReportFarmasi')) 
+const ReportFarmasiTriwulan = React.lazy(() => import('./views/laporan/farmasi/ReportFarmasiTriwulan'))
 const MasterAlkes = React.lazy(() => import('./views/master/MasterAlkes'))
 const CabangAlkes = React.lazy(() => import('./views/master/CabangAlkes'))
 const DPL = React.lazy(() => import('./views/laporan/penjualan/DPL'))
@@ -295,6 +296,15 @@ const routes = [
     element: (
       <ProtectedRoute>
         <ReportFarmasi />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/farmasi/reporttriwulan',
+    name: 'Report Farmasi Triwulan',
+    element: (
+      <ProtectedRoute>
+        <ReportFarmasiTriwulan />
       </ProtectedRoute>
     ),
   },
