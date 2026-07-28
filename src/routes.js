@@ -15,6 +15,7 @@ const DaftarBarang = React.lazy(() => import('./views/laporan/persediaan/DaftarB
 const KonfirmasiPiutang = React.lazy(() => import('./views/piutang/KonfirmasiPiutang'))
 const KonfirmasiPiutangPrint = React.lazy(() => import('./views/piutang/KonfirmasiPiutangPrint'))
 const UmurPiutang = React.lazy(() => import('./views/piutang/UmurPiutang'))
+const EvaluasiAR = React.lazy(() => import('./views/piutang/EvaluasiAR'))
 const KonfirmasiHutang = React.lazy(() => import('./views/hutang/KonfirmasiHutang'))
 const KonfirmasiHutangPrint = React.lazy(() => import('./views/hutang/KonfirmasiHutangPrint'))
 const ImportVA = React.lazy(() => import('./views/tools/ImportVA'))
@@ -233,6 +234,15 @@ const routes = [
     element: (
       <ProtectedRoute>
         <UmurPiutang />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/piutang/evaluasiar',
+    name: 'Evaluasi AR',
+    element: (
+      <ProtectedRoute>
+        <EvaluasiAR />
       </ProtectedRoute>
     ),
   },
