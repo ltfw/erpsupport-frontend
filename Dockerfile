@@ -1,26 +1,23 @@
+# ---------- build stage ----------
 FROM node:20 AS build
 
 WORKDIR /app
 
 COPY package*.json ./
 
-# Clean npm cache and force esbuild to rebuild
-RUN npm install --force
-
-# Set up environment variable to prevent version mismatch
-ENV ESBUILD_BINARY_PATH=/app/node_modules/esbuild/bin/esbuild
+# satu perintah saja — npm install <pkg> sudah sekaligus install seluruh tree
+RUN npm install flag-icons --legacy-peer-deps
 
 COPY . .
 
-# Force rebuild esbuild with expected version
-RUN rm -rf node_modules/esbuild/bin/* && npm rebuild esbuild && npm run build
+RUN npm run build
 
+# ---------- serve stage ----------
 FROM nginx:alpine
 
 COPY --from=build /app/build /usr/share/nginx/html
+COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 EXPOSE 80
 
 CMD ["nginx", "-g", "daemon off;"]
-
-COPY nginx.conf /etc/nginx/conf.d/default.conf
