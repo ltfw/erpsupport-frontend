@@ -14,7 +14,6 @@ export default defineConfig(() => {
           manualChunks: {
             vendor: ['react', 'react-dom'],
             coreui: ['@coreui/react'],
-            flags: ['flag-icons'], // Adjust if using a specific flag package
           },
         },
       },

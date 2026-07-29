@@ -26,7 +26,10 @@ const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 
 const PNL = () => {
   const formatThousand = (num) => {
-    if (num == null || isNaN(num)) return ''
+    if (num == null) return ''
+    // nilai bertanda kurung (mis. KLAIM DISKON) dibiarkan apa adanya
+    if (num.toString().startsWith('(')) return num
+    if (isNaN(num)) return ''
     return Number(num).toLocaleString('id-ID', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
@@ -51,21 +54,21 @@ const PNL = () => {
       name: 'No',
       selector: (row, index) => (page - 1) * perPage + index + 1,
       sortable: true,
-      width: '5%',
+      width: '4%',
     },
     {
       name: 'Code',
       selector: (row) => row.KodeGl,
       sortable: true,
       wrap: true,
-      width: '10%',
+      width: '9%',
     },
     {
       name: 'Description',
       selector: (row) => row.NamaGl,
       sortable: true,
       wrap: true,
-      width: '35%',
+      width: '22%',
     },
     {
       name: `Year ${currentYear}`,
@@ -75,7 +78,7 @@ const PNL = () => {
         return parseFloat(row.TahunIni).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       },
       sortable: true,
-      width: '15%',
+      width: '12%',
       right: true,
     },
     {
@@ -86,14 +89,49 @@ const PNL = () => {
         return parseFloat(row.TahunLalu).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
       },
       sortable: true,
-      width: '15%',
+      width: '12%',
       right: true,
     },
     {
       name: 'Growth %',
       selector: (row) => row.Growth ?? '-',
       sortable: true,
-      width: '10%',
+      width: '8%',
+      right: true,
+    },
+    {
+      name: `YTD ${currentYear}`,
+      selector: (row) => row.Ytd,
+      cell: (row) => {
+        if (row.Ytd && row.Ytd.toString().startsWith('(')) return row.Ytd
+        return parseFloat(row.Ytd).toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })
+      },
+      sortable: true,
+      width: '12%',
+      right: true,
+    },
+    {
+      name: `YTD ${previousYear}`,
+      selector: (row) => row.YtdLalu,
+      cell: (row) => {
+        if (row.YtdLalu && row.YtdLalu.toString().startsWith('(')) return row.YtdLalu
+        return parseFloat(row.YtdLalu).toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })
+      },
+      sortable: true,
+      width: '12%',
+      right: true,
+    },
+    {
+      name: 'YTD Growth %',
+      selector: (row) => row.GrowthYtd ?? '-',
+      sortable: true,
+      width: '8%',
       right: true,
     },
   ]
@@ -204,12 +242,12 @@ const PNL = () => {
       const worksheet = workbook.addWorksheet('PNL Report')
 
       // Row 2: Title
-      worksheet.mergeCells('A2:F2')
+      worksheet.mergeCells('A2:I2')
       worksheet.getCell('A2').value = 'Laporan PNL (Profit & Loss)'
       worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' }
       worksheet.getCell('A2').font = { size: 16, bold: true }
 
-      worksheet.mergeCells('A3:F3')
+      worksheet.mergeCells('A3:I3')
       const monthName = generateMonthOptions().find((m) => m.value === currentMonth)?.label || ''
       worksheet.getCell('A3').value =
         `Bulan: ${monthName} | Tahun Ini: ${currentYear} | Tahun Lalu: ${previousYear}`
@@ -217,12 +255,12 @@ const PNL = () => {
       worksheet.getCell('A3').font = { size: 12, bold: true }
 
       // Row 4: Export info
-      worksheet.mergeCells('A4:F4')
+      worksheet.mergeCells('A4:I4')
       worksheet.getCell('A4').value =
         `Exported at ${getCurrentDateTimeFormatted()} by ${userData?.UserName || '-'}`
       worksheet.getCell('A4').alignment = { horizontal: 'right', vertical: 'middle' }
       worksheet.getCell('A4').font = { italic: true, size: 10 }
-      worksheet.mergeCells('A5:F5')
+      worksheet.mergeCells('A5:I5')
 
       // Set column widths
       worksheet.columns = [
@@ -232,6 +270,9 @@ const PNL = () => {
         { key: 'TahunIni', width: 15, style: { numFmt: '#,##0.00' } },
         { key: 'TahunLalu', width: 15, style: { numFmt: '#,##0.00' } },
         { key: 'Growth', width: 12 },
+        { key: 'Ytd', width: 18, style: { numFmt: '#,##0.00' } },
+        { key: 'YtdLalu', width: 18, style: { numFmt: '#,##0.00' } },
+        { key: 'GrowthYtd', width: 14 },
       ]
 
       // Row 5: Write headers manually
@@ -242,6 +283,9 @@ const PNL = () => {
         `Year ${currentYear}`,
         `Year ${previousYear}`,
         'Growth %',
+        `YTD ${currentYear}`,
+        `YTD ${previousYear}`,
+        'YTD Growth %',
       ])
 
       // Row 6+: Add data
@@ -253,6 +297,9 @@ const PNL = () => {
           TahunIni: row.TahunIni,
           TahunLalu: row.TahunLalu,
           Growth: row.Growth,
+          Ytd: row.Ytd,
+          YtdLalu: row.YtdLalu,
+          GrowthYtd: row.GrowthYtd,
         })
       })
 
@@ -261,7 +308,7 @@ const PNL = () => {
 
       worksheet.autoFilter = {
         from: 'A6',
-        to: 'F6',
+        to: 'I6',
       }
 
       // Generate and save
@@ -308,6 +355,27 @@ const PNL = () => {
           alignment: 'right',
           margin: [0, 5, 0, 5],
         },
+        {
+          text: `YTD ${currentYear}`,
+          bold: true,
+          fillColor: '#f2f2f2',
+          alignment: 'right',
+          margin: [0, 5, 0, 5],
+        },
+        {
+          text: `YTD ${previousYear}`,
+          bold: true,
+          fillColor: '#f2f2f2',
+          alignment: 'right',
+          margin: [0, 5, 0, 5],
+        },
+        {
+          text: 'YTD Growth %',
+          bold: true,
+          fillColor: '#f2f2f2',
+          alignment: 'right',
+          margin: [0, 5, 0, 5],
+        },
       ]
 
       // Prepare table body
@@ -320,6 +388,9 @@ const PNL = () => {
           { text: formatThousand(row.TahunIni), alignment: 'right', margin: [0, 5, 0, 5] },
           { text: formatThousand(row.TahunLalu), alignment: 'right', margin: [0, 5, 0, 5] },
           { text: row.Growth ?? '-', alignment: 'right', margin: [0, 5, 0, 5] },
+          { text: formatThousand(row.Ytd), alignment: 'right', margin: [0, 5, 0, 5] },
+          { text: formatThousand(row.YtdLalu), alignment: 'right', margin: [0, 5, 0, 5] },
+          { text: row.GrowthYtd ?? '-', alignment: 'right', margin: [0, 5, 0, 5] },
         ]),
       ]
 
