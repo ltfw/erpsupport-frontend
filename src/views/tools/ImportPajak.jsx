@@ -54,7 +54,7 @@ const ImportPajak = () => {
     // Only keep desired columns
     if( selectedRadio === 'penjualan' || selectedRadio === 'pembelian') {
       const cleanedData = jsonData
-        .filter(row => row['Status Faktur'] === 'APPROVED')
+        .filter(row => row['Status Faktur'] === 'APPROVED' || row['Status Faktur'] === 'CREDITED')
         .map((row) => ({
           TaxInvoiceNumber: row['Nomor Faktur Pajak'] || '',
           TaxStatus: row['Status Faktur'] || '',
