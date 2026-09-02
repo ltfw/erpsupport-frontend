@@ -28,6 +28,7 @@ const MasterAlkes = React.lazy(() => import('./views/master/MasterAlkes'))
 const CabangAlkes = React.lazy(() => import('./views/master/CabangAlkes'))
 const DPL = React.lazy(() => import('./views/laporan/penjualan/DPL'))
 const PNL = React.lazy(() => import('./views/laporan/penjualan/PNL'))
+const PNL2 = React.lazy(() => import('./views/laporan/penjualan/PNL2'))
 
 // Dashboard
 const Dashboard = React.lazy(() => import('./views/dashboard/Dashboard'))
@@ -351,6 +352,15 @@ const routes = [
     element: (
       <ProtectedRoute>
         <PNL />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/report/pnl2/',
+    name: 'PNL2',
+    element: (
+      <ProtectedRoute>
+        <PNL2 />
       </ProtectedRoute>
     ),
   },

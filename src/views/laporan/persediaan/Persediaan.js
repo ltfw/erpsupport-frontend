@@ -77,8 +77,14 @@ const Persediaan = () => {
       wrap: true,
     },
     {
-      name: 'Qty',
+      name: 'Qty Primary',
       selector: (row) => row.Qty,
+      sortable: true,
+      wrap: true,
+    },
+    {
+      name: 'Qty Secondary',
+      selector: (row) => row.SumQtySecondary,
       sortable: true,
       wrap: true,
     },
@@ -153,11 +159,11 @@ const Persediaan = () => {
       const worksheet = workbook.addWorksheet('Sales');
 
       // Row 2: Title
-      worksheet.mergeCells('A2:I2');
+      worksheet.mergeCells('A2:J2');
       worksheet.getCell('A2').value = 'Laporan Persediaan Barang Per Batch';
       worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' };
       worksheet.getCell('A2').font = { size: 16, bold: true };
-      worksheet.mergeCells('A3:I3');
+      worksheet.mergeCells('A3:J3');
       worksheet.getCell('A3').value = 'Periode per ' + formatDateToDDMMYYYY(endDate);
       worksheet.getCell('A3').alignment = { horizontal: 'center', vertical: 'middle' };
       worksheet.getCell('A3').font = { size: 16, bold: true };
@@ -173,11 +179,12 @@ const Persediaan = () => {
         { key: 'BatchNumber', width: 15 },
         { key: 'TglExpired', width: 15 },
         { key: 'Qty', width: 15 },
+        { key: 'SumQtySecondary', width: 15 },
       ];
 
       const numberFormatThousand = '#,##0'; // Format: 1,000
 
-      const columnsToFormat = ['Qty'];
+      const columnsToFormat = ['Qty', 'SumQtySecondary'];
 
       columnsToFormat.forEach((key) => {
         const column = worksheet.getColumn(key);
@@ -193,7 +200,8 @@ const Persediaan = () => {
         'NamaBarang',
         'BatchNumber',
         'TglExpired',
-        'Qty'
+        'Qty',
+        'Qty Secondary'
       ]);
 
       // Row 4+: Add data
@@ -215,6 +223,7 @@ const Persediaan = () => {
 
       // Add formula-based totals
       worksheet.getCell(`I${totalRowNumber}`).value = { formula: `SUM(I5:S${totalRowNumber - 1})` }; // Qty
+      worksheet.getCell(`J${totalRowNumber}`).value = { formula: `SUM(J5:J${totalRowNumber - 1})` }; // Qty Secondary
 
       // Optional: bold all total row
       worksheet.getRow(totalRowNumber).font = { bold: true };
@@ -224,7 +233,7 @@ const Persediaan = () => {
 
       worksheet.autoFilter = {
         from: 'A4',
-        to: 'I4',
+        to: 'J4',
       };
 
       // Generate and save
@@ -263,7 +272,8 @@ const Persediaan = () => {
         'NamaBarang',
         'BatchNumber',
         'TglExpired',
-        'Qty'
+        'Qty',
+        'Qty Secondary'
       ];
 
       // Prepare table body
@@ -279,6 +289,7 @@ const Persediaan = () => {
           row.BatchNumber,
           row.TglExpired,
           parseFloat(row.Qty || 0).toFixed(2),
+          parseFloat(row.SumQtySecondary || 0).toFixed(2),
         ])
       ];
 
