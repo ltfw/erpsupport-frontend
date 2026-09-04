@@ -24,16 +24,33 @@ import CabangSelector from '../../modals/CabangSelector'
 
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 
+// baris akun 710099 (Pendapatan Lain-lain / KLAIM DISKON) ditampilkan dalam kurung
+const BRACKET_KODEGL = '710099'
+const isBracketRow = (row) => row?.KodeGl === BRACKET_KODEGL
+
 const PNL2 = () => {
-  const formatThousand = (num) => {
+  const formatThousand = (num, row) => {
     if (num == null) return ''
     // nilai bertanda kurung (mis. KLAIM DISKON) dibiarkan apa adanya
     if (num.toString().startsWith('(')) return num
     if (isNaN(num)) return ''
-    return Number(num).toLocaleString('id-ID', {
+    const text = Number(num).toLocaleString('id-ID', {
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     })
+    return isBracketRow(row) ? `(${text})` : text
+  }
+
+  // format kolom angka pada tabel, baris 710099 dibungkus kurung
+  const formatCell = (num, row) => {
+    if (num == null || num === '') return ''
+    if (num.toString().startsWith('(')) return num
+    if (isNaN(num)) return num
+    const text = parseFloat(num).toLocaleString('en-US', {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })
+    return isBracketRow(row) ? `(${text})` : text
   }
 
   const [data, setData] = useState([])
@@ -73,10 +90,7 @@ const PNL2 = () => {
     {
       name: `Year ${currentYear}`,
       selector: (row) => row.TahunIni,
-      cell: (row) => {
-        if (row.TahunIni && row.TahunIni.toString().startsWith('(')) return row.TahunIni;
-        return parseFloat(row.TahunIni).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      },
+      cell: (row) => formatCell(row.TahunIni, row),
       sortable: true,
       width: '12%',
       right: true,
@@ -84,10 +98,7 @@ const PNL2 = () => {
     {
       name: `Year ${previousYear}`,
       selector: (row) => row.TahunLalu,
-      cell: (row) => {
-        if (row.TahunLalu && row.TahunLalu.toString().startsWith('(')) return row.TahunLalu;
-        return parseFloat(row.TahunLalu).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-      },
+      cell: (row) => formatCell(row.TahunLalu, row),
       sortable: true,
       width: '12%',
       right: true,
@@ -102,13 +113,7 @@ const PNL2 = () => {
     {
       name: `YTD ${currentYear}`,
       selector: (row) => row.Ytd,
-      cell: (row) => {
-        if (row.Ytd && row.Ytd.toString().startsWith('(')) return row.Ytd
-        return parseFloat(row.Ytd).toLocaleString('en-US', {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })
-      },
+      cell: (row) => formatCell(row.Ytd, row),
       sortable: true,
       width: '12%',
       right: true,
@@ -116,13 +121,7 @@ const PNL2 = () => {
     {
       name: `YTD ${previousYear}`,
       selector: (row) => row.YtdLalu,
-      cell: (row) => {
-        if (row.YtdLalu && row.YtdLalu.toString().startsWith('(')) return row.YtdLalu
-        return parseFloat(row.YtdLalu).toLocaleString('en-US', {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-        })
-      },
+      cell: (row) => formatCell(row.YtdLalu, row),
       sortable: true,
       width: '12%',
       right: true,
@@ -232,6 +231,13 @@ const PNL2 = () => {
     return months
   }
 
+  // nilai mentah untuk excel, baris 710099 dibungkus kurung
+  const bracketValue = (num, row) => {
+    if (num == null || num === '') return num
+    if (num.toString().startsWith('(')) return num
+    return isBracketRow(row) ? `(${num})` : num
+  }
+
   const exportToExcel = async () => {
     document.body.style.cursor = 'wait'
     try {
@@ -294,11 +300,11 @@ const PNL2 = () => {
           no: idx + 1,
           KodeGl: row.KodeGl,
           NamaGl: row.NamaGl,
-          TahunIni: row.TahunIni,
-          TahunLalu: row.TahunLalu,
+          TahunIni: bracketValue(row.TahunIni, row),
+          TahunLalu: bracketValue(row.TahunLalu, row),
           Growth: row.Growth,
-          Ytd: row.Ytd,
-          YtdLalu: row.YtdLalu,
+          Ytd: bracketValue(row.Ytd, row),
+          YtdLalu: bracketValue(row.YtdLalu, row),
           GrowthYtd: row.GrowthYtd,
         })
       })
@@ -385,11 +391,11 @@ const PNL2 = () => {
           { text: idx + 1, alignment: 'center', margin: [0, 5, 0, 5] },
           { text: row.KodeGl ?? '', margin: [0, 5, 0, 5] },
           { text: row.NamaGl ?? '', margin: [0, 5, 0, 5] },
-          { text: formatThousand(row.TahunIni), alignment: 'right', margin: [0, 5, 0, 5] },
-          { text: formatThousand(row.TahunLalu), alignment: 'right', margin: [0, 5, 0, 5] },
+          { text: formatThousand(row.TahunIni, row), alignment: 'right', margin: [0, 5, 0, 5] },
+          { text: formatThousand(row.TahunLalu, row), alignment: 'right', margin: [0, 5, 0, 5] },
           { text: row.Growth ?? '-', alignment: 'right', margin: [0, 5, 0, 5] },
-          { text: formatThousand(row.Ytd), alignment: 'right', margin: [0, 5, 0, 5] },
-          { text: formatThousand(row.YtdLalu), alignment: 'right', margin: [0, 5, 0, 5] },
+          { text: formatThousand(row.Ytd, row), alignment: 'right', margin: [0, 5, 0, 5] },
+          { text: formatThousand(row.YtdLalu, row), alignment: 'right', margin: [0, 5, 0, 5] },
           { text: row.GrowthYtd ?? '-', alignment: 'right', margin: [0, 5, 0, 5] },
         ]),
       ]
