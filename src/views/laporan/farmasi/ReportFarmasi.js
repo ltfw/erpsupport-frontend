@@ -381,7 +381,7 @@ const ReportFarmasi = () => {
           ActiveIngredientName: row.ActiveIngredientName ?? '',
           StokAwal: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.StokAwal === allData[idx - 1].StokAwal ? 0 : row.StokAwal ?? 0,
           MasukIf: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.MasukIf === allData[idx - 1].MasukIf ? 0 : row.MasukIf ?? 0,
-          KodeIf: row.KodeIf ?? '-',
+          KodeIf: String(row.KodeIf ?? '').trim() || '-',
           MasukPbf: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.MasukPbf === allData[idx - 1].MasukPbf ? 0 : row.MasukPbf ?? 0,
           KodePbf: row.KodePbf ?? '-',
           FasilitasProduksiLainnya: 0,
