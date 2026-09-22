@@ -19,7 +19,8 @@ import {
   CTableRow,
   CPagination,
   CPaginationItem,
-  CFormSelect
+  CFormSelect,
+  CSpinner
 } from '@coreui/react'
 import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
@@ -39,6 +40,7 @@ const NAMA_BULAN = [
 const ReportFarmasi = () => {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
+  const [exporting, setExporting] = useState(false)
   const [totalRows, setTotalRows] = useState(0)
   const [perPage, setPerPage] = useState(30)
   const [page, setPage] = useState(1)
@@ -223,10 +225,17 @@ const ReportFarmasi = () => {
   const loadDataReportFarmasi = useCallback(async (page, perPage, startDateParam, endDateParam, cabangParam) => {
     setLoading(true)
     setPage(page)
-    const fetchData = await fetchReportFarmasi(page, perPage, startDateParam, endDateParam, cabangParam)
-    setData(fetchData.data)
-    setTotalRows(fetchData.total)
-    setLoading(false)
+    try {
+      const fetchData = await fetchReportFarmasi(page, perPage, startDateParam, endDateParam, cabangParam)
+      setData(fetchData.data)
+      setTotalRows(fetchData.total)
+    } catch (error) {
+      console.error('Error loading report farmasi:', error)
+      setData([])
+      setTotalRows(0)
+    } finally {
+      setLoading(false)
+    }
   }, [fetchReportFarmasi])
 
   const handlePageChange = (page) => {
@@ -279,6 +288,7 @@ const ReportFarmasi = () => {
   }, [selectedCabang, loadDataDept]);
 
   const exportToExcel = async () => {
+    setExporting(true);
     document.body.style.cursor = 'wait';
     try {
       const response = await fetchReportFarmasi(1, 1000000, startDate, endDate, selectedCabang)
@@ -417,10 +427,12 @@ const ReportFarmasi = () => {
       console.error('Error exporting to Excel:', error);
     } finally {
       document.body.style.cursor = 'default';
+      setExporting(false);
     }
   }
 
   const exportToPDF = async () => {
+    setExporting(true);
     try {
       document.body.style.cursor = 'wait';
 
@@ -508,6 +520,7 @@ const ReportFarmasi = () => {
       console.error('Error exporting to PDF:', error);
     } finally {
       document.body.style.cursor = 'default';
+      setExporting(false);
     }
   }
 
@@ -518,7 +531,16 @@ const ReportFarmasi = () => {
           <CCard className="mb-4">
             <CCardHeader>Data ReportFarmasi
               <CDropdown className='float-end'>
-                <CDropdownToggle color="warning" size='sm' >Export</CDropdownToggle>
+                <CDropdownToggle color="warning" size='sm' disabled={exporting}>
+                  {exporting ? (
+                    <>
+                      <CSpinner size="sm" className="me-2" />
+                      Menyiapkan...
+                    </>
+                  ) : (
+                    'Export'
+                  )}
+                </CDropdownToggle>
                 <CDropdownMenu>
                   <CDropdownItem onClick={exportToExcel}><CIcon icon={cilSpreadsheet} className="me-2" />Excel</CDropdownItem>
                   <CDropdownItem onClick={exportToPDF}><CIcon icon={cilPrint} className="me-2" />Pdf</CDropdownItem>
@@ -588,7 +610,24 @@ const ReportFarmasi = () => {
                     </CTableRow>
                   </CTableHead>
                   <CTableBody>
-                    {data.map((item, index) => (
+                    {loading && (
+                      <CTableRow>
+                        <CTableDataCell colSpan={29} className="text-center py-4">
+                          <CSpinner size="sm" className="me-2" />
+                          Memuat data...
+                        </CTableDataCell>
+                      </CTableRow>
+                    )}
+
+                    {!loading && data.length === 0 && (
+                      <CTableRow>
+                        <CTableDataCell colSpan={29} className="text-center py-4">
+                          Tidak ada data
+                        </CTableDataCell>
+                      </CTableRow>
+                    )}
+
+                    {!loading && data.map((item, index) => (
                       <CTableRow key={item.Nie}>
                         <CTableDataCell>
                           {item.Nie}
