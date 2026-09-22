@@ -379,31 +379,31 @@ const ReportFarmasi = () => {
           NamaItemBpom: row.NamaItemBpom ?? 0,
           Kemasan: row.Kemasan,
           ActiveIngredientName: row.ActiveIngredientName ?? '',
-          StokAwal: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.StokAwal === allData[idx - 1].StokAwal ? 0 : row.StokAwal ?? 0,
-          MasukIf: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.MasukIf === allData[idx - 1].MasukIf ? 0 : row.MasukIf ?? 0,
+          StokAwal: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.StokAwal === allData[idx - 1].StokAwal ? 0 : row.StokAwal ?? 0,
+          MasukIf: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.MasukIf === allData[idx - 1].MasukIf ? 0 : row.MasukIf ?? 0,
           KodeIf: String(row.KodeIf ?? '').trim() || '-',
-          MasukPbf: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.MasukPbf === allData[idx - 1].MasukPbf ? 0 : row.MasukPbf ?? 0,
+          MasukPbf: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.MasukPbf === allData[idx - 1].MasukPbf ? 0 : row.MasukPbf ?? 0,
           KodePbf: row.KodePbf ?? '-',
           FasilitasProduksiLainnya: 0,
-          ReturMasuk: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.ReturMasuk === allData[idx - 1].ReturMasuk ? 0 : row.ReturMasuk ?? 0,
-          QtyJualPbf: idx > 0 && row.KodeBpom === allData[idx - 1].KodeBpom && row.QtyJualPbf === allData[idx - 1].QtyJualPbf ? 0 : row.QtyJualPbf ?? 0,
+          ReturMasuk: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.ReturMasuk === allData[idx - 1].ReturMasuk ? 0 : row.ReturMasuk ?? 0,
+          QtyJualPbf: idx > 0 && row.Nie === allData[idx - 1].Nie && row.KodeBpom === allData[idx - 1].KodeBpom && row.QtyJualPbf === allData[idx - 1].QtyJualPbf ? 0 : row.QtyJualPbf ?? 0,
           KodeBpom: row.KodeBpom ?? '-',
-          RS: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.RS === allData[idx - 1].RS ? 0 : row.RS ?? 0,
-          APOTEK: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.APOTEK === allData[idx - 1].APOTEK ? 0 : row.APOTEK ?? 0,
-          FasilitasPengelolaanKefarmasian: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.FasilitasPengelolaanKefarmasian === allData[idx - 1].FasilitasPengelolaanKefarmasian ? 0 : row.FasilitasPengelolaanKefarmasian ?? 0,
-          PUSKESMAS: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.PUSKESMAS === allData[idx - 1].PUSKESMAS ? 0 : row.PUSKESMAS ?? 0,
-          KLINIK: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.KLINIK === allData[idx - 1].KLINIK ? 0 : row.KLINIK ?? 0,
-          TOKO_OBAT: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.TOKO_OBAT === allData[idx - 1].TOKO_OBAT ? 0 : row.TOKO_OBAT ?? 0,
-          HSM: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.HSM === allData[idx - 1].HSM ? 0 : row.HSM ?? 0,
-          ReturKeluar: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.ReturKeluar === allData[idx - 1].ReturKeluar ? 0 : row.ReturKeluar ?? 0,
-          Lainnya: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.Lainnya === allData[idx - 1].Lainnya ? 0 : row.Lainnya ?? 0,
-          SARANA_PEMERINTAH: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.SARANA_PEMERINTAH === allData[idx - 1].SARANA_PEMERINTAH ? 0 : row.SARANA_PEMERINTAH ?? 0,
+          RS: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.RS === allData[idx - 1].RS ? 0 : row.RS ?? 0,
+          APOTEK: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.APOTEK === allData[idx - 1].APOTEK ? 0 : row.APOTEK ?? 0,
+          FasilitasPengelolaanKefarmasian: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.FasilitasPengelolaanKefarmasian === allData[idx - 1].FasilitasPengelolaanKefarmasian ? 0 : row.FasilitasPengelolaanKefarmasian ?? 0,
+          PUSKESMAS: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.PUSKESMAS === allData[idx - 1].PUSKESMAS ? 0 : row.PUSKESMAS ?? 0,
+          KLINIK: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.KLINIK === allData[idx - 1].KLINIK ? 0 : row.KLINIK ?? 0,
+          TOKO_OBAT: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.TOKO_OBAT === allData[idx - 1].TOKO_OBAT ? 0 : row.TOKO_OBAT ?? 0,
+          HSM: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.HSM === allData[idx - 1].HSM ? 0 : row.HSM ?? 0,
+          ReturKeluar: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.ReturKeluar === allData[idx - 1].ReturKeluar ? 0 : row.ReturKeluar ?? 0,
+          Lainnya: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.Lainnya === allData[idx - 1].Lainnya ? 0 : row.Lainnya ?? 0,
+          SARANA_PEMERINTAH: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.SARANA_PEMERINTAH === allData[idx - 1].SARANA_PEMERINTAH ? 0 : row.SARANA_PEMERINTAH ?? 0,
           LembagaRiset: 0,
           LembagaPendidikan: 0,
-          QtyPesan_E: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.QtyPesan_E === allData[idx - 1].QtyPesan_E ? 0 : row.QtyPesan_E ?? 0,
-          QtyKirim_E: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.QtyKirim_E === allData[idx - 1].QtyKirim_E ? 0 : row.QtyKirim_E ?? 0,
-          QtyPesan_NonE: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.QtyPesan_NonE === allData[idx - 1].QtyPesan_NonE ? 0 : row.QtyPesan_NonE ?? 0,
-          QtyKirim_NonE: idx > 0 && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.QtyKirim_NonE === allData[idx - 1].QtyKirim_NonE ? 0 : row.QtyKirim_NonE ?? 0,
+          QtyPesan_E: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.QtyPesan_E === allData[idx - 1].QtyPesan_E ? 0 : row.QtyPesan_E ?? 0,
+          QtyKirim_E: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.QtyKirim_E === allData[idx - 1].QtyKirim_E ? 0 : row.QtyKirim_E ?? 0,
+          QtyPesan_NonE: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.QtyPesan_NonE === allData[idx - 1].QtyPesan_NonE ? 0 : row.QtyPesan_NonE ?? 0,
+          QtyKirim_NonE: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.QtyKirim_NonE === allData[idx - 1].QtyKirim_NonE ? 0 : row.QtyKirim_NonE ?? 0,
           HNA: Math.round(row.HNA) ?? 0,
         };
         worksheet.addRow(processedRow);
@@ -447,7 +447,7 @@ const ReportFarmasi = () => {
 
                 // For all other columns, apply the same logic as the table
                 if (idx > 0 &&
-                  row.NamaItemBpom === allData[idx - 1].NamaItemBpom &&
+                  row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom &&
                   value === col.selector(allData[idx - 1], idx - 1)) {
                   return 0;
                 }
@@ -601,76 +601,76 @@ const ReportFarmasi = () => {
                           {item.ActiveIngredientName}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.StokAwal === data[index - 1].StokAwal ? 0 : item.StokAwal ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.StokAwal === data[index - 1].StokAwal ? 0 : item.StokAwal ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.MasukIf === data[index - 1].MasukIf ? 0 : item.MasukIf ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.MasukIf === data[index - 1].MasukIf ? 0 : item.MasukIf ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.KodeIf === data[index - 1].KodeIf ? 0 : item.KodeIf ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.KodeIf === data[index - 1].KodeIf ? 0 : item.KodeIf ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.MasukPbf === data[index - 1].MasukPbf ? 0 : item.MasukPbf ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.MasukPbf === data[index - 1].MasukPbf ? 0 : item.MasukPbf ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.KodePbf === data[index - 1].KodePbf ? 0 : item.KodePbf ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.KodePbf === data[index - 1].KodePbf ? 0 : item.KodePbf ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                            {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.FasilitasProduksiLainnya === data[index - 1].FasilitasProduksiLainnya ? 0 : item.FasilitasProduksiLainnya ?? 0}
+                            {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.FasilitasProduksiLainnya === data[index - 1].FasilitasProduksiLainnya ? 0 : item.FasilitasProduksiLainnya ?? 0}
                           </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.ReturMasuk === data[index - 1].ReturMasuk ? 0 : item.ReturMasuk ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.ReturMasuk === data[index - 1].ReturMasuk ? 0 : item.ReturMasuk ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.QtyJualPbf === data[index - 1].QtyJualPbf ? 0 : item.QtyJualPbf ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.QtyJualPbf === data[index - 1].QtyJualPbf ? 0 : item.QtyJualPbf ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.KodeBpom === data[index - 1].KodeBpom ? 0 : item.KodeBpom ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.KodeBpom === data[index - 1].KodeBpom ? 0 : item.KodeBpom ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.RS === data[index - 1].RS ? 0 : item.RS ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.RS === data[index - 1].RS ? 0 : item.RS ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.APOTEK === data[index - 1].APOTEK ? 0 : item.APOTEK ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.APOTEK === data[index - 1].APOTEK ? 0 : item.APOTEK ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.PUSKESMAS === data[index - 1].PUSKESMAS ? 0 : item.PUSKESMAS ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.PUSKESMAS === data[index - 1].PUSKESMAS ? 0 : item.PUSKESMAS ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.KLINIK === data[index - 1].KLINIK ? 0 : item.KLINIK ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.KLINIK === data[index - 1].KLINIK ? 0 : item.KLINIK ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.SARANA_PEMERINTAH === data[index - 1].SARANA_PEMERINTAH ? 0 : item.SARANA_PEMERINTAH ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.SARANA_PEMERINTAH === data[index - 1].SARANA_PEMERINTAH ? 0 : item.SARANA_PEMERINTAH ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.LembagaRiset === data[index - 1].LembagaRiset ? 0 : item.LembagaRiset ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.LembagaRiset === data[index - 1].LembagaRiset ? 0 : item.LembagaRiset ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.LembagaPendidikan === data[index - 1].LembagaPendidikan ? 0 : item.LembagaPendidikan ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.LembagaPendidikan === data[index - 1].LembagaPendidikan ? 0 : item.LembagaPendidikan ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.TOKO_OBAT === data[index - 1].TOKO_OBAT ? 0 : item.TOKO_OBAT ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.TOKO_OBAT === data[index - 1].TOKO_OBAT ? 0 : item.TOKO_OBAT ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.HSM === data[index - 1].HSM ? 0 : item.HSM ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.HSM === data[index - 1].HSM ? 0 : item.HSM ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.ReturKeluar === data[index - 1].ReturKeluar ? 0 : item.ReturKeluar ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.ReturKeluar === data[index - 1].ReturKeluar ? 0 : item.ReturKeluar ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.Lainnya === data[index - 1].Lainnya ? 0 : item.Lainnya ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.Lainnya === data[index - 1].Lainnya ? 0 : item.Lainnya ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.QtyPesan_E === data[index - 1].QtyPesan_E ? 0 : item.QtyPesan_E ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.QtyPesan_E === data[index - 1].QtyPesan_E ? 0 : item.QtyPesan_E ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.QtyKirim_E === data[index - 1].QtyKirim_E ? 0 : item.QtyKirim_E ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.QtyKirim_E === data[index - 1].QtyKirim_E ? 0 : item.QtyKirim_E ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.QtyPesan_NonE === data[index - 1].QtyPesan_NonE ? 0 : item.QtyPesan_NonE ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.QtyPesan_NonE === data[index - 1].QtyPesan_NonE ? 0 : item.QtyPesan_NonE ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.QtyKirim_NonE === data[index - 1].QtyKirim_NonE ? 0 : item.QtyKirim_NonE ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.QtyKirim_NonE === data[index - 1].QtyKirim_NonE ? 0 : item.QtyKirim_NonE ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
                           {item.HNA ?? 0}
