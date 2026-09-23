@@ -231,11 +231,19 @@ const PNL2 = () => {
     return months
   }
 
-  // nilai mentah untuk excel, baris 710099 dibungkus kurung
+  // nilai untuk sel Excel: dikirim sebagai angka agar numFmt '#,##0.00' berlaku
   const bracketValue = (num, row) => {
     if (num == null || num === '') return num
     if (num.toString().startsWith('(')) return num
-    return isBracketRow(row) ? `(${num})` : num
+    if (isNaN(num)) return num
+    const value = Number(num)
+    // baris 710099 ditulis dalam kurung, jadi tetap berupa teks
+    return isBracketRow(row)
+      ? `(${value.toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })})`
+      : value
   }
 
   const exportToExcel = async () => {
