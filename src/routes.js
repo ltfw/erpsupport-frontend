@@ -16,14 +16,17 @@ const KonfirmasiPiutang = React.lazy(() => import('./views/piutang/KonfirmasiPiu
 const KonfirmasiPiutangPrint = React.lazy(() => import('./views/piutang/KonfirmasiPiutangPrint'))
 const UmurPiutang = React.lazy(() => import('./views/piutang/UmurPiutang'))
 const EvaluasiAR = React.lazy(() => import('./views/piutang/EvaluasiAR'))
+const PelunasanPiutang = React.lazy(() => import('./views/piutang/PelunasanPiutang'))
 const KonfirmasiHutang = React.lazy(() => import('./views/hutang/KonfirmasiHutang'))
 const KonfirmasiHutangPrint = React.lazy(() => import('./views/hutang/KonfirmasiHutangPrint'))
 const ImportVA = React.lazy(() => import('./views/tools/ImportVA'))
 const OutstandingSJ = React.lazy(() => import('./views/laporan/penjualan/OutstandingSJ'))
 const OutstandingDT = React.lazy(() => import('./views/laporan/penjualan/OutstandingDT'))
 const PenyaluranMasuk = React.lazy(() => import('./views/laporan/alkes/PenyaluranMasuk'))
-const ReportFarmasi = React.lazy(() => import('./views/laporan/farmasi/ReportFarmasi')) 
-const ReportFarmasiTriwulan = React.lazy(() => import('./views/laporan/farmasi/ReportFarmasiTriwulan'))
+const ReportFarmasi = React.lazy(() => import('./views/laporan/farmasi/ReportFarmasi'))
+const ReportFarmasiTriwulan = React.lazy(
+  () => import('./views/laporan/farmasi/ReportFarmasiTriwulan'),
+)
 const MasterAlkes = React.lazy(() => import('./views/master/MasterAlkes'))
 const CabangAlkes = React.lazy(() => import('./views/master/CabangAlkes'))
 const DPL = React.lazy(() => import('./views/laporan/penjualan/DPL'))
@@ -248,6 +251,15 @@ const routes = [
     ),
   },
   {
+    path: '/piutang/pelunasanpiutang',
+    name: 'Laporan Pelunasan Piutang',
+    element: (
+      <ProtectedRoute>
+        <PelunasanPiutang />
+      </ProtectedRoute>
+    ),
+  },
+  {
     path: '/piutang/konfirmasipiutang/:customerId/print',
     name: 'Cetak Konfirmasi Piutang',
     element: (
@@ -405,7 +417,7 @@ const routes = [
   { path: '/notifications', name: 'Notifications', element: Alerts, exact: true },
   { path: '/notifications/alerts', name: 'Alerts', element: Alerts },
   { path: '/notifications/badges', name: 'Badges', element: Badges },
-  { path: '/notifications/modals', name: 'Modals', element: (<Modals /> )},
+  { path: '/notifications/modals', name: 'Modals', element: <Modals /> },
   { path: '/notifications/toasts', name: 'Toasts', element: Toasts },
   { path: '/widgets', name: 'Widgets', element: Widgets },
   {
