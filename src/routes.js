@@ -17,6 +17,7 @@ const KonfirmasiPiutangPrint = React.lazy(() => import('./views/piutang/Konfirma
 const UmurPiutang = React.lazy(() => import('./views/piutang/UmurPiutang'))
 const EvaluasiAR = React.lazy(() => import('./views/piutang/EvaluasiAR'))
 const PelunasanPiutang = React.lazy(() => import('./views/piutang/PelunasanPiutang'))
+const AgingARCollection = React.lazy(() => import('./views/piutang/AgingARCollection'))
 const KonfirmasiHutang = React.lazy(() => import('./views/hutang/KonfirmasiHutang'))
 const KonfirmasiHutangPrint = React.lazy(() => import('./views/hutang/KonfirmasiHutangPrint'))
 const ImportVA = React.lazy(() => import('./views/tools/ImportVA'))
@@ -256,6 +257,15 @@ const routes = [
     element: (
       <ProtectedRoute>
         <PelunasanPiutang />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/piutang/agingarcollection',
+    name: 'Aging AR & Collection',
+    element: (
+      <ProtectedRoute>
+        <AgingARCollection />
       </ProtectedRoute>
     ),
   },
