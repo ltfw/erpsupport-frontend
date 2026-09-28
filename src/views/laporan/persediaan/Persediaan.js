@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
 import pdfMake from 'pdfmake/build/pdfmake';
 import 'pdfmake/build/vfs_fonts';
-import { CCard, CCardBody, CCardHeader, CCol, CDropdown, CDropdownItem, CDropdownMenu, CDropdownToggle, CRow } from '@coreui/react'
+import { CButton, CCard, CCardBody, CCardHeader, CCol, CDropdown, CDropdownItem, CDropdownMenu, CDropdownToggle, CRow, CSpinner } from '@coreui/react'
 import { useNavigate } from 'react-router-dom'
 import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
 import { DataTable } from 'src/components'
 import axios from 'axios'
 import CIcon from '@coreui/icons-react'
-import { cilPencil, cilPrint, cilSpreadsheet, cilTrash } from '@coreui/icons'
+import { cilCloudUpload, cilPencil, cilPrint, cilSpreadsheet, cilTrash } from '@coreui/icons'
 import { formatDateToDDMMYYYY, getCurrentDateFormatted } from '../../../utils/Date'
 import CabangSelector from '../../modals/CabangSelector'
 import SupplierSelector from '../../modals/SupplierSelector'
@@ -28,6 +28,7 @@ const Persediaan = () => {
   const [selectedCabang, setSelectedCabang] = useState([]);
   const [selectedSupplier, setSelectedSupplier] = useState([]);
   const [endDate, setEndDate] = useState(getCurrentDateFormatted());
+  const [pushing, setPushing] = useState(false)
 
   const column = [
     {
@@ -343,6 +344,21 @@ const Persediaan = () => {
     }
   }
 
+  const pushStock = async () => {
+    if (!window.confirm(`Push data stok per batch tanggal ${formatDateToDDMMYYYY(endDate)} ke Stock API?`)) return
+    setPushing(true)
+    try {
+      const response = await axios.post(`${ENDPOINT_URL}stocks/perbatch/push`, { date: endDate })
+      const { request_id, total_items, branches } = response.data
+      alert(`Push stok berhasil (${request_id})\n${branches.map(b => `${b.distributor_code}: ${b.items} item`).join('\n')}\nTotal: ${total_items} item`)
+    } catch (error) {
+      console.error('Error pushing stock:', error)
+      alert(`Gagal push stok: ${error.response?.data?.message || error.message}`)
+    } finally {
+      setPushing(false)
+    }
+  }
+
   return (
     <>
       <CRow>
@@ -356,6 +372,10 @@ const Persediaan = () => {
                   <CDropdownItem onClick={exportToPDF}><CIcon icon={cilPrint} className="me-2" />Pdf</CDropdownItem>
                 </CDropdownMenu>
               </CDropdown>
+              <CButton color="primary" size="sm" className="float-end me-2" onClick={pushStock} disabled={pushing}>
+                {pushing ? <CSpinner size="sm" className="me-2" /> : <CIcon icon={cilCloudUpload} className="me-2" />}
+                Push Stok
+              </CButton>
             </CCardHeader>
             <CCardBody>
               <div className="mb-3">
