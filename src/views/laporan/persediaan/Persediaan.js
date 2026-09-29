@@ -345,10 +345,12 @@ const Persediaan = () => {
   }
 
   const pushStock = async () => {
-    if (!window.confirm(`Push data stok per batch tanggal ${formatDateToDDMMYYYY(endDate)} ke Stock API?`)) return
     setPushing(true)
     try {
-      const response = await axios.post(`${ENDPOINT_URL}stocks/perbatch/push`, { date: endDate })
+      // Tanggal mengikuti rule backend: H-1, hari Senin ambil data Sabtu
+      const { data: { date: stockDate } } = await axios.get(`${ENDPOINT_URL}stocks/perbatch/push-date`)
+      if (!window.confirm(`Push data stok per batch tanggal ${formatDateToDDMMYYYY(stockDate)} ke Stock API?`)) return
+      const response = await axios.post(`${ENDPOINT_URL}stocks/perbatch/push`, { date: stockDate })
       const { request_id, total_items, branches } = response.data
       alert(`Push stok berhasil (${request_id})\n${branches.map(b => `${b.distributor_code}: ${b.items} item`).join('\n')}\nTotal: ${total_items} item`)
     } catch (error) {
