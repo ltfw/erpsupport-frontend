@@ -8,6 +8,7 @@ import {
   CFormInput,
   CFormLabel,
   CFormSelect,
+  CFormSwitch,
   CRow,
   CTable,
   CTableBody,
@@ -90,6 +91,9 @@ const PelunasanPiutang = () => {
     () => localStorage.getItem(`${STORAGE_KEY}_tglAkhir`) || lastDayOfMonth(),
   )
   const [search, setSearch] = useState(() => localStorage.getItem(`${STORAGE_KEY}_search`) || '')
+  const [includeBuktiPelunasan, setIncludeBuktiPelunasan] = useState(
+    () => localStorage.getItem(`${STORAGE_KEY}_includeBuktiPelunasan`) === 'true',
+  )
   const [page, setPage] = useState(1)
   const [perPage, setPerPage] = useState(() => {
     const saved = localStorage.getItem(`${STORAGE_KEY}_perPage`)
@@ -102,29 +106,43 @@ const PelunasanPiutang = () => {
   const [totalRows, setTotalRows] = useState(0)
   const [loading, setLoading] = useState(false)
 
-  const fetchPelunasan = useCallback(async (pageNum, pageSize, keyword, cabangIds, awal, akhir) => {
-    const params = new URLSearchParams()
-    params.append('page', pageNum)
-    params.append('per_page', pageSize)
-    params.append('tgl_awal', awal)
-    params.append('tgl_akhir', akhir)
-    if (keyword) params.append('search', keyword)
-    if (cabangIds.length > 0) params.append('cabang', cabangIds.join(','))
+  const fetchPelunasan = useCallback(
+    async (pageNum, pageSize, keyword, cabangIds, awal, akhir, withBuktiPelunasan) => {
+      const params = new URLSearchParams()
+      params.append('page', pageNum)
+      params.append('per_page', pageSize)
+      params.append('tgl_awal', awal)
+      params.append('tgl_akhir', akhir)
+      if (keyword) params.append('search', keyword)
+      if (cabangIds.length > 0) params.append('cabang', cabangIds.join(','))
+      if (withBuktiPelunasan) params.append('include_bukti_pelunasan', '1')
 
-    const response = await axios.get(`${ENDPOINT_URL}piutang/pelunasanpiutang?${params.toString()}`)
-    return {
-      data: response.data.data || [],
-      summary: response.data.summary || null,
-      total: response.data.pagination?.total || 0,
-      totalPages: response.data.pagination?.totalPages || 1,
-    }
-  }, [])
+      const response = await axios.get(
+        `${ENDPOINT_URL}piutang/pelunasanpiutang?${params.toString()}`,
+      )
+      return {
+        data: response.data.data || [],
+        summary: response.data.summary || null,
+        total: response.data.pagination?.total || 0,
+        totalPages: response.data.pagination?.totalPages || 1,
+      }
+    },
+    [],
+  )
 
   const loadData = useCallback(
-    async (pageNum, pageSize, keyword, cabangIds, awal, akhir) => {
+    async (pageNum, pageSize, keyword, cabangIds, awal, akhir, withBuktiPelunasan) => {
       setLoading(true)
       try {
-        const result = await fetchPelunasan(pageNum, pageSize, keyword, cabangIds, awal, akhir)
+        const result = await fetchPelunasan(
+          pageNum,
+          pageSize,
+          keyword,
+          cabangIds,
+          awal,
+          akhir,
+          withBuktiPelunasan,
+        )
         setData(result.data)
         setSummary(result.summary)
         setTotalRows(result.total)
@@ -143,8 +161,8 @@ const PelunasanPiutang = () => {
   )
 
   useEffect(() => {
-    loadData(page, perPage, search, selectedCabang, tglAwal, tglAkhir)
-  }, [page, perPage, search, selectedCabang, tglAwal, tglAkhir, loadData])
+    loadData(page, perPage, search, selectedCabang, tglAwal, tglAkhir, includeBuktiPelunasan)
+  }, [page, perPage, search, selectedCabang, tglAwal, tglAkhir, includeBuktiPelunasan, loadData])
 
   const handlePageChange = useCallback((newPage) => setPage(newPage), [])
 
@@ -187,10 +205,25 @@ const PelunasanPiutang = () => {
     setPage(1)
   }
 
+  const handleIncludeBuktiPelunasanChange = (e) => {
+    const value = e.target.checked
+    setIncludeBuktiPelunasan(value)
+    localStorage.setItem(`${STORAGE_KEY}_includeBuktiPelunasan`, String(value))
+    setPage(1)
+  }
+
   const exportToExcel = async () => {
     document.body.style.cursor = 'wait'
     try {
-      const result = await fetchPelunasan(1, -1, search, selectedCabang, tglAwal, tglAkhir)
+      const result = await fetchPelunasan(
+        1,
+        -1,
+        search,
+        selectedCabang,
+        tglAwal,
+        tglAkhir,
+        includeBuktiPelunasan,
+      )
       const allData = result.data
 
       const workbook = new ExcelJS.Workbook()
@@ -219,6 +252,7 @@ const PelunasanPiutang = () => {
         ['Periode', ':', `${formatTanggal(tglAwal)} s/d ${formatTanggal(tglAkhir)}`],
         ['Cabang', ':', selectedCabang.length > 0 ? selectedCabang.join(', ') : 'Semua Cabang'],
         ['Nama Outlet', ':', search ? search : 'Semua Customer'],
+        ['No. Bukti Pelunasan', ':', includeBuktiPelunasan ? 'Ikut ditampilkan' : 'Disembunyikan'],
       ]
       info.forEach((line) => {
         const row = worksheet.addRow(line)
@@ -375,6 +409,21 @@ const PelunasanPiutang = () => {
                   />
                 </CCol>
               </CRow>
+
+              <div className="d-flex justify-content-between align-items-center gap-3 mb-2">
+                <div className="small text-muted">
+                  {includeBuktiPelunasan
+                    ? 'No. bukti pelunasan ikut tampil sebagai baris tersendiri. Nilainya sudah terhitung juga di baris fakturnya, jadi kolom total jadi dobel. Pakai hanya untuk penelusuran.'
+                    : 'Baris yang nomornya adalah no. bukti pelunasan (bukan no. faktur) disembunyikan.'}
+                </div>
+                <CFormSwitch
+                  id="includeBuktiPelunasan"
+                  className="flex-shrink-0 mb-0"
+                  label="Tampilkan no. bukti pelunasan"
+                  checked={includeBuktiPelunasan}
+                  onChange={handleIncludeBuktiPelunasanChange}
+                />
+              </div>
 
               <div className="table-responsive">
                 <CTable hover striped bordered small>
