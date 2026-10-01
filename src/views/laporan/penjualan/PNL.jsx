@@ -12,6 +12,11 @@ import {
   CDropdownToggle,
   CRow,
   CFormSelect,
+  CNav,
+  CNavItem,
+  CNavLink,
+  CTabContent,
+  CTabPane,
 } from '@coreui/react'
 import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
@@ -21,6 +26,7 @@ import CIcon from '@coreui/icons-react'
 import { cilPrint, cilSpreadsheet } from '@coreui/icons'
 import { getCurrentDateTimeFormatted } from '../../../utils/Date'
 import CabangSelector from '../../modals/CabangSelector'
+import PNLSummary from './PNLSummary'
 
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 
@@ -46,6 +52,7 @@ const PNL = () => {
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
   const [previousYear, setPreviousYear] = useState(new Date().getFullYear() - 1)
   const [selectedCabangs, setSelectedCabangs] = useState([])
+  const [activeTab, setActiveTab] = useState('detail')
 
   const userData = JSON.parse(localStorage.getItem('user'))
 
@@ -74,8 +81,11 @@ const PNL = () => {
       name: `Year ${currentYear}`,
       selector: (row) => row.TahunIni,
       cell: (row) => {
-        if (row.TahunIni && row.TahunIni.toString().startsWith('(')) return row.TahunIni;
-        return parseFloat(row.TahunIni).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        if (row.TahunIni && row.TahunIni.toString().startsWith('(')) return row.TahunIni
+        return parseFloat(row.TahunIni).toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })
       },
       sortable: true,
       width: '12%',
@@ -85,8 +95,11 @@ const PNL = () => {
       name: `Year ${previousYear}`,
       selector: (row) => row.TahunLalu,
       cell: (row) => {
-        if (row.TahunLalu && row.TahunLalu.toString().startsWith('(')) return row.TahunLalu;
-        return parseFloat(row.TahunLalu).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        if (row.TahunLalu && row.TahunLalu.toString().startsWith('(')) return row.TahunLalu
+        return parseFloat(row.TahunLalu).toLocaleString('en-US', {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+        })
       },
       sortable: true,
       width: '12%',
@@ -235,7 +248,14 @@ const PNL = () => {
   const exportToExcel = async () => {
     document.body.style.cursor = 'wait'
     try {
-      const response = await fetchPNL(1, -1, currentMonth, currentYear, previousYear, selectedCabangs)
+      const response = await fetchPNL(
+        1,
+        -1,
+        currentMonth,
+        currentYear,
+        previousYear,
+        selectedCabangs,
+      )
       const allData = response.data
 
       const workbook = new ExcelJS.Workbook()
@@ -326,7 +346,14 @@ const PNL = () => {
     try {
       document.body.style.cursor = 'wait'
 
-      const response = await fetchPNL(1, -1, currentMonth, currentYear, previousYear, selectedCabangs)
+      const response = await fetchPNL(
+        1,
+        -1,
+        currentMonth,
+        currentYear,
+        previousYear,
+        selectedCabangs,
+      )
       const allData = response.data
 
       // Define columns
@@ -495,84 +522,105 @@ const PNL = () => {
         <CCard className="mb-4">
           <CCardHeader>
             Laporan PNL (Profit & Loss)
-            <CDropdown className="float-end">
-              <CDropdownToggle color="warning" size="sm">
-                Export
-              </CDropdownToggle>
-              <CDropdownMenu>
-                <CDropdownItem onClick={exportToExcel}>
-                  <CIcon icon={cilSpreadsheet} className="me-2" />
-                  Excel
-                </CDropdownItem>
-                <CDropdownItem onClick={exportToPDF}>
-                  <CIcon icon={cilPrint} className="me-2" />
-                  PDF
-                </CDropdownItem>
-              </CDropdownMenu>
-            </CDropdown>
+            {activeTab === 'detail' && (
+              <CDropdown className="float-end">
+                <CDropdownToggle color="warning" size="sm">
+                  Export
+                </CDropdownToggle>
+                <CDropdownMenu>
+                  <CDropdownItem onClick={exportToExcel}>
+                    <CIcon icon={cilSpreadsheet} className="me-2" />
+                    Excel
+                  </CDropdownItem>
+                  <CDropdownItem onClick={exportToPDF}>
+                    <CIcon icon={cilPrint} className="me-2" />
+                    PDF
+                  </CDropdownItem>
+                </CDropdownMenu>
+              </CDropdown>
+            )}
           </CCardHeader>
           <CCardBody>
-            <div className="mb-3">
-              <CRow>
-                <CCol xs={12} sm={2}>
-                  <label className="form-label">Cabang</label>
-                  <div>
-                    <CabangSelector
-                      fullWidth
-                      onSelect={(items) => {
-                        setSelectedCabangs(items)
-                        setPage(1)
-                      }}
-                      selectedItems={selectedCabangs}
-                    />
-                  </div>
-                </CCol>
-                <CCol xs={12} sm={3}>
-                  <label className="form-label">Month</label>
-                  <CFormSelect value={currentMonth} onChange={handleMonthChange}>
-                    {generateMonthOptions().map((month) => (
-                      <option key={month.value} value={month.value}>
-                        {month.label}
-                      </option>
-                    ))}
-                  </CFormSelect>
-                </CCol>
-                <CCol xs={12} sm={3}>
-                  <label className="form-label">Year (Current)</label>
-                  <CFormSelect value={currentYear} onChange={handleCurrentYearChange}>
-                    {generateYearOptions().map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </CFormSelect>
-                </CCol>
-                <CCol xs={12} sm={3}>
-                  <label className="form-label">Year (Previous)</label>
-                  <CFormSelect value={previousYear} onChange={handlePreviousYearChange}>
-                    {generateYearOptions().map((year) => (
-                      <option key={year} value={year}>
-                        {year}
-                      </option>
-                    ))}
-                  </CFormSelect>
-                </CCol>
-              </CRow>
-            </div>
+            <CNav variant="tabs" className="mb-3">
+              <CNavItem>
+                <CNavLink active={activeTab === 'detail'} onClick={() => setActiveTab('detail')}>
+                  Detail
+                </CNavLink>
+              </CNavItem>
+              <CNavItem>
+                <CNavLink active={activeTab === 'summary'} onClick={() => setActiveTab('summary')}>
+                  Summary
+                </CNavLink>
+              </CNavItem>
+            </CNav>
+            <CTabContent>
+              <CTabPane visible={activeTab === 'detail'}>
+                <div className="mb-3">
+                  <CRow>
+                    <CCol xs={12} sm={2}>
+                      <label className="form-label">Cabang</label>
+                      <div>
+                        <CabangSelector
+                          fullWidth
+                          onSelect={(items) => {
+                            setSelectedCabangs(items)
+                            setPage(1)
+                          }}
+                          selectedItems={selectedCabangs}
+                        />
+                      </div>
+                    </CCol>
+                    <CCol xs={12} sm={3}>
+                      <label className="form-label">Month</label>
+                      <CFormSelect value={currentMonth} onChange={handleMonthChange}>
+                        {generateMonthOptions().map((month) => (
+                          <option key={month.value} value={month.value}>
+                            {month.label}
+                          </option>
+                        ))}
+                      </CFormSelect>
+                    </CCol>
+                    <CCol xs={12} sm={3}>
+                      <label className="form-label">Year (Current)</label>
+                      <CFormSelect value={currentYear} onChange={handleCurrentYearChange}>
+                        {generateYearOptions().map((year) => (
+                          <option key={year} value={year}>
+                            {year}
+                          </option>
+                        ))}
+                      </CFormSelect>
+                    </CCol>
+                    <CCol xs={12} sm={3}>
+                      <label className="form-label">Year (Previous)</label>
+                      <CFormSelect value={previousYear} onChange={handlePreviousYearChange}>
+                        {generateYearOptions().map((year) => (
+                          <option key={year} value={year}>
+                            {year}
+                          </option>
+                        ))}
+                      </CFormSelect>
+                    </CCol>
+                  </CRow>
+                </div>
 
-            <DataTable
-              dense
-              title="PNL Report"
-              columns={column}
-              data={data}
-              progressPending={loading}
-              pagination
-              paginationServer
-              paginationTotalRows={totalRows}
-              onChangeRowsPerPage={handlePerRowsChange}
-              onChangePage={handlePageChange}
-              button
-            />
+                <DataTable
+                  dense
+                  title="PNL Report"
+                  columns={column}
+                  data={data}
+                  progressPending={loading}
+                  pagination
+                  paginationServer
+                  paginationTotalRows={totalRows}
+                  onChangeRowsPerPage={handlePerRowsChange}
+                  onChangePage={handlePageChange}
+                  button
+                />
+              </CTabPane>
+              <CTabPane visible={activeTab === 'summary'}>
+                <PNLSummary />
+              </CTabPane>
+            </CTabContent>
           </CCardBody>
         </CCard>
       </CCol>
