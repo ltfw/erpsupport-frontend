@@ -393,7 +393,8 @@ const ReportFarmasi = () => {
           MasukIf: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.MasukIf === allData[idx - 1].MasukIf ? 0 : row.MasukIf ?? 0,
           KodeIf: String(row.KodeIf ?? '').trim() || '',
           MasukPbf: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.MasukPbf === allData[idx - 1].MasukPbf ? 0 : row.MasukPbf ?? 0,
-          KodePbf: String(row.KodePbf ?? '').trim() || '',
+          // sp_InventoryReportPharma_Pusat mengirim '-' bila tidak ada PBF, tampilkan kosong
+          KodePbf: String(row.KodePbf ?? '').trim().replace(/^-$/, ''),
           FasilitasProduksiLainnya: 0,
           ReturMasuk: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.ReturMasuk === allData[idx - 1].ReturMasuk ? 0 : row.ReturMasuk ?? 0,
           QtyJualPbf: idx > 0 && row.Nie === allData[idx - 1].Nie && row.KodeBpom === allData[idx - 1].KodeBpom && row.QtyJualPbf === allData[idx - 1].QtyJualPbf ? 0 : row.QtyJualPbf ?? 0,
