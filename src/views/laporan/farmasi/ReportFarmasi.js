@@ -383,6 +383,7 @@ const ReportFarmasi = () => {
 
       // Process data with the same logic as table display
       allData.forEach((row, idx) => {
+        const masukPbf = idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.MasukPbf === allData[idx - 1].MasukPbf ? 0 : row.MasukPbf ?? 0
         const processedRow = {
           no: '',
           Nie: row.Nie,
@@ -392,9 +393,10 @@ const ReportFarmasi = () => {
           StokAwal: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.StokAwal === allData[idx - 1].StokAwal ? 0 : row.StokAwal ?? 0,
           MasukIf: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.MasukIf === allData[idx - 1].MasukIf ? 0 : row.MasukIf ?? 0,
           KodeIf: String(row.KodeIf ?? '').trim() || '',
-          MasukPbf: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.MasukPbf === allData[idx - 1].MasukPbf ? 0 : row.MasukPbf ?? 0,
+          MasukPbf: masukPbf,
           // sp_InventoryReportPharma_Pusat mengirim '-' bila tidak ada PBF, tampilkan kosong
-          KodePbf: String(row.KodePbf ?? '').trim().replace(/^-$/, ''),
+          // kode PBF juga dikosongkan bila tidak ada qty masuk PBF di baris ini
+          KodePbf: Number(masukPbf) === 0 ? '' : String(row.KodePbf ?? '').trim().replace(/^-$/, ''),
           FasilitasProduksiLainnya: 0,
           ReturMasuk: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.ReturMasuk === allData[idx - 1].ReturMasuk ? 0 : row.ReturMasuk ?? 0,
           QtyJualPbf: idx > 0 && row.Nie === allData[idx - 1].Nie && row.KodeBpom === allData[idx - 1].KodeBpom && row.QtyJualPbf === allData[idx - 1].QtyJualPbf ? 0 : row.QtyJualPbf ?? 0,
