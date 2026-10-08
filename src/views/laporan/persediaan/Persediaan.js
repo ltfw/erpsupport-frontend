@@ -8,12 +8,13 @@ import { saveAs } from 'file-saver'
 import { DataTable } from 'src/components'
 import axios from 'axios'
 import CIcon from '@coreui/icons-react'
-import { cilCloudUpload, cilPencil, cilPrint, cilSpreadsheet, cilTrash } from '@coreui/icons'
+import { cilCloudUpload, cilHistory, cilPencil, cilPrint, cilSpreadsheet, cilTrash } from '@coreui/icons'
 import { formatDateToDDMMYYYY, getCurrentDateFormatted } from '../../../utils/Date'
 import CabangSelector from '../../modals/CabangSelector'
 import SupplierSelector from '../../modals/SupplierSelector'
 import BarangSelector from '../../modals/BarangSelector'
 import DatePicker from '../../base/datepicker/DatePicker'
+import StockPushLogModal from './StockPushLogModal'
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
 
 const Persediaan = () => {
@@ -29,6 +30,7 @@ const Persediaan = () => {
   const [selectedSupplier, setSelectedSupplier] = useState([]);
   const [endDate, setEndDate] = useState(getCurrentDateFormatted());
   const [pushing, setPushing] = useState(false)
+  const [showPushLog, setShowPushLog] = useState(false)
 
   const column = [
     {
@@ -378,6 +380,10 @@ const Persediaan = () => {
                 {pushing ? <CSpinner size="sm" className="me-2" /> : <CIcon icon={cilCloudUpload} className="me-2" />}
                 Push Stok
               </CButton>
+              <CButton color="secondary" variant="outline" size="sm" className="float-end me-2" onClick={() => setShowPushLog(true)}>
+                <CIcon icon={cilHistory} className="me-2" />
+                Log Push
+              </CButton>
             </CCardHeader>
             <CCardBody>
               <div className="mb-3">
@@ -439,6 +445,7 @@ const Persediaan = () => {
           </CCard>
         </CCol>
       </CRow>
+      <StockPushLogModal visible={showPushLog} onClose={() => setShowPushLog(false)} />
     </>
   )
 }
