@@ -346,6 +346,60 @@ const Persediaan = () => {
     }
   }
 
+  // Export data dengan skema payload push stok (distributor_code, item_name, qty, unit, batch_no, expired_date)
+  const exportPushStockToExcel = async () => {
+    document.body.style.cursor = 'wait'
+    try {
+      // Tanggal mengikuti rule backend: H-1, hari Senin ambil data Sabtu
+      const { data: { date: stockDate } } = await axios.get(`${ENDPOINT_URL}stocks/perbatch/push-date`)
+      const { data: payload } = await axios.get(`${ENDPOINT_URL}stocks/perbatch/push-preview`, { params: { date: stockDate } })
+
+      const workbook = new ExcelJS.Workbook()
+      const worksheet = workbook.addWorksheet('Push Stok')
+
+      worksheet.mergeCells('A2:G2')
+      worksheet.getCell('A2').value = 'Data Push Stok Per Batch'
+      worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' }
+      worksheet.getCell('A2').font = { size: 16, bold: true }
+      worksheet.mergeCells('A3:G3')
+      worksheet.getCell('A3').value = 'Stock date ' + formatDateToDDMMYYYY(payload.stock_date)
+      worksheet.getCell('A3').alignment = { horizontal: 'center', vertical: 'middle' }
+      worksheet.getCell('A3').font = { size: 16, bold: true }
+
+      worksheet.columns = [
+        { key: 'no', width: 6 },
+        { key: 'distributor_code', width: 18 },
+        { key: 'item_name', width: 50 },
+        { key: 'qty', width: 12 },
+        { key: 'unit', width: 10 },
+        { key: 'batch_no', width: 18 },
+        { key: 'expired_date', width: 14 },
+      ]
+      worksheet.getColumn('qty').numFmt = '#,##0'
+
+      worksheet.addRow(['No', 'distributor_code', 'item_name', 'qty', 'unit', 'batch_no', 'expired_date'])
+      worksheet.getRow(4).font = { bold: true }
+
+      let no = 0
+      payload.branches.forEach((branch) => {
+        branch.items.forEach((item) => {
+          worksheet.addRow({ no: ++no, distributor_code: branch.distributor_code, ...item })
+        })
+      })
+
+      worksheet.views = [{ state: 'frozen', ySplit: 4 }]
+      worksheet.autoFilter = { from: 'A4', to: 'G4' }
+
+      const buffer = await workbook.xlsx.writeBuffer()
+      saveAs(new Blob([buffer]), 'Push Stok per ' + formatDateToDDMMYYYY(payload.stock_date) + '.xlsx')
+    } catch (error) {
+      console.error('Error exporting push stock to Excel:', error)
+      alert(`Gagal mengunduh data push stok: ${error.response?.data?.message || error.message}`)
+    } finally {
+      document.body.style.cursor = 'default'
+    }
+  }
+
   const pushStock = async () => {
     setPushing(true)
     try {
@@ -374,6 +428,7 @@ const Persediaan = () => {
                 <CDropdownMenu>
                   <CDropdownItem onClick={exportToExcel}><CIcon icon={cilSpreadsheet} className="me-2" />Excel</CDropdownItem>
                   <CDropdownItem onClick={exportToPDF}><CIcon icon={cilPrint} className="me-2" />Pdf</CDropdownItem>
+                  <CDropdownItem onClick={exportPushStockToExcel}><CIcon icon={cilSpreadsheet} className="me-2" />Excel (Format Push Stok)</CDropdownItem>
                 </CDropdownMenu>
               </CDropdown>
               <CButton color="primary" size="sm" className="float-end me-2" onClick={pushStock} disabled={pushing}>
