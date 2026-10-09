@@ -37,6 +37,22 @@ const NAMA_BULAN = [
   'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
 ]
 
+// Kolom angka: SP mengirim 0 atau '-' untuk sel yang seharusnya kosong di laporan BPOM
+const blankIfZeroOrDash = (value) => {
+  if (value === null || value === undefined) return ''
+  if (typeof value === 'number' && !Number.isFinite(value)) return ''
+  const text = String(value).trim()
+  if (text === '' || text === '-') return ''
+  if (Number(text) === 0) return ''
+  return typeof value === 'string' ? text : value
+}
+
+// Kolom kode: hanya '-' dan kosong yang dikosongkan, karena '0'/'00' bisa jadi kode yang sah
+const blankIfDash = (value) => {
+  const text = String(value ?? '').trim()
+  return text === '-' ? '' : text
+}
+
 const ReportFarmasi = () => {
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
@@ -387,37 +403,37 @@ const ReportFarmasi = () => {
         const processedRow = {
           no: '',
           Nie: row.Nie,
-          NamaItemBpom: row.NamaItemBpom ?? 0,
+          NamaItemBpom: row.NamaItemBpom ?? '',
           Kemasan: row.Kemasan,
           ActiveIngredientName: row.ActiveIngredientName ?? '',
-          StokAwal: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.StokAwal === allData[idx - 1].StokAwal ? 0 : row.StokAwal ?? '',
-          MasukIf: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.MasukIf === allData[idx - 1].MasukIf ? 0 : row.MasukIf ?? '',
-          KodeIf: String(row.KodeIf ?? '').trim() || '',
-          MasukPbf: masukPbf,
+          StokAwal: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.StokAwal === allData[idx - 1].StokAwal ? 0 : row.StokAwal),
+          MasukIf: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.MasukIf === allData[idx - 1].MasukIf ? 0 : row.MasukIf),
+          KodeIf: blankIfDash(row.KodeIf),
+          MasukPbf: blankIfZeroOrDash(masukPbf),
           // sp_InventoryReportPharma_Pusat mengirim '-' bila tidak ada PBF, tampilkan kosong
           // kode PBF juga dikosongkan bila tidak ada qty masuk PBF di baris ini
-          KodePbf: Number(masukPbf) === 0 ? '' : String(row.KodePbf ?? '').trim().replace(/^-$/, ''),
+          KodePbf: Number(masukPbf) === 0 ? '' : blankIfDash(row.KodePbf),
           FasilitasProduksiLainnya: '',
-          ReturMasuk: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.ReturMasuk === allData[idx - 1].ReturMasuk ? 0 : row.ReturMasuk ?? '',
-          QtyJualPbf: idx > 0 && row.Nie === allData[idx - 1].Nie && row.KodeBpom === allData[idx - 1].KodeBpom && row.QtyJualPbf === allData[idx - 1].QtyJualPbf ? 0 : row.QtyJualPbf ?? '',
-          KodeBpom: row.KodeBpom ?? '',
-          RS: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.RS === allData[idx - 1].RS ? 0 : row.RS ?? '',
-          APOTEK: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.APOTEK === allData[idx - 1].APOTEK ? 0 : row.APOTEK ?? '',
-          FasilitasPengelolaanKefarmasian: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.FasilitasPengelolaanKefarmasian === allData[idx - 1].FasilitasPengelolaanKefarmasian ? 0 : row.FasilitasPengelolaanKefarmasian ?? '',
-          PUSKESMAS: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.PUSKESMAS === allData[idx - 1].PUSKESMAS ? 0 : row.PUSKESMAS ?? '',
-          KLINIK: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.KLINIK === allData[idx - 1].KLINIK ? 0 : row.KLINIK ?? '',
-          TOKO_OBAT: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.TOKO_OBAT === allData[idx - 1].TOKO_OBAT ? 0 : row.TOKO_OBAT ?? '',
-          HSM: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.HSM === allData[idx - 1].HSM ? 0 : row.HSM ?? '',
-          ReturKeluar: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.ReturKeluar === allData[idx - 1].ReturKeluar ? 0 : row.ReturKeluar ?? '',
-          Lainnya: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.Lainnya === allData[idx - 1].Lainnya ? 0 : row.Lainnya ?? '',
-          SARANA_PEMERINTAH: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.SARANA_PEMERINTAH === allData[idx - 1].SARANA_PEMERINTAH ? 0 : row.SARANA_PEMERINTAH ?? '',
+          ReturMasuk: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.ReturMasuk === allData[idx - 1].ReturMasuk ? 0 : row.ReturMasuk),
+          QtyJualPbf: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.KodeBpom === allData[idx - 1].KodeBpom && row.QtyJualPbf === allData[idx - 1].QtyJualPbf ? 0 : row.QtyJualPbf),
+          KodeBpom: blankIfDash(row.KodeBpom),
+          RS: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.RS === allData[idx - 1].RS ? 0 : row.RS),
+          APOTEK: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.APOTEK === allData[idx - 1].APOTEK ? 0 : row.APOTEK),
+          FasilitasPengelolaanKefarmasian: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.FasilitasPengelolaanKefarmasian === allData[idx - 1].FasilitasPengelolaanKefarmasian ? 0 : row.FasilitasPengelolaanKefarmasian),
+          PUSKESMAS: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.PUSKESMAS === allData[idx - 1].PUSKESMAS ? 0 : row.PUSKESMAS),
+          KLINIK: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.KLINIK === allData[idx - 1].KLINIK ? 0 : row.KLINIK),
+          TOKO_OBAT: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.TOKO_OBAT === allData[idx - 1].TOKO_OBAT ? 0 : row.TOKO_OBAT),
+          HSM: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.HSM === allData[idx - 1].HSM ? 0 : row.HSM),
+          ReturKeluar: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.ReturKeluar === allData[idx - 1].ReturKeluar ? 0 : row.ReturKeluar),
+          Lainnya: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.Lainnya === allData[idx - 1].Lainnya ? 0 : row.Lainnya),
+          SARANA_PEMERINTAH: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.SARANA_PEMERINTAH === allData[idx - 1].SARANA_PEMERINTAH ? 0 : row.SARANA_PEMERINTAH),
           LembagaRiset: '',
           LembagaPendidikan: '',
-          QtyPesan_E: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.QtyPesan_E === allData[idx - 1].QtyPesan_E ? 0 : row.QtyPesan_E ?? '',
-          QtyKirim_E: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.QtyKirim_E === allData[idx - 1].QtyKirim_E ? 0 : row.QtyKirim_E ?? '',
-          QtyPesan_NonE: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.QtyPesan_NonE === allData[idx - 1].QtyPesan_NonE ? 0 : row.QtyPesan_NonE ?? '',
-          QtyKirim_NonE: idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.QtyKirim_NonE === allData[idx - 1].QtyKirim_NonE ? 0 : row.QtyKirim_NonE ?? '',
-          HNA: Math.round(row.HNA) ?? '',
+          QtyPesan_E: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.QtyPesan_E === allData[idx - 1].QtyPesan_E ? 0 : row.QtyPesan_E),
+          QtyKirim_E: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.QtyKirim_E === allData[idx - 1].QtyKirim_E ? 0 : row.QtyKirim_E),
+          QtyPesan_NonE: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.QtyPesan_NonE === allData[idx - 1].QtyPesan_NonE ? 0 : row.QtyPesan_NonE),
+          QtyKirim_NonE: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.QtyKirim_NonE === allData[idx - 1].QtyKirim_NonE ? 0 : row.QtyKirim_NonE),
+          HNA: blankIfZeroOrDash(Math.round(row.HNA)),
         };
         worksheet.addRow(processedRow);
       });
