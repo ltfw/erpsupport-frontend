@@ -346,7 +346,7 @@ const Persediaan = () => {
     }
   }
 
-  // Export data dengan skema payload push stok (distributor_code, item_name, qty, unit, batch_no, expired_date)
+  // Export data dengan skema payload push stok (distributor_code, item_name, qty, unit, batch_no, expired_date, received_date)
   const exportPushStockToExcel = async () => {
     document.body.style.cursor = 'wait'
     try {
@@ -357,11 +357,11 @@ const Persediaan = () => {
       const workbook = new ExcelJS.Workbook()
       const worksheet = workbook.addWorksheet('Push Stok')
 
-      worksheet.mergeCells('A2:G2')
+      worksheet.mergeCells('A2:H2')
       worksheet.getCell('A2').value = 'Data Push Stok Per Batch'
       worksheet.getCell('A2').alignment = { horizontal: 'center', vertical: 'middle' }
       worksheet.getCell('A2').font = { size: 16, bold: true }
-      worksheet.mergeCells('A3:G3')
+      worksheet.mergeCells('A3:H3')
       worksheet.getCell('A3').value = 'Stock date ' + formatDateToDDMMYYYY(payload.stock_date)
       worksheet.getCell('A3').alignment = { horizontal: 'center', vertical: 'middle' }
       worksheet.getCell('A3').font = { size: 16, bold: true }
@@ -374,10 +374,11 @@ const Persediaan = () => {
         { key: 'unit', width: 10 },
         { key: 'batch_no', width: 18 },
         { key: 'expired_date', width: 14 },
+        { key: 'received_date', width: 14 },
       ]
       worksheet.getColumn('qty').numFmt = '#,##0'
 
-      worksheet.addRow(['No', 'distributor_code', 'item_name', 'qty', 'unit', 'batch_no', 'expired_date'])
+      worksheet.addRow(['No', 'distributor_code', 'item_name', 'qty', 'unit', 'batch_no', 'expired_date', 'received_date'])
       worksheet.getRow(4).font = { bold: true }
 
       let no = 0
@@ -388,7 +389,7 @@ const Persediaan = () => {
       })
 
       worksheet.views = [{ state: 'frozen', ySplit: 4 }]
-      worksheet.autoFilter = { from: 'A4', to: 'G4' }
+      worksheet.autoFilter = { from: 'A4', to: 'H4' }
 
       const buffer = await workbook.xlsx.writeBuffer()
       saveAs(new Blob([buffer]), 'Push Stok per ' + formatDateToDDMMYYYY(payload.stock_date) + '.xlsx')
