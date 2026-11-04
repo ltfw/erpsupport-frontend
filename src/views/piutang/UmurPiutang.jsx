@@ -7,6 +7,8 @@ import {
   CCol,
   CFormInput,
   CFormSelect,
+  CInputGroup,
+  CInputGroupText,
   CRow,
 } from '@coreui/react'
 import axios from 'axios'
@@ -16,6 +18,18 @@ import { DataTable } from 'src/components'
 import CabangSelector from '../modals/CabangSelector'
 
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
+
+const formatDate = (date) => {
+  const y = date.getFullYear()
+  const m = String(date.getMonth() + 1).padStart(2, '0')
+  const d = String(date.getDate()).padStart(2, '0')
+  return `${y}-${m}-${d}`
+}
+
+const getEndOfCurrentMonth = () => {
+  const now = new Date()
+  return formatDate(new Date(now.getFullYear(), now.getMonth() + 1, 0))
+}
 
 const UmurPiutang = () => {
   const [search, setSearch] = useState(() => localStorage.getItem('umurPiutang_search') || '')
@@ -31,6 +45,7 @@ const UmurPiutang = () => {
     const saved = localStorage.getItem('umurPiutang_cabang')
     return saved ? JSON.parse(saved) : []
   })
+  const [endDate, setEndDate] = useState(getEndOfCurrentMonth)
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(false)
   const [totalRows, setTotalRows] = useState(0)
@@ -69,12 +84,13 @@ const UmurPiutang = () => {
   const normalizeCabang = (cabangs) =>
     cabangs.map((item) => (typeof item === 'object' ? item.id || item.value || item : item))
 
-  const fetchUmurPiutang = useCallback(async (page, perPage, keyword, cabangIds) => {
+  const fetchUmurPiutang = useCallback(async (page, perPage, keyword, cabangIds, end) => {
     const params = new URLSearchParams()
     params.append('page', page)
     params.append('per_page', perPage)
     if (keyword) params.append('search', keyword)
     if (cabangIds.length > 0) params.append('cabang', cabangIds.join(','))
+    if (end) params.append('endDate', end)
 
     const response = await axios.get(`${ENDPOINT_URL}piutang/umurpiutang?${params.toString()}`)
     return {
@@ -84,10 +100,10 @@ const UmurPiutang = () => {
   }, [])
 
   const loadData = useCallback(
-    async (page, perPage, keyword, cabangIds) => {
+    async (page, perPage, keyword, cabangIds, end) => {
       setLoading(true)
       try {
-        const result = await fetchUmurPiutang(page, perPage, keyword, cabangIds)
+        const result = await fetchUmurPiutang(page, perPage, keyword, cabangIds, end)
         setData(result.data)
         setTotalRows(result.total)
       } finally {
@@ -100,7 +116,13 @@ const UmurPiutang = () => {
   const exportToExcel = async () => {
     document.body.style.cursor = 'wait'
     try {
-      const result = await fetchUmurPiutang(1, 1000000, search, normalizeCabang(selectedCabang))
+      const result = await fetchUmurPiutang(
+        1,
+        1000000,
+        search,
+        normalizeCabang(selectedCabang),
+        endDate,
+      )
       const allData = result.data
       const workbook = new ExcelJS.Workbook()
       const worksheet = workbook.addWorksheet('Umur Piutang')
@@ -165,8 +187,8 @@ const UmurPiutang = () => {
   }
 
   useEffect(() => {
-    loadData(page, perPage, search, normalizeCabang(selectedCabang))
-  }, [page, perPage, search, selectedCabang, loadData])
+    loadData(page, perPage, search, normalizeCabang(selectedCabang), endDate)
+  }, [page, perPage, search, selectedCabang, endDate, loadData])
 
   const handlePageChange = (newPage) => {
     setPage(newPage)
@@ -184,6 +206,12 @@ const UmurPiutang = () => {
     const value = e.target.value
     setSearch(value)
     localStorage.setItem('umurPiutang_search', value)
+    setPage(1)
+    localStorage.setItem('umurPiutang_page', '1')
+  }
+
+  const handleEndDateChange = (e) => {
+    setEndDate(e.target.value)
     setPage(1)
     localStorage.setItem('umurPiutang_page', '1')
   }
@@ -219,7 +247,13 @@ const UmurPiutang = () => {
                     <option value="10000">All</option>
                   </CFormSelect>
                 </CCol>
-                <CCol xs={12} sm={8}>
+                <CCol xs={12} sm={3}>
+                  <CInputGroup>
+                    <CInputGroupText>Tgl Jatuh Tempo</CInputGroupText>
+                    <CFormInput type="date" value={endDate} onChange={handleEndDateChange} />
+                  </CInputGroup>
+                </CCol>
+                <CCol xs={12} sm={5}>
                   <CFormInput
                     type="text"
                     placeholder="Search Customer..."
