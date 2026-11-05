@@ -22,6 +22,7 @@ import axios from 'axios'
 import ExcelJS from 'exceljs'
 import { saveAs } from 'file-saver'
 import DatePicker, { registerLocale } from 'react-datepicker'
+import { format } from 'date-fns'
 import { id as localeId } from 'date-fns/locale'
 import 'react-datepicker/dist/react-datepicker.css'
 import Pagination from '../../components/Pagination'
@@ -326,7 +327,8 @@ const PelunasanPiutang = () => {
       worksheet.views = [{ state: 'frozen', ySplit: headerRow.number }]
 
       const buffer = await workbook.xlsx.writeBuffer()
-      saveAs(new Blob([buffer]), `Pelunasan Piutang ${tglAwal} sd ${tglAkhir}.xlsx`)
+      const timestamp = format(new Date(), "dd-MM-yy'T'HHmmss")
+      saveAs(new Blob([buffer]), `Pelunasan Piutang ${tglAwal} sd ${tglAkhir} (${timestamp}).xlsx`)
     } catch (error) {
       console.error('Error exporting to Excel:', error)
       alert('Gagal mengunduh data!')
