@@ -30,6 +30,16 @@ export const getFirstDayOfMonthFormatted = () => {
   return `${year}-${month}-${day}`;
 };
 
+export const getLastDayOfMonthFormatted = () => {
+  const today = new Date();
+  const lastDay = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  const year = lastDay.getFullYear();
+  const month = String(lastDay.getMonth() + 1).padStart(2, '0');
+  const day = String(lastDay.getDate()).padStart(2, '0');
+
+  return `${year}-${month}-${day}`;
+};
+
 // You can also add a more general function to get the first day of a given month
 // This allows for more flexibility if you need to get the first day of a month other than the current one
 export const getFirstDayOfGivenMonthFormatted = (date = new Date()) => {

@@ -21,6 +21,7 @@ const AgingARCollection = React.lazy(() => import('./views/piutang/AgingARCollec
 const KonfirmasiHutang = React.lazy(() => import('./views/hutang/KonfirmasiHutang'))
 const KonfirmasiHutangPrint = React.lazy(() => import('./views/hutang/KonfirmasiHutangPrint'))
 const ImportVA = React.lazy(() => import('./views/tools/ImportVA'))
+const SalesInvoice = React.lazy(() => import('./views/tools/SalesInvoice'))
 const OutstandingSJ = React.lazy(() => import('./views/laporan/penjualan/OutstandingSJ'))
 const OutstandingDT = React.lazy(() => import('./views/laporan/penjualan/OutstandingDT'))
 const PenyaluranMasuk = React.lazy(() => import('./views/laporan/alkes/PenyaluranMasuk'))
@@ -176,6 +177,15 @@ const routes = [
     element: (
       <ProtectedRoute>
         <ImportVA />
+      </ProtectedRoute>
+    ),
+  },
+  {
+    path: '/tools/salesinvoice',
+    name: 'Sales Invoice',
+    element: (
+      <ProtectedRoute>
+        <SalesInvoice />
       </ProtectedRoute>
     ),
   },

@@ -156,7 +156,7 @@ const ReportFarmasi = () => {
     },
     {
       name: 'Fasilitas Pengelolaan Kefarmasian',
-      selector: (row) => row.SARANA_PEMERINTAH,
+      selector: (row) => row.FASILITAS,
       sortable: true,
     },
     {
@@ -383,7 +383,7 @@ const ReportFarmasi = () => {
         { key: 'APOTEK', width: 12 },                   // P  Apotek
         { key: 'PUSKESMAS', width: 12 },                // Q  Puskesmas
         { key: 'KLINIK', width: 12 },                   // R  Klinik
-        { key: 'SARANA_PEMERINTAH', width: 18 },        // S  Fasilitas Pengelolaan Kefarmasian
+        { key: 'FASILITAS', width: 18 },        // S  Fasilitas Pengelolaan Kefarmasian
         { key: 'LembagaRiset', width: 14 },             // T  Lembaga Riset
         { key: 'LembagaPendidikan', width: 16 },        // U  Lembaga Pendidikan
         { key: 'TOKO_OBAT', width: 12 },                // V  Toko Obat
@@ -426,7 +426,7 @@ const ReportFarmasi = () => {
           HSM: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.HSM === allData[idx - 1].HSM ? 0 : row.HSM),
           ReturKeluar: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.ReturKeluar === allData[idx - 1].ReturKeluar ? 0 : row.ReturKeluar),
           Lainnya: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.Lainnya === allData[idx - 1].Lainnya ? 0 : row.Lainnya),
-          SARANA_PEMERINTAH: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.SARANA_PEMERINTAH === allData[idx - 1].SARANA_PEMERINTAH ? 0 : row.SARANA_PEMERINTAH),
+          FASILITAS: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.FASILITAS === allData[idx - 1].FASILITAS ? 0 : row.FASILITAS),
           LembagaRiset: '',
           LembagaPendidikan: '',
           QtyPesan_E: blankIfZeroOrDash(idx > 0 && row.Nie === allData[idx - 1].Nie && row.NamaItemBpom === allData[idx - 1].NamaItemBpom && row.QtyPesan_E === allData[idx - 1].QtyPesan_E ? 0 : row.QtyPesan_E),
@@ -698,7 +698,7 @@ const ReportFarmasi = () => {
                           {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.KLINIK === data[index - 1].KLINIK ? 0 : item.KLINIK ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
-                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.SARANA_PEMERINTAH === data[index - 1].SARANA_PEMERINTAH ? 0 : item.SARANA_PEMERINTAH ?? 0}
+                          {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.FASILITAS === data[index - 1].FASILITAS ? 0 : item.FASILITAS ?? 0}
                         </CTableDataCell>
                         <CTableDataCell>
                           {index > 0 && item.Nie === data[index - 1].Nie && item.NamaItemBpom === data[index - 1].NamaItemBpom && item.LembagaRiset === data[index - 1].LembagaRiset ? 0 : item.LembagaRiset ?? 0}
