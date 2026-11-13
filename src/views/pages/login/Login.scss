@@ -1,0 +1,277 @@
+// Palette sampled from the SDL logo
+.sdl-login {
+  --sdl-navy: #154a63;
+  --sdl-navy-deep: #0f3a4f;
+  --sdl-blue: #1e6282;
+  --sdl-teal: #3a9599;
+  --sdl-mint: #8bd3be;
+  --sdl-amber: #fbb025;
+  --sdl-orange: #f47b2a;
+  --sdl-red: #ef4a31;
+  --sdl-ink: #1a2b33;
+  --sdl-muted: #5b6e77;
+  --sdl-line: #d5dfe3;
+  --sdl-surface: #ffffff;
+  --sdl-wash: #f3f7f8;
+
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
+  min-height: 100vh;
+  background: var(--sdl-surface);
+  color: var(--sdl-ink);
+  font-family: 'Nunito Sans', sans-serif;
+}
+
+/* Brand panel */
+.sdl-login__brand {
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 3.5rem;
+  background:
+    radial-gradient(120% 80% at 100% 0%, rgba(58, 149, 153, 0.35), transparent 60%),
+    linear-gradient(160deg, var(--sdl-blue) 0%, var(--sdl-navy-deep) 100%);
+  color: #fff;
+}
+
+.sdl-login__chevron {
+  position: absolute;
+  top: 12%;
+  right: -6%;
+  width: 62%;
+  aspect-ratio: 1 / 1.05;
+}
+
+.sdl-login__wing {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+// Upper wing of the logo chevron: mint to teal
+.sdl-login__wing--top {
+  background: linear-gradient(200deg, var(--sdl-teal) 10%, var(--sdl-mint) 95%);
+  clip-path: polygon(8% 0%, 100% 34%, 76% 47%, 0% 19%);
+  opacity: 0.9;
+  animation: sdl-wing-in 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+// Lower wing: amber to red
+.sdl-login__wing--bottom {
+  background: linear-gradient(30deg, var(--sdl-amber) 0%, var(--sdl-orange) 55%, var(--sdl-red) 100%);
+  clip-path: polygon(100% 34%, 96% 58%, 4% 82%, 8% 57%);
+  animation: sdl-wing-in 700ms 120ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes sdl-wing-in {
+  from {
+    opacity: 0;
+    transform: translateX(-8%);
+  }
+}
+
+.sdl-login__brand-text {
+  position: relative;
+  max-width: 28rem;
+}
+
+.sdl-login__product {
+  margin: 0;
+  font-size: clamp(2.5rem, 4.5vw, 3.75rem);
+  font-weight: 900;
+  font-style: italic;
+  line-height: 1;
+  letter-spacing: -0.02em;
+}
+
+.sdl-login__company {
+  margin: 0.75rem 0 0;
+  font-size: 1.05rem;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+/* Form panel */
+.sdl-login__panel {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  background: var(--sdl-surface);
+}
+
+.sdl-login__form {
+  width: 100%;
+  max-width: 22.5rem;
+}
+
+.sdl-login__logo {
+  display: block;
+  width: 96px;
+  height: auto;
+  margin-bottom: 2.5rem;
+}
+
+.sdl-login__title {
+  margin: 0;
+  font-size: 1.875rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  color: var(--sdl-ink);
+}
+
+.sdl-login__subtitle {
+  margin: 0.375rem 0 2rem;
+  color: var(--sdl-muted);
+}
+
+.sdl-login__label {
+  display: block;
+  margin-bottom: 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--sdl-ink);
+}
+
+.sdl-login__field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.sdl-login__field-icon {
+  position: absolute;
+  left: 0.875rem;
+  width: 1.1rem !important;
+  height: 1.1rem !important;
+  color: var(--sdl-muted);
+  pointer-events: none;
+}
+
+.sdl-login__input {
+  width: 100%;
+  height: 3rem;
+  padding: 0 2.75rem;
+  border: 1.5px solid var(--sdl-line);
+  border-radius: 10px;
+  background: var(--sdl-wash);
+  color: var(--sdl-ink);
+  font: inherit;
+  transition:
+    border-color 150ms,
+    background-color 150ms,
+    box-shadow 150ms;
+
+  &:hover {
+    border-color: #b7c8cf;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: var(--sdl-teal);
+    background: #fff;
+    box-shadow: 0 0 0 4px rgba(58, 149, 153, 0.18);
+  }
+}
+
+.sdl-login__field:focus-within .sdl-login__field-icon {
+  color: var(--sdl-teal);
+}
+
+.sdl-login__reveal {
+  position: absolute;
+  right: 0.375rem;
+  display: grid;
+  place-items: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: var(--sdl-muted);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--sdl-ink);
+    background: rgba(21, 74, 99, 0.06);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--sdl-teal);
+    outline-offset: 1px;
+  }
+}
+
+.sdl-login__error {
+  margin: -0.25rem 0 1.25rem;
+  padding: 0.75rem 0.875rem;
+  border-left: 3px solid var(--sdl-red);
+  border-radius: 6px;
+  background: #fdeeeb;
+  color: #a32a17;
+  font-size: 0.9rem;
+}
+
+.sdl-login__submit {
+  width: 100%;
+  height: 3rem;
+  margin-top: 0.5rem;
+  border: 0;
+  border-radius: 10px;
+  background: var(--sdl-navy);
+  color: #fff;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background-color 150ms;
+
+  &:hover:not(:disabled) {
+    background: var(--sdl-blue);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--sdl-amber);
+    outline-offset: 2px;
+  }
+
+  &:disabled {
+    opacity: 0.7;
+    cursor: progress;
+  }
+}
+
+.sdl-login__footnote {
+  margin: 1.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--sdl-muted);
+}
+
+/* Small screens: drop the brand panel, keep the logo above the form */
+@media (max-width: 860px) {
+  .sdl-login {
+    grid-template-columns: 1fr;
+  }
+
+  .sdl-login__brand {
+    display: none;
+  }
+
+  .sdl-login__panel {
+    align-items: flex-start;
+    padding-top: 4rem;
+    border-top: 6px solid var(--sdl-navy);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sdl-login__wing {
+    animation: none;
+  }
+
+  .sdl-login__input,
+  .sdl-login__submit {
+    transition: none;
+  }
+}

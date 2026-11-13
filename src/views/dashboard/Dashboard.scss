@@ -1,0 +1,480 @@
+// Chart tokens: brand blue/orange from the SDL logo, stepped per theme and
+// validated for colour-blind separation and contrast on each surface.
+.dash {
+  --dash-series-1: #1a6fa3;
+  --dash-series-2: #e2671c;
+  --dash-critical: #d03b3b;
+  --dash-up: #0a7d3c;
+  --dash-surface: var(--cui-body-bg, #fff);
+  --dash-text: var(--cui-body-color);
+  --dash-text-secondary: var(--cui-secondary-color, #5b6e77);
+  --dash-line: var(--cui-border-color, #dbe3e7);
+  --dash-grid: rgba(21, 74, 99, 0.09);
+  --dash-track: rgba(21, 74, 99, 0.07);
+
+  padding-bottom: 2rem;
+  color: var(--dash-text);
+}
+
+[data-coreui-theme='dark'] .dash {
+  --dash-series-1: #3a8fc4;
+  --dash-series-2: #d9611b;
+  --dash-critical: #e46262;
+  --dash-up: #4cc27f;
+  --dash-grid: rgba(255, 255, 255, 0.08);
+  --dash-track: rgba(255, 255, 255, 0.07);
+}
+
+.dash-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.dash-title {
+  margin: 0;
+  font-size: 1.75rem;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+}
+
+.dash-subtitle {
+  margin: 0.25rem 0 0;
+  color: var(--dash-text-secondary);
+}
+
+.dash-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.dash-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-width: 11rem;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--dash-text-secondary);
+
+  .form-select {
+    font-weight: 600;
+  }
+}
+
+.dash-error {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  padding: 0.75rem 1rem;
+  border-left: 3px solid var(--dash-critical);
+  border-radius: 6px;
+  background: rgba(208, 59, 59, 0.08);
+}
+
+.dash-loading,
+.dash-empty {
+  padding: 2rem 0;
+  color: var(--dash-text-secondary);
+}
+
+.dash-body {
+  transition: opacity 150ms;
+
+  &.is-loading {
+    opacity: 0.55;
+    pointer-events: none;
+  }
+}
+
+/* KPI strip: one continuous band split by rules, not four floating cards */
+.dash-kpis {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin-bottom: 1.25rem;
+  border: 1px solid var(--dash-line);
+  border-radius: 12px;
+  background: var(--dash-surface);
+  overflow: hidden;
+}
+
+.dash-kpi {
+  padding: 1.25rem 1.5rem;
+
+  & + & {
+    border-left: 1px solid var(--dash-line);
+  }
+}
+
+.dash-kpi__label {
+  margin: 0 0 0.375rem;
+  font-size: 0.875rem;
+  font-weight: 700;
+  color: var(--dash-text-secondary);
+}
+
+.dash-kpi__value {
+  margin: 0;
+  font-size: clamp(1.5rem, 2.4vw, 2rem);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-kpi__meta {
+  margin-top: 0.5rem;
+  font-size: 0.8125rem;
+  color: var(--dash-text-secondary);
+
+  .is-up {
+    color: var(--dash-up);
+    font-weight: 700;
+  }
+
+  .is-down {
+    color: var(--dash-critical);
+    font-weight: 700;
+  }
+}
+
+/* Panels */
+.dash-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+}
+
+.dash-panel {
+  min-width: 0;
+  padding: 1.25rem 1.5rem 1.5rem;
+  border: 1px solid var(--dash-line);
+  border-radius: 12px;
+  background: var(--dash-surface);
+}
+
+.dash-panel--trend {
+  grid-column: 1 / -1;
+}
+
+.dash-panel__head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.dash-panel__title {
+  margin: 0;
+  font-size: 1.0625rem;
+  font-weight: 800;
+}
+
+.dash-panel__note {
+  margin: 0.125rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--dash-text-secondary);
+}
+
+.dash-link {
+  flex-shrink: 0;
+  padding: 0.25rem 0;
+  border: 0;
+  background: none;
+  color: var(--dash-series-1);
+  font: inherit;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: pointer;
+
+  &:hover {
+    text-decoration: underline;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--dash-series-1);
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+.dash-legend {
+  display: flex;
+  gap: 1.25rem;
+  margin: -0.25rem 0 0.75rem;
+  font-size: 0.8125rem;
+  color: var(--dash-text-secondary);
+}
+
+.dash-legend__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.dash-swatch {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+
+  &--1 {
+    background: var(--dash-series-1);
+  }
+
+  &--2 {
+    background: var(--dash-series-2);
+  }
+}
+
+.dash-chart {
+  position: relative;
+  height: 300px;
+
+  // CChart wraps the canvas in a div; it must fill the panel for maintainAspectRatio: false
+  > div {
+    position: relative;
+    height: 100%;
+  }
+}
+
+.dash-table-wrap {
+  max-height: 300px;
+  overflow: auto;
+}
+
+.dash-table {
+  width: 100%;
+  font-size: 0.875rem;
+  font-variant-numeric: tabular-nums;
+  border-collapse: collapse;
+
+  th,
+  td {
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--dash-line);
+  }
+
+  th {
+    position: sticky;
+    top: 0;
+    background: var(--dash-surface);
+    color: var(--dash-text-secondary);
+    font-weight: 700;
+    text-align: left;
+  }
+
+  .num {
+    text-align: right;
+  }
+}
+
+/* Ranked bar lists (cabang, grup, aging) */
+.dash-rank {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dash-rank__row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.3rem 1rem;
+  padding: 0.5rem 0;
+
+  & + & {
+    border-top: 1px solid var(--dash-line);
+  }
+}
+
+.dash-rank__label {
+  overflow: hidden;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.dash-rank__value {
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+
+  small {
+    display: inline-block;
+    min-width: 3.5rem;
+    margin-left: 0.5rem;
+    color: var(--dash-text-secondary);
+    font-size: 0.8125rem;
+    font-weight: 600;
+  }
+}
+
+.dash-rank__track {
+  grid-column: 1 / -1;
+  height: 6px;
+  border-radius: 3px;
+  background: var(--dash-track);
+  overflow: hidden;
+}
+
+.dash-rank__bar {
+  display: block;
+  height: 100%;
+  border-radius: 3px;
+  background: var(--dash-series-1);
+}
+
+.dash-rank__row.is-critical {
+  .dash-rank__label::after {
+    content: ' (perlu ditagih)';
+    color: var(--dash-critical);
+    font-weight: 700;
+  }
+
+  .dash-rank__bar {
+    background: var(--dash-critical);
+  }
+}
+
+.dash-foot {
+  margin: 0.75rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--dash-text-secondary);
+}
+
+/* Top-10 lists */
+.dash-top-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.dash-top-list__row {
+  display: grid;
+  grid-template-columns: 1.5rem minmax(0, 1fr) auto;
+  column-gap: 0.75rem;
+  align-items: baseline;
+  padding: 0.45rem 0;
+
+  & + & {
+    border-top: 1px solid var(--dash-line);
+  }
+}
+
+.dash-top-list__rank {
+  font-size: 0.8125rem;
+  font-weight: 700;
+  color: var(--dash-text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-top-list__name {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+
+  span {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  small {
+    overflow: hidden;
+    color: var(--dash-text-secondary);
+    font-size: 0.75rem;
+    font-weight: 500;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+}
+
+.dash-top-list__value {
+  font-size: 0.875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.dash-top-list__track {
+  grid-column: 2 / -1;
+  height: 4px;
+  margin-top: 0.3rem;
+  border-radius: 2px;
+  background: var(--dash-track);
+  overflow: hidden;
+
+  span {
+    display: block;
+    height: 100%;
+    border-radius: 2px;
+    background: var(--dash-series-1);
+    opacity: 0.75;
+  }
+}
+
+.dash-footnote {
+  margin: 1.25rem 0 0;
+  font-size: 0.8125rem;
+  color: var(--dash-text-secondary);
+}
+
+@media (max-width: 1100px) {
+  .dash-kpis {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dash-kpi:nth-child(3) {
+    border-left: 0;
+  }
+
+  .dash-kpi:nth-child(n + 3) {
+    border-top: 1px solid var(--dash-line);
+  }
+}
+
+@media (max-width: 768px) {
+  .dash-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dash-filters,
+  .dash-filter {
+    width: 100%;
+  }
+
+  .dash-chart {
+    height: 240px;
+  }
+}
+
+@media (max-width: 480px) {
+  .dash-kpis {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dash-kpi + .dash-kpi {
+    border-left: 0;
+    border-top: 1px solid var(--dash-line);
+  }
+
+  .dash-panel {
+    padding: 1rem;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .dash-body {
+    transition: none;
+  }
+}
