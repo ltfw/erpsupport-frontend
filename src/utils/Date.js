@@ -78,3 +78,25 @@ export const formatISODateToDDMMYYYY = (isoDateString) => {
   }
 };
 
+
+const NAMA_BULAN = [
+  'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+  'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
+];
+
+// Last `count` months, newest first: [{ value: '2026-11', label: 'November 2026' }, ...]
+export const getRecentMonthOptions = (count = 24) => {
+  const now = new Date();
+  return Array.from({ length: count }, (_, i) => {
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    const value = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    return { value, label: `${NAMA_BULAN[d.getMonth()]} ${d.getFullYear()}` };
+  });
+};
+
+// '2026-10' -> { start: '2026-10-01', end: '2026-10-31' }
+export const getMonthDateRange = (yearMonth) => {
+  const [year, month] = yearMonth.split('-').map(Number);
+  const lastDay = new Date(year, month, 0).getDate();
+  return { start: `${yearMonth}-01`, end: `${yearMonth}-${String(lastDay).padStart(2, '0')}` };
+};

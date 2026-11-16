@@ -187,7 +187,7 @@ const SalesTrend = ({ trend, month, isCurrentMonth, asOfDate, tokens }) => {
   return (
     <Panel
       title={`Tren penjualan ${year}`}
-      note="Nilai nett per bulan, dipisah menurut tipe jual"
+      note="Total penjualan per bulan, dipisah menurut tipe jual"
       className="dash-panel--trend"
       action={
         <button type="button" className="dash-link" onClick={() => setShowTable((v) => !v)}>
@@ -303,14 +303,16 @@ const Dashboard = () => {
   const monthLabel = `${BULAN_PANJANG[monthIdx]} ${month.slice(0, 4)}`
 
   const growth =
-    p && p.nettBulanLalu > 0 ? ((p.nett - p.nettBulanLalu) / p.nettBulanLalu) * 100 : null
+    p && p.penjualanBulanLalu > 0
+      ? ((p.penjualan - p.penjualanBulanLalu) / p.penjualanBulanLalu) * 100
+      : null
   // Average over completed months only, so a partial current month doesn't drag it down
   const averageNote = (() => {
     if (!p) return ''
     const partial = data.period.isCurrentMonth
     const fullMonths = partial ? monthIdx : monthIdx + 1
     if (fullMonths === 0) return 'Bulan pertama tahun ini, belum ada rata-rata'
-    const avg = (partial ? p.ytd - p.nett : p.ytd) / fullMonths
+    const avg = (partial ? p.ytd - p.penjualan : p.ytd) / fullMonths
     const range = fullMonths === 1 ? BULAN[0] : `Jan–${BULAN[fullMonths - 1]}`
     return `Rata-rata ${range}: ${rupiahShort(avg)} per bulan`
   })()
@@ -324,14 +326,14 @@ const Dashboard = () => {
     const rows = top.map((g) => ({
       key: g.grup,
       label: g.grup,
-      value: g.nett,
+      value: g.penjualan,
       pelanggan: g.pelanggan,
     }))
     if (rest.length > 0) {
       rows.push({
         key: '__lainnya',
         label: `Lainnya (${rest.length} grup)`,
-        value: rest.reduce((s, g) => s + g.nett, 0),
+        value: rest.reduce((s, g) => s + g.penjualan, 0),
         pelanggan: rest.reduce((s, g) => s + g.pelanggan, 0),
       })
     }
@@ -408,11 +410,11 @@ const Dashboard = () => {
           <div className="dash-kpis">
             <Kpi
               label={`Penjualan ${monthLabel}`}
-              value={rupiahShort(p.nett)}
-              title={rupiahFull(p.nett)}
+              value={rupiahShort(p.penjualan)}
+              title={rupiahFull(p.penjualan)}
             >
               {data.period.isCurrentMonth ? (
-                <span>Bulan berjalan. Bulan lalu {rupiahShort(p.nettBulanLalu)}</span>
+                <span>Bulan berjalan. Bulan lalu {rupiahShort(p.penjualanBulanLalu)}</span>
               ) : growth === null ? (
                 <span>Tidak ada data bulan sebelumnya</span>
               ) : (
@@ -489,12 +491,16 @@ const Dashboard = () => {
                   <p className="dash-empty">Belum ada penjualan di periode ini.</p>
                 ) : (
                   <RankList
-                    rows={p.perCabang.map((c) => ({ key: c.kode, label: c.nama, value: c.nett }))}
-                    max={Math.max(...p.perCabang.map((c) => c.nett))}
+                    rows={p.perCabang.map((c) => ({
+                      key: c.kode,
+                      label: c.nama,
+                      value: c.penjualan,
+                    }))}
+                    max={Math.max(...p.perCabang.map((c) => c.penjualan))}
                     renderValue={(r) => (
                       <>
                         {rupiahShort(r.value)}
-                        <small>{p.nett > 0 ? pct((r.value / p.nett) * 100) : '–'}</small>
+                        <small>{p.penjualan > 0 ? pct((r.value / p.penjualan) * 100) : '–'}</small>
                       </>
                     )}
                   />
@@ -519,32 +525,40 @@ const Dashboard = () => {
               )}
             </Panel>
 
-            <Panel title="Produk terlaris" note={`10 teratas menurut nilai nett, ${monthLabel}`}>
+            <Panel
+              title="Produk terlaris"
+              note={`10 teratas menurut nilai penjualan, ${monthLabel}`}
+            >
               <TopTable
                 rows={p.topProduk.map((r) => ({
                   key: r.kode,
                   primary: r.nama,
                   secondary: r.kode,
-                  value: r.nett,
+                  value: r.penjualan,
                 }))}
               />
             </Panel>
 
-            <Panel title="Pelanggan teratas" note={`10 teratas menurut nilai nett, ${monthLabel}`}>
+            <Panel
+              title="Pelanggan teratas"
+              note={`10 teratas menurut nilai penjualan, ${monthLabel}`}
+            >
               <TopTable
                 rows={p.topPelanggan.map((r) => ({
                   key: `${r.kode}-${r.cabang}`,
                   primary: r.nama,
                   secondary: `${r.kode}${r.cabang ? `, ${r.cabang}` : ''}`,
-                  value: r.nett,
+                  value: r.penjualan,
                 }))}
               />
             </Panel>
           </div>
 
           <p className="dash-footnote">
-            Nilai nett = HNA × qty dikurangi diskon item, sebelum PPN, sudah dikurangi retur. Angka
-            ini sama dengan kolom Value Nett di Laporan Penjualan.
+            Nilai penjualan = harga jual × qty sebelum PPN, sama dengan Total Penjualan di Laporan
+            PNL. {monthLabel}: Total Penjualan {rupiahFull(p.penjualan)} − retur{' '}
+            {rupiahFull(p.retur)} − diskon distributor {rupiahFull(p.diskonDistributor)} = Penjualan
+            Bersih {rupiahFull(p.penjualanBersih)}. Faktur klaim diskon (DSI) tidak ikut dihitung.
           </p>
         </div>
       )}

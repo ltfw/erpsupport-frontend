@@ -15,6 +15,7 @@ import {
   CDropdownItem,
   CDropdownMenu,
   CDropdownToggle,
+  CFormSelect,
   CRow,
 } from '@coreui/react'
 import { useNavigate } from 'react-router-dom'
@@ -29,8 +30,19 @@ import FilterReport from '../../modals/FilterReport'
 import BarangSelector from '../../modals/BarangSelector'
 import CabangSelector from '../../modals/CabangSelector'
 import SupplierSelector from '../../modals/SupplierSelector'
-import { getCurrentDateFormatted, getFirstDayOfMonthFormatted } from '../../../utils/Date'
+import { getMonthDateRange, getRecentMonthOptions } from '../../../utils/Date'
 const ENDPOINT_URL = import.meta.env.VITE_BACKEND_URL
+
+const MONTH_OPTIONS = getRecentMonthOptions()
+const INITIAL_RANGE = getMonthDateRange(MONTH_OPTIONS[0].value)
+
+// The backend reads one database per year, so a range must stay within a single year.
+const getRangeError = (start, end) => {
+  if (!start || !end) return 'Pilih tanggal mulai dan tanggal akhir'
+  if (start > end) return 'Tanggal mulai tidak boleh setelah tanggal akhir'
+  if (start.slice(0, 4) !== end.slice(0, 4)) return 'Rentang tanggal harus dalam tahun yang sama'
+  return ''
+}
 
 const userData = JSON.parse(localStorage.getItem('user'))
 
@@ -50,8 +62,24 @@ const Penjualan = () => {
   const [selectedBarang, setSelectedBarang] = useState([])
   const [selectedCabang, setSelectedCabang] = useState([])
   const [selectedSupplier, setSelectedSupplier] = useState([])
-  const [startDate, setStartDate] = useState(getFirstDayOfMonthFormatted())
-  const [endDate, setEndDate] = useState(getCurrentDateFormatted())
+  const [periodMode, setPeriodMode] = useState('bulan')
+  const [month, setMonth] = useState(MONTH_OPTIONS[0].value)
+  const [startDate, setStartDate] = useState(INITIAL_RANGE.start)
+  const [endDate, setEndDate] = useState(INITIAL_RANGE.end)
+  const rangeError = getRangeError(startDate, endDate)
+
+  const applyMonth = (value) => {
+    const range = getMonthDateRange(value)
+    setMonth(value)
+    setStartDate(range.start)
+    setEndDate(range.end)
+  }
+
+  const changePeriodMode = (mode) => {
+    setPeriodMode(mode)
+    // Switching back to monthly snaps the dates to the selected month again
+    if (mode === 'bulan') applyMonth(month)
+  }
 
   const column = [
     {
@@ -324,6 +352,7 @@ const Penjualan = () => {
     startDate = null,
     endDate = null,
   ) => {
+    if (getRangeError(startDate, endDate)) return
     setLoading(true)
     setPage(page)
     const fetchData = await fetchSales(
@@ -419,7 +448,7 @@ const Penjualan = () => {
 
   useEffect(() => {
     setPerPage(perPage)
-    if (startDate && endDate) {
+    if (!getRangeError(startDate, endDate)) {
       loadDataSales(
         1,
         perPage,
@@ -434,6 +463,7 @@ const Penjualan = () => {
   }, [perPage, selectedCabang, selectedSupplier, selectedBarang, startDate, endDate])
 
   const exportToExcel = async () => {
+    if (rangeError) return alert(rangeError)
     document.body.style.cursor = 'wait'
     try {
       const response = await fetchSales(
@@ -490,7 +520,7 @@ const Penjualan = () => {
         { key: 'NamaBarang', width: 18 },
         { key: 'NamaSupplier', width: 15 },
         { key: 'BusinessCentreName', width: 20 },
-        { key: 'BasePriceSatuanTerkecil', width: 18},
+        { key: 'BasePriceSatuanTerkecil', width: 18 },
         { key: 'BasePrice', width: 10 },
         { key: 'Hna', width: 10 },
         { key: 'Qty', width: 8 },
@@ -538,7 +568,7 @@ const Penjualan = () => {
         column.numFmt = numberFormatThousandTwoDecimal
       })
 
-      const columnsToFormat = ['Hna', 'Qty', 'BasePrice','BasePriceSatuanTerkecil']
+      const columnsToFormat = ['Hna', 'Qty', 'BasePrice', 'BasePriceSatuanTerkecil']
 
       columnsToFormat.forEach((key) => {
         const column = worksheet.getColumn(key)
@@ -597,7 +627,8 @@ const Penjualan = () => {
         const cleanRow = {
           ...row,
           BasePrice: Math.round(parseFloat(row.BasePrice || 0) * 100) / 100,
-          BasePriceSatuanTerkecil: Math.round(parseFloat(row.BasePriceSatuanTerkecil || 0) * 100) / 100,
+          BasePriceSatuanTerkecil:
+            Math.round(parseFloat(row.BasePriceSatuanTerkecil || 0) * 100) / 100,
           Hna: Math.round(parseFloat(row.Hna || 0) * 100) / 100,
           Qty: Math.round(parseFloat(row.Qty || 0) * 100) / 100,
           QtySatuanTerkecil: Math.round(parseFloat(row.QtySatuanTerkecil || 0) * 100) / 100,
@@ -635,10 +666,18 @@ const Penjualan = () => {
       worksheet.getCell(`W${totalRowNumber}`).value = { formula: `SUM(W7:W${totalRowNumber - 1})` } // Qty Satuan Terkecil
       worksheet.getCell(`Y${totalRowNumber}`).value = { formula: `SUM(Y7:Y${totalRowNumber - 1})` } // ValueBase Price
       worksheet.getCell(`Z${totalRowNumber}`).value = { formula: `SUM(Z7:Z${totalRowNumber - 1})` } // Value HNA Jual
-      worksheet.getCell(`AA${totalRowNumber}`).value = { formula: `SUM(AA7:AA${totalRowNumber - 1})` } // ValueDiscDistributor
-      worksheet.getCell(`AB${totalRowNumber}`).value = { formula: `SUM(AB7:AB${totalRowNumber - 1})` } // ValueDiscPrinciple
-      worksheet.getCell(`AC${totalRowNumber}`).value = { formula: `SUM(AC7:AC${totalRowNumber - 1})` } // ValueDiscDistributor
-      worksheet.getCell(`AD${totalRowNumber}`).value = { formula: `SUM(AD7:AD${totalRowNumber - 1})` } // ValueDiscPrinciple
+      worksheet.getCell(`AA${totalRowNumber}`).value = {
+        formula: `SUM(AA7:AA${totalRowNumber - 1})`,
+      } // ValueDiscDistributor
+      worksheet.getCell(`AB${totalRowNumber}`).value = {
+        formula: `SUM(AB7:AB${totalRowNumber - 1})`,
+      } // ValueDiscPrinciple
+      worksheet.getCell(`AC${totalRowNumber}`).value = {
+        formula: `SUM(AC7:AC${totalRowNumber - 1})`,
+      } // ValueDiscDistributor
+      worksheet.getCell(`AD${totalRowNumber}`).value = {
+        formula: `SUM(AD7:AD${totalRowNumber - 1})`,
+      } // ValueDiscPrinciple
 
       // Optional: bold all total row
       worksheet.getRow(totalRowNumber).font = { bold: true }
@@ -663,6 +702,7 @@ const Penjualan = () => {
   }
 
   const exportToPDF = async () => {
+    if (rangeError) return alert(rangeError)
     try {
       document.body.style.cursor = 'wait'
 
@@ -948,12 +988,49 @@ const Penjualan = () => {
                     />
                   </CCol>
                   <CCol xs={12} sm={2}>
-                    <DatePicker onChange={setStartDate} value={startDate} />
+                    <CFormSelect
+                      aria-label="Jenis periode"
+                      value={periodMode}
+                      onChange={(e) => changePeriodMode(e.target.value)}
+                    >
+                      <option value="bulan">Periode bulanan</option>
+                      <option value="tanggal">Rentang tanggal</option>
+                    </CFormSelect>
                   </CCol>
-                  <CCol xs={12} sm={2}>
-                    <DatePicker onChange={setEndDate} value={endDate} />
-                  </CCol>
+                  {periodMode === 'bulan' ? (
+                    <CCol xs={12} sm={2}>
+                      <CFormSelect
+                        aria-label="Bulan"
+                        value={month}
+                        onChange={(e) => applyMonth(e.target.value)}
+                      >
+                        {MONTH_OPTIONS.map((m) => (
+                          <option key={m.value} value={m.value}>
+                            {m.label}
+                          </option>
+                        ))}
+                      </CFormSelect>
+                    </CCol>
+                  ) : (
+                    <>
+                      <CCol xs={12} sm={2}>
+                        <DatePicker
+                          onChange={setStartDate}
+                          value={startDate}
+                          placeholder="Tanggal mulai"
+                        />
+                      </CCol>
+                      <CCol xs={12} sm={2}>
+                        <DatePicker
+                          onChange={setEndDate}
+                          value={endDate}
+                          placeholder="Tanggal akhir"
+                        />
+                      </CCol>
+                    </>
+                  )}
                 </CRow>
+                {rangeError && <div className="text-danger small mt-2">{rangeError}</div>}
               </div>
               <div className="mb-3">
                 <input
