@@ -1,6 +1,17 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import axios from 'axios'
 import { CChartBar } from '@coreui/react-chartjs'
+import {
+  CButton,
+  CModal,
+  CModalBody,
+  CModalFooter,
+  CModalHeader,
+  CModalTitle,
+  CSpinner,
+} from '@coreui/react'
+import CIcon from '@coreui/icons-react'
+import { cilSettings } from '@coreui/icons'
 import { useAuth } from '../../contexts/AuthContext'
 import './Dashboard.scss'
 
@@ -253,6 +264,176 @@ const Kpi = ({ label, value, title, children }) => (
   </div>
 )
 
+// Rupiah input: digits only, shown with thousand separators
+const parseRupiah = (text) => {
+  const digits = String(text).replace(/\D/g, '')
+  return digits === '' ? null : Number(digits)
+}
+const formatInput = (v) => (v === null || v === undefined ? '' : nf(0).format(v))
+
+const TargetSettings = ({ visible, month, monthLabel, onClose, onSaved }) => {
+  const [rows, setRows] = useState([])
+  const [status, setStatus] = useState('idle') // idle | loading | saving
+  const [error, setError] = useState('')
+
+  useEffect(() => {
+    if (!visible) return
+    setStatus('loading')
+    setError('')
+    axios
+      .get(`${ENDPOINT_URL}dashboard/targets?month=${month}`)
+      .then((res) => setRows(res.data.cabang))
+      .catch((err) => setError(err.response?.data?.error || 'Target tidak dapat dimuat.'))
+      .finally(() => setStatus('idle'))
+  }, [visible, month])
+
+  const update = (kode, key, text) =>
+    setRows((prev) => prev.map((r) => (r.kode === kode ? { ...r, [key]: parseRupiah(text) } : r)))
+
+  const total = (key) => rows.reduce((s, r) => s + (r[key] || 0), 0)
+
+  const save = async () => {
+    setStatus('saving')
+    setError('')
+    try {
+      await axios.put(`${ENDPOINT_URL}dashboard/targets`, {
+        month,
+        targets: rows.map(({ kode, sales, collection }) => ({ kode, sales, collection })),
+      })
+      onSaved()
+    } catch (err) {
+      setError(err.response?.data?.error || 'Target gagal disimpan. Coba lagi.')
+    } finally {
+      setStatus('idle')
+    }
+  }
+
+  return (
+    <CModal
+      visible={visible}
+      onClose={onClose}
+      size="lg"
+      alignment="center"
+      className="dash-target-modal"
+    >
+      <CModalHeader>
+        <CModalTitle>Target {monthLabel}</CModalTitle>
+      </CModalHeader>
+      <CModalBody>
+        <p className="dash-target-form__hint">
+          Isi target per cabang dalam rupiah. Kosongkan cabang yang tidak punya target. Target semua
+          cabang adalah jumlah dari target per cabang.
+        </p>
+        {error && (
+          <div className="dash-error" role="alert">
+            <span>{error}</span>
+          </div>
+        )}
+        {status === 'loading' ? (
+          <div className="dash-loading">Memuat target…</div>
+        ) : (
+          <div className="dash-target-form">
+            <table className="dash-table">
+              <thead>
+                <tr>
+                  <th scope="col">Cabang</th>
+                  <th scope="col" className="num">
+                    Target sales (Rp)
+                  </th>
+                  <th scope="col" className="num">
+                    Target collection (Rp)
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {rows.map((r) => (
+                  <tr key={r.kode}>
+                    <td>{r.nama}</td>
+                    {['sales', 'collection'].map((key) => (
+                      <td key={key} className="num">
+                        <input
+                          type="text"
+                          inputMode="numeric"
+                          className="form-control"
+                          aria-label={`Target ${key} ${r.nama}`}
+                          value={formatInput(r[key])}
+                          onChange={(e) => update(r.kode, key, e.target.value)}
+                          placeholder="Belum diset"
+                        />
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+              <tfoot>
+                <tr>
+                  <th scope="row">Semua cabang</th>
+                  <td className="num">{rupiahFull(total('sales'))}</td>
+                  <td className="num">{rupiahFull(total('collection'))}</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+        )}
+      </CModalBody>
+      <CModalFooter>
+        <CButton color="secondary" variant="ghost" onClick={onClose}>
+          Batal
+        </CButton>
+        <CButton color="primary" onClick={save} disabled={status !== 'idle' || rows.length === 0}>
+          {status === 'saving' && <CSpinner size="sm" className="me-2" />}
+          Simpan target
+        </CButton>
+      </CModalFooter>
+    </CModal>
+  )
+}
+
+const TargetKpi = ({ label, metric, canEdit }) => {
+  const { target } = metric
+  return (
+    <Kpi
+      label={label}
+      value={target === null ? 'Belum diset' : rupiahShort(target)}
+      title={target === null ? undefined : rupiahFull(target)}
+    >
+      {target === null ? (
+        <span>{canEdit ? 'Atur lewat tombol pengaturan' : 'Target belum ditetapkan'}</span>
+      ) : metric.pencapaian >= target ? (
+        <span className="is-up">Terlampaui {rupiahShort(metric.pencapaian - target)}</span>
+      ) : (
+        <span>Kurang {rupiahShort(target - metric.pencapaian)} lagi</span>
+      )}
+    </Kpi>
+  )
+}
+
+const AchievementKpi = ({ label, metric }) => {
+  const { target, pencapaian } = metric
+  const ratio = target > 0 ? (pencapaian / target) * 100 : null
+  return (
+    <Kpi label={label} value={rupiahShort(pencapaian)} title={rupiahFull(pencapaian)}>
+      {ratio === null ? (
+        <span>Belum ada target pembanding</span>
+      ) : (
+        <>
+          <span className={ratio >= 100 ? 'is-up' : ''}>{pct(ratio)} dari target</span>
+          <span
+            className={`dash-progress ${ratio >= 100 ? 'is-done' : ''}`}
+            role="progressbar"
+            aria-label={`${label}: ${pct(ratio)} dari target`}
+            aria-valuenow={Math.round(ratio)}
+            aria-valuemin={0}
+            aria-valuemax={100}
+          >
+            <span style={{ width: `${Math.min(ratio, 100)}%` }} />
+          </span>
+        </>
+      )}
+    </Kpi>
+  )
+}
+
 const Dashboard = () => {
   const { user } = useAuth()
   const rootRef = useRef(null)
@@ -261,10 +442,10 @@ const Dashboard = () => {
 
   const [month, setMonth] = useState(months[0].value)
   const [cabang, setCabang] = useState('')
-  const [cabangList, setCabangList] = useState([])
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState('')
+  const [showTargets, setShowTargets] = useState(false)
 
   const load = useCallback(async () => {
     setLoading(true)
@@ -289,34 +470,15 @@ const Dashboard = () => {
   }, [load])
 
   const canChooseCabang = data?.scope?.canChooseCabang
-  useEffect(() => {
-    if (!canChooseCabang || cabangList.length > 0) return
-    axios
-      .get(`${ENDPOINT_URL}departments?page=1&per_page=100`)
-      .then((res) => setCabangList(res.data.data || []))
-      .catch(() => setCabangList([]))
-  }, [canChooseCabang, cabangList.length])
+  // Comes with the summary, from the same database as the targets
+  const cabangList = data?.scope?.cabangList || []
 
   const p = data?.penjualan
   const ar = data?.piutang
+  const target = data?.target
   const monthIdx = Number(month.slice(5)) - 1
   const monthLabel = `${BULAN_PANJANG[monthIdx]} ${month.slice(0, 4)}`
 
-  const growth =
-    p && p.penjualanBulanLalu > 0
-      ? ((p.penjualan - p.penjualanBulanLalu) / p.penjualanBulanLalu) * 100
-      : null
-  // Average over completed months only, so a partial current month doesn't drag it down
-  const averageNote = (() => {
-    if (!p) return ''
-    const partial = data.period.isCurrentMonth
-    const fullMonths = partial ? monthIdx : monthIdx + 1
-    if (fullMonths === 0) return 'Bulan pertama tahun ini, belum ada rata-rata'
-    const avg = (partial ? p.ytd - p.penjualan : p.ytd) / fullMonths
-    const range = fullMonths === 1 ? BULAN[0] : `Jan–${BULAN[fullMonths - 1]}`
-    return `Rata-rata ${range}: ${rupiahShort(avg)} per bulan`
-  })()
-  const overdue90 = ar ? ar.aging[ar.aging.length - 1].value : 0
   const overdueAll = ar ? ar.aging.slice(1).reduce((s, a) => s + a.value, 0) : 0
 
   const grupRows = useMemo(() => {
@@ -343,8 +505,8 @@ const Dashboard = () => {
   const scopeName = (() => {
     if (!data) return ''
     if (data.scope.cabang.length === 0) return 'Semua cabang'
-    const found = cabangList.find((c) => c.KodeDept === data.scope.cabang[0])
-    return found?.NamaDept || p?.perCabang[0]?.nama || `Cabang ${data.scope.cabang.join(', ')}`
+    const found = cabangList.find((c) => c.kode === data.scope.cabang[0])
+    return found?.nama || p?.perCabang[0]?.nama || `Cabang ${data.scope.cabang.join(', ')}`
   })()
 
   return (
@@ -384,8 +546,8 @@ const Dashboard = () => {
               >
                 <option value="">Semua cabang</option>
                 {cabangList.map((c) => (
-                  <option key={c.KodeDept} value={c.KodeDept}>
-                    {c.NamaDept}
+                  <option key={c.kode} value={c.kode}>
+                    {c.nama}
                   </option>
                 ))}
               </select>
@@ -407,51 +569,41 @@ const Dashboard = () => {
 
       {data && tokens && (
         <div className={`dash-body ${loading ? 'is-loading' : ''}`} aria-busy={loading}>
-          <div className="dash-kpis">
-            <Kpi
-              label={`Penjualan ${monthLabel}`}
-              value={rupiahShort(p.penjualan)}
-              title={rupiahFull(p.penjualan)}
-            >
-              {data.period.isCurrentMonth ? (
-                <span>Bulan berjalan. Bulan lalu {rupiahShort(p.penjualanBulanLalu)}</span>
-              ) : growth === null ? (
-                <span>Tidak ada data bulan sebelumnya</span>
-              ) : (
-                <span className={growth >= 0 ? 'is-up' : 'is-down'}>
-                  {growth >= 0 ? '▲' : '▼'} {pct(Math.abs(growth))} dari bulan sebelumnya
-                </span>
-              )}
-            </Kpi>
-            <Kpi
-              label={`Penjualan Jan–${BULAN[monthIdx]} ${month.slice(0, 4)}`}
-              value={rupiahShort(p.ytd)}
-              title={rupiahFull(p.ytd)}
-            >
-              <span>{averageNote}</span>
-            </Kpi>
-            <Kpi label="Faktur terbit" value={count(p.faktur)}>
-              <span>
-                {count(p.pelanggan)} pelanggan aktif
-                {p.retur > 0 ? `, retur ${rupiahShort(p.retur)}` : ''}
-              </span>
-            </Kpi>
-            {ar ? (
-              <Kpi
-                label="Piutang belum lunas"
-                value={rupiahShort(ar.total)}
-                title={rupiahFull(ar.total)}
-              >
-                <span className={overdue90 > 0 ? 'is-down' : ''}>
-                  {rupiahShort(overdue90)} lewat jatuh tempo &gt; 90 hari
-                </span>
-              </Kpi>
-            ) : (
-              <Kpi label="Pelanggan aktif" value={count(p.pelanggan)}>
-                <span>Bertransaksi di {monthLabel}</span>
-              </Kpi>
-            )}
-          </div>
+          {target && (
+            <section className="dash-target" aria-labelledby="dash-target-title">
+              <header className="dash-target__head">
+                <div>
+                  <h2 id="dash-target-title" className="dash-panel__title">
+                    Target vs pencapaian
+                  </h2>
+                  <p className="dash-panel__note">
+                    {monthLabel}, {scopeName.toLowerCase()}
+                  </p>
+                </div>
+                {target.canEdit && (
+                  <button
+                    type="button"
+                    className="dash-icon-btn"
+                    onClick={() => setShowTargets(true)}
+                    aria-label="Atur target bulanan"
+                    title="Atur target bulanan"
+                  >
+                    <CIcon icon={cilSettings} />
+                  </button>
+                )}
+              </header>
+              <div className="dash-kpis">
+                <TargetKpi label="Target sales" metric={target.sales} canEdit={target.canEdit} />
+                <AchievementKpi label="Pencapaian sales" metric={target.sales} />
+                <TargetKpi
+                  label="Target collection"
+                  metric={target.collection}
+                  canEdit={target.canEdit}
+                />
+                <AchievementKpi label="Pencapaian collection" metric={target.collection} />
+              </div>
+            </section>
+          )}
 
           <div className="dash-grid">
             <SalesTrend
@@ -559,8 +711,23 @@ const Dashboard = () => {
             PNL. {monthLabel}: Total Penjualan {rupiahFull(p.penjualan)} − retur{' '}
             {rupiahFull(p.retur)} − diskon distributor {rupiahFull(p.diskonDistributor)} = Penjualan
             Bersih {rupiahFull(p.penjualanBersih)}. Faktur klaim diskon (DSI) tidak ikut dihitung.
+            {target &&
+              ' Pencapaian sales = total penjualan − retur, sama dengan Laporan Penjualan. Pencapaian collection = pelunasan piutang di bulan ini termasuk SSP, tanpa pembayaran faktur klaim diskon (DSI).'}
           </p>
         </div>
+      )}
+
+      {target?.canEdit && (
+        <TargetSettings
+          visible={showTargets}
+          month={month}
+          monthLabel={monthLabel}
+          onClose={() => setShowTargets(false)}
+          onSaved={() => {
+            setShowTargets(false)
+            load()
+          }}
+        />
       )}
     </div>
   )

@@ -145,6 +145,111 @@
   }
 }
 
+/* Target vs pencapaian: same strip as the KPIs, with its own heading and settings button */
+.dash-target {
+  margin-bottom: 1.25rem;
+
+  .dash-kpis {
+    margin-bottom: 0;
+  }
+}
+
+.dash-target__head {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.625rem;
+}
+
+.dash-icon-btn {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  border: 1px solid var(--dash-line);
+  border-radius: 8px;
+  background: var(--dash-surface);
+  color: var(--dash-text-secondary);
+  cursor: pointer;
+
+  &:hover {
+    color: var(--dash-text);
+    border-color: var(--dash-text-secondary);
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--dash-series-1);
+    outline-offset: 2px;
+  }
+
+  .icon {
+    width: 1.125rem;
+    height: 1.125rem;
+  }
+}
+
+.dash-progress {
+  display: block;
+  height: 6px;
+  margin-top: 0.5rem;
+  border-radius: 3px;
+  background: var(--dash-track);
+  overflow: hidden;
+
+  span {
+    display: block;
+    height: 100%;
+    border-radius: 3px;
+    background: var(--dash-series-1);
+  }
+
+  &.is-done span {
+    background: var(--dash-up);
+  }
+}
+
+.dash-target-form__hint {
+  margin: 0 0 1rem;
+  font-size: 0.875rem;
+  color: var(--cui-secondary-color);
+}
+
+// The modal is portalled to <body>, outside .dash, so it needs the tokens the table uses
+.dash-target-modal {
+  --dash-surface: var(--cui-body-bg, #fff);
+  --dash-line: var(--cui-border-color, #dbe3e7);
+  --dash-text-secondary: var(--cui-secondary-color, #5b6e77);
+  --dash-critical: #d03b3b;
+}
+
+// Five cabang fit without scrolling; only scroll sideways on narrow screens
+.dash-target-form {
+  overflow-x: auto;
+
+  .dash-table th {
+    position: static;
+  }
+
+  .form-control {
+    min-width: 10rem;
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+
+  td {
+    vertical-align: middle;
+  }
+
+  tfoot th,
+  tfoot td {
+    border-bottom: 0;
+    font-weight: 800;
+  }
+}
+
 /* Panels */
 .dash-grid {
   display: grid;
